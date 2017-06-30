@@ -1,0 +1,27 @@
+<RCC>
+    <qresource prefix="/">
+        <file>image/analogue.png</file>
+        <file>image/and.png</file>
+        <file>image/digital.png</file>
+        <file>image/line.png</file>
+        <file>image/out.png</file>
+        <file>image/text.png</file>
+        <file>image/attribute.png</file>
+        <file>image/bgcolor.png</file>
+        <file>image/edit_copy.png</file>
+        <file>image/edit_cut.png</file>
+        <file>image/edit_del.png</file>
+        <file>image/edit_paste.png</file>
+        <file>image/formula.png</file>
+        <file>image/full.png</file>
+        <file>image/grid.png</file>
+        <file>image/ID.png</file>
+        <file>image/simulation.png</file>
+        <file>image/zoom_in.png</file>
+        <file>image/zoom_out.png</file>
+        <file>image/or.png</file>
+        <file>image/select.png</file>
+        <file>image/cancel.png</file>
+        <file>image/ok.png</file>
+    </qresource>
+</RCC>

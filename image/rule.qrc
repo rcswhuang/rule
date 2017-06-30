@@ -1,0 +1,22 @@
+<RCC>
+  <qresource prefix="rule">
+    <file>simulation.png</file>
+    <file>cancel.png</file>
+    <file>formula.png</file>
+    <file>ok.png</file>
+    <file>bgcolor.png</file>
+    <file>grid.png</file>
+    <file>id.png</file>
+	<file>printer.png</file>
+    <file>edit_del.png</file>
+    <file>edit_cut.png</file>
+    <file>edit_copy.png</file>
+	<file>edit_paste.png</file>
+	<file>full.png</file>
+    <file>zoom_in.png</file>
+    <file>zoom_out.png</file>
+    <file>ask.png</file>
+	<file>attribute.png</file>
+	<file>report.png</file>
+  </qresource>
+</RCC>
