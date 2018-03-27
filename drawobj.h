@@ -1,4 +1,4 @@
-#ifndef HDRAWOBJ_H
+﻿#ifndef HDRAWOBJ_H
 #define HDRAWOBJ_H
 #include "ruleexport.h"
 #include "frame.h"

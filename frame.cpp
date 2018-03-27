@@ -1,4 +1,4 @@
-#include "frame.h"
+﻿#include "frame.h"
 #include "drawobj.h"
 #include <QMouseEvent>
 #include <QPainter>

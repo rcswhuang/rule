@@ -1,4 +1,4 @@
-#ifndef QRULEFILE_H
+﻿#ifndef QRULEFILE_H
 #define QRULEFILE_H
 #include "ruleexport.h"
 #include <QObject>
@@ -6,7 +6,9 @@
 #include <QDataStream>
 #include "drawobj.h"
 #include "ruleeditapi.h"
-
+class HConnect;
+class HDrawObj;
+class HResultObj;
 class HRuleFile:public QObject
 {
     Q_OBJECT

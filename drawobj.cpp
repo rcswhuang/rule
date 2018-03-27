@@ -1,4 +1,4 @@
-#include "drawobj.h"
+﻿#include "drawobj.h"
 #include <QPen>
 #include <QPoint>
 #include <QBrush>

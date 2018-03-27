@@ -1,4 +1,4 @@
-#include "rulefile.h"
+﻿#include "rulefile.h"
 #include "ruleeditapi.h"
 HRuleFile::HRuleFile(QObject *parent) : QObject(parent)
 {
@@ -8,7 +8,7 @@ HRuleFile::HRuleFile(QObject *parent) : QObject(parent)
 
 QDataStream& operator>>(QDataStream& in,HRuleFile& ruleFile)
 {
-   
+   return in;
 }
 
 void HRuleFile::add(HDrawObj* pObj)
@@ -115,12 +115,12 @@ HPointRule::~HPointRule()
 
 QDataStream& operator>>(QDataStream& in,HPointRule& pProtRule)
 {
-
+    return in;
 }
 
 QDataStream& operator<<(QDataStream& out,const HPointRule& pProtRule)
 {
-
+    return out;
 }
 
 
@@ -138,17 +138,18 @@ HProtectRule::~HProtectRule()
 
 QDataStream& operator>>(QDataStream& in,HProtectRule& pProtRule)
 {
-
+    return in;
 }
 
 QDataStream& operator<<(QDataStream& out,const HProtectRule& pProtRule)
 {
-
+    return out;
 }
 
 bool HProtectRule::addPointRule(HPointRule* pPointRule)//增加点规则
 {
     pPointRuleList.append(pPointRule);
+    return true;
 }
 
 HPointRule* HProtectRule::pointRule(quint8 btType,quint16 wPointID)//获取规则
@@ -192,6 +193,7 @@ bool HProtectRule::addRuleFile(HRuleFile* pRuleFile)
     if(pRuleFileList.contains(pRuleFile))
         return false;
     pRuleFileList.append(pRuleFile);
+    return true;
 }
 
 HRuleFile* HProtectRule::ruleFile(int wType,int wPointNo,int wRelayValue)
@@ -287,6 +289,7 @@ void HStationRule::maxRuleFileID()
 bool HStationRule::addProtectRule(HProtectRule* pProtRule)
 {
     pProtRuleList.append(pProtRule);
+    return true;
 }
 
 QDataStream& operator>>(QDataStream& in,HStationRule& stationRule)
@@ -309,6 +312,7 @@ QDataStream& operator>>(QDataStream& in,HStationRule& stationRule)
         in>>(*pProtRule);
         stationRule.pProtRuleList.append(pProtRule);
     }
+    return in;
 }
 
 
@@ -327,6 +331,7 @@ QDataStream& operator<<(QDataStream& out,const HStationRule& stationRule)
         HProtectRule* pProtRule = (HProtectRule*)stationRule.pProtRuleList[i];
         out<<(*pProtRule);
     }
+    return out;
 }
 
 HProtectRule* HStationRule::protectRule(quint16 wProtNo)

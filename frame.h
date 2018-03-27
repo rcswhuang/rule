@@ -1,9 +1,12 @@
-#ifndef HFRAME_H
+﻿#ifndef HFRAME_H
 #define HFRAME_H
 #include <QFrame>
 #include <QList>
 #include "rulefile.h"
 #include "drawtool.h"
+class HDrawObj;
+class HConnect;
+class HRuleFile;
 class HFrame : public QFrame
 {
 public:

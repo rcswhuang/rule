@@ -1,4 +1,4 @@
-#include "inputprop.h"
+﻿#include "inputprop.h"
 #include "ui_inputprop.h"
 
 HInputProp::HInputProp(QWidget *parent) :

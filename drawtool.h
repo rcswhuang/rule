@@ -1,4 +1,4 @@
-#ifndef HDRAWTOOL_H
+﻿#ifndef HDRAWTOOL_H
 #define HDRAWTOOL_H
 #include "ruleexport.h"
 #include "drawobj.h"

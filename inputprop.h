@@ -1,4 +1,4 @@
-#ifndef INPUTPROP_H
+﻿#ifndef INPUTPROP_H
 #define INPUTPROP_H
 
 #include <QDialog>

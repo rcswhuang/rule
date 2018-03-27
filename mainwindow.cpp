@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "drawtool.h"
 
 MainWindow::MainWindow(QWidget *parent)
