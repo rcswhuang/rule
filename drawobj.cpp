@@ -873,42 +873,39 @@ HOrObj::HOrObj(const QRect &rect, HRuleFile *pRuleFile):HDrawObj(rect,pRuleFile)
 {
     m_nInPointSum = 2;
     m_nOutPointSum = 1;
-    m_strName = "或";
-    m_pointIn = new QPoint[2];
+    m_strName = "OR";
+    m_pointIn = new QPoint[MAXCOUNT_INPUT];
     calOutPoint();
     m_btObjType = TYPE_LOGICOR;
 }
 
 void HOrObj::calOutPoint()
 {
-    QRect rect = m_rectCurPos;
-    m_pointOut.setX(rect.right());
-    m_pointOut.setY(rect.top() + rect.height()/2);
+    QRect rect ;
+    if(m_nInPointSum >=2)
+    {
+        rect.setLeft(m_rectCurPos.left());
+        rect.setRight(m_rectCurPos.right());
+        rect.setTop(m_rectCurPos.top() + m_rectCurPos.height()*2/(m_nInPointSum+4));
+        rect.setBottom(m_rectCurPos.bottom() - m_rectCurPos.height()/(m_nInPointSum+4));
+
+
+        m_pointOut.setX(rect.right());
+        m_pointOut.setY(rect.top() + rect.height()/2);
+
+        for(int i = 0; i < m_nInPointSum;i++)
+        {
+            m_pointIn[i].setX(rect.left());
+            m_pointIn[i].setY(rect.top() + rect.height()*(i+1)/(m_nInPointSum+1));//上面是小 下面是大}
+        }
+    }
 
    reCalOrInputPoint();
 }
 
 void HOrObj::reCalOrInputPoint()
 {
-    if(m_pointIn != NULL)
-    {
-        delete[] m_pointIn;
-        m_pointIn = NULL;
-    }
-    QRect rect ;
-    rect.setLeft(m_rectCurPos.left());
-    rect.setRight(m_rectCurPos.right());
-    rect.setTop(m_rectCurPos.top() + m_rectCurPos.height()/(m_nInPointSum+4));
-    rect.setBottom(m_rectCurPos.bottom() - m_rectCurPos.height()*2/(m_nInPointSum+4));
 
-
-    m_pointIn = new QPoint[m_nOutPointSum];
-    int nFenMu = m_nOutPointSum + 1;//分母
-    for(int i = 0; i < m_nInPointSum;i++)
-    {
-        m_pointIn[i].setX(rect.left());
-        m_pointIn[i].setY(rect.top() + rect.height()*(m_nInPointSum-i)/nFenMu);//上面是小 下面是大
-    }
 }
 
 void HOrObj::draw(QPainter *painter)
@@ -962,8 +959,15 @@ void HOrObj::draw(QPainter *painter)
     painter->setPen(pen2);
     painter->drawText(QRect(QPoint(nLeftX3,nTopY3),QPoint(nRightX3,nBottomY3)),Qt::AlignCenter | Qt::AlignVCenter| Qt::TextSingleLine,m_strName);
 
-
-
+    QFont font("Arial",10);
+    painter->setFont(font);
+    QString strLabel;
+    for(int i = 0; i < m_nInPointSum;i++)
+    {
+        strLabel = QString("In[%1]").arg(i);
+        painter->drawText(QRect(QPoint(nLeftX2,m_pointIn[i].y()-6),QPoint(nLeftX2+20,m_pointIn[i].y()+6)),strLabel);
+    }
+    painter->drawText(QRect(QPoint(nRightX2-20,m_pointOut.y()-6),QPoint(nRightX2,m_pointOut.y()+6)),"Out");
     painter->restore();
 }
 
@@ -977,7 +981,7 @@ HAndObj::HAndObj(const QRect &rect, HRuleFile *pRuleFile):HDrawObj(rect,pRuleFil
 {
     m_nInPointSum = 2;
     m_nOutPointSum = 1;
-    m_strName = "与";
+    m_strName = "AND";
     m_pointIn = new QPoint[MAXCOUNT_INPUT];
     calOutPoint();
     m_btObjType = TYPE_LOGICAND;
@@ -986,12 +990,12 @@ HAndObj::HAndObj(const QRect &rect, HRuleFile *pRuleFile):HDrawObj(rect,pRuleFil
 void HAndObj::calOutPoint()
 {
    QRect rect ;
-   if(m_nOutPointSum >=2)
+   if(m_nInPointSum >=2)
    {
        rect.setLeft(m_rectCurPos.left());
        rect.setRight(m_rectCurPos.right());
-       rect.setTop(m_rectCurPos.top() + m_rectCurPos.height()/(m_nInPointSum+4));
-       rect.setBottom(m_rectCurPos.bottom() - m_rectCurPos.height()*2/(m_nInPointSum+4));
+       rect.setTop(m_rectCurPos.top() + m_rectCurPos.height()*2/(m_nInPointSum+4));
+       rect.setBottom(m_rectCurPos.bottom() - m_rectCurPos.height()/(m_nInPointSum+4));
 
 
        m_pointOut.setX(rect.right());
@@ -1000,7 +1004,7 @@ void HAndObj::calOutPoint()
        for(int i = 0; i < m_nInPointSum;i++)
        {
            m_pointIn[i].setX(rect.left());
-           m_pointIn[i].setY(rect.top() + rect.height()*(m_nInPointSum-i)/(m_nInPointSum+1));//上面是小 下面是大}
+           m_pointIn[i].setY(rect.top() + rect.height()*(i+1)/(m_nInPointSum+1));//上面是小 下面是大}
        }
     }
 }
@@ -1062,8 +1066,15 @@ void HAndObj::draw(QPainter *painter)
     painter->setPen(pen2);
     painter->drawText(QRect(QPoint(nLeftX3,nTopY3),QPoint(nRightX3,nBottomY3)),Qt::AlignCenter | Qt::AlignVCenter| Qt::TextSingleLine,m_strName);
 
-
-
+    QFont font("Arial",10);
+    painter->setFont(font);
+    QString strLabel;
+    for(int i = 0; i < m_nInPointSum;i++)
+    {
+        strLabel = QString("In[%1]").arg(i);
+        painter->drawText(QRect(QPoint(nLeftX2,m_pointIn[i].y()-6),QPoint(nLeftX2+20,m_pointIn[i].y()+6)),strLabel);
+    }
+    painter->drawText(QRect(QPoint(nRightX2-20,m_pointOut.y()-6),QPoint(nRightX2,m_pointOut.y()+6)),"Out");
     painter->restore();
 }
 
