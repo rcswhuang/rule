@@ -2,6 +2,7 @@
 #define HFRAME_H
 #include <QFrame>
 #include <QList>
+#include <QScrollArea>
 #include "rulefile.h"
 #include "drawtool.h"
 class HDrawObj;
@@ -10,7 +11,7 @@ class HRuleFile;
 class HFrame : public QFrame
 {
 public:
-    HFrame(QWidget * parent = 0, Qt::WindowFlags f = 0);
+    HFrame(QScrollArea* scrollArea,QWidget * parent = 0, Qt::WindowFlags f = 0);
 
 public:
     void setDrawShape(DRAWSHAPE drawShape){m_drawShape = drawShape;}
@@ -26,9 +27,9 @@ public:
     virtual void	mouseReleaseEvent(QMouseEvent * event);
     /*virtual void	moveEvent(QMoveEvent * event);
     virtual bool	nativeEvent(const QByteArray & eventType, void * message, long * result);
-    virtual void	paintEvent(QPaintEvent * event);
+    virtual void	paintEvent(QPaintEvent * event);*/
     virtual void	resizeEvent(QResizeEvent * event);
-    virtual void	showEvent(QShowEvent * event);
+    /*virtual void	showEvent(QShowEvent * event);
     virtual void	tabletEvent(QTabletEvent * event);
     virtual void	wheelEvent(QWheelEvent * event);*/
     virtual void	paintEvent(QPaintEvent * event);
@@ -56,6 +57,7 @@ public:
     HRuleFile* pRuleFile;//规则文件，QFrame打开的就是一个规则文件
 public:
     bool m_bGrid;
+    QScrollArea* m_pScrollArea;
 private:
     DRAWSHAPE m_drawShape;
 };

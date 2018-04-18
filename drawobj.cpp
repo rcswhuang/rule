@@ -1,4 +1,7 @@
-﻿#include "drawobj.h"
+﻿#if defined(_MSC_VER) &&(_MSC_VER >= 1600)
+#pragma execution_character_set("utf-8")
+#endif
+#include "drawobj.h"
 #include <QPen>
 #include <QPoint>
 #include <QBrush>
@@ -28,9 +31,9 @@ HDrawObj::HDrawObj(const QRect &rect, HRuleFile *pRuleFile)
     m_nInPointSum = 0; //输入点个数
     m_nOutPointSum = 1; //输出点个数
     m_bFill = true; //是否填充
-    m_clrFill = QColor(255,230,206); //填充色
+    m_clrFill = QColor(206,230,255); //填充色
     m_clrLine = QColor(0,128,128); //线条颜色
-    m_clrText = QColor(255,0,0); //文字颜色
+    m_clrText = QColor(0,0,255); //文字颜色
     m_clrUpedge = QColor(255,255,255); //上边框颜色
     m_clrDownedge = QColor(0,0,0); //下边框颜色
     m_clrShadow = QColor(128,128,128); //阴影颜色
@@ -414,18 +417,20 @@ HConnect::HConnect(quint16 dwInObjID, quint16 dwOutObjID, HRuleFile *pRuleFile, 
  * A点 口-----口 B点  经过的点4个 A、B、C、D4个点
  */
 
-//注意连接点的移动可能是左边的连接点移动，也可能是右边的连接点在移动，不同的连接点移动，导致的结果是不一致的，必须要区分开
+/*
+ * 计算连接线绘制路线
+*/
 void HConnect::calLine(const QPoint &point,int deltaX,int deltaY,bool bStart)
 {
-   // QPoint pointIn = point;
-   // QPoint pointOut = point;
+    QPoint pointIn = m_pointIn;
+    QPoint pointOut = m_pointOut;
     if(m_pLinePoint != NULL)
     {
         delete[] m_pLinePoint;
         m_pLinePoint = NULL;
     }
 
-   /* if(pointIn.x() == pointOut.x() || pointIn.y() == pointOut.y()) //垂直或者水平
+    if(pointIn.x() == pointOut.x() || pointIn.y() == pointOut.y()) //垂直或者水平
     {
         m_pLinePoint = new QPoint[2];
         m_pLinePoint[0] = QPoint(pointIn.x()-1,pointIn.y());
@@ -433,15 +438,36 @@ void HConnect::calLine(const QPoint &point,int deltaX,int deltaY,bool bStart)
         m_btPointSum = 2;
     }
     else if(pointIn.x() < pointOut.x())//A和D点
-    {*/
+    {
         m_pLinePoint = new QPoint[4];
-        m_pLinePoint[1] = QPoint(point.x() + deltaX,point.y() + 15 +deltaY);//B点
-        m_pLinePoint[2] = QPoint(point.x() + deltaX,point.y() - 15 - deltaY);//c点
-        m_pLinePoint[0] = QPoint(m_pLinePoint[1].x() - 60 + deltaX,m_pLinePoint[1].y() + deltaY);//A点
-        m_pLinePoint[3] = QPoint(m_pLinePoint[2].x() + 60 + deltaX,m_pLinePoint[2].y() + deltaY);//D点
+        m_pLinePoint[0] = QPoint(point.x()-1,point.y());//A点
+        m_pLinePoint[1] = QPoint(pointIn.x()+(pointOut.x()-pointIn.x())/2,pointIn.y());//B点
+        m_pLinePoint[2] = QPoint(pointIn.x()+(pointOut.x()-pointIn.x())/2,pointOut.y());//C点
+        m_pLinePoint[3] = pointOut;//D点
         m_btPointSum = 4;
-        // }
-        setRectABC();
+     }
+     else if(pointIn.x() > pointOut.x() && pointIn.y() < pointOut.y())
+    {
+        m_pLinePoint = new QPoint[6];
+        m_pLinePoint[0] = QPoint(pointIn.x()-1,pointIn.y());
+        m_pLinePoint[1] = QPoint(pointIn.x()+10,pointIn.y());
+        m_pLinePoint[2] = QPoint(pointIn.x()+10,pointIn.y() - 5*10);
+        m_pLinePoint[3] = QPoint(pointOut.x()-10,pointIn.y()-5*10);
+        m_pLinePoint[4] = QPoint(pointOut.x()-10,pointOut.y());
+        m_pLinePoint[5] = pointOut;
+        m_btPointSum = 6;
+    }
+    else if(pointIn.x() > pointOut.x() && pointIn.y() > pointOut.y())
+    {
+        m_pLinePoint = new QPoint[6];
+        m_pLinePoint[0] = QPoint(pointIn.x()-1,pointIn.y());
+        m_pLinePoint[1] = QPoint(pointIn.x()+10,pointIn.y());
+        m_pLinePoint[2] = QPoint(pointIn.x()+10,pointIn.y() + 5*10);
+        m_pLinePoint[3] = QPoint(pointOut.x()-10,pointIn.y()+5*10);
+        m_pLinePoint[4] = QPoint(pointOut.x()-10,pointOut.y());
+        m_pLinePoint[5] = pointOut;
+        m_btPointSum = 6;
+    }
 }
 
 void HConnect::moveTo(int deltaX, int deltaY)
@@ -474,29 +500,20 @@ bool HConnect::intersects(const QRect &rect)
     return false;
 }
 
+/*
+ * 绘制线条部分
+*/
 void HConnect::draw(QPainter *painter)
 {
     painter->save();
     QPen pen(Qt::SolidLine);
-    pen.setColor(QColor(0,128,128));
-    pen.setWidth(1);
+    pen.setWidth(2);
+    if(!m_pLinePoint)
+        pen.setColor(QColor(20,180,50));
+    else
+        pen.setColor(QColor(255,0,255));
     painter->setPen(pen);
-    painter->drawLine(m_pLinePoint[0],m_pLinePoint[1]);
-    painter->drawLine(m_pLinePoint[1],m_pLinePoint[2]);
-    painter->drawLine(m_pLinePoint[2],m_pLinePoint[3]);
-
-    if(dwInObjID != (quint16)-1)
-    {
-        QBrush brush(QColor(255,0,0));
-        painter->setBrush(brush);
-        painter->drawEllipse(m_pLinePoint[0],3,3);
-    }
-    if(dwOutObjID != (quint16)-1)
-    {
-        QBrush brush(QColor(255,0,0));
-        painter->setBrush(brush);
-        painter->drawEllipse(m_pLinePoint[3],3,3);
-    }
+    painter->drawPolygon(m_pLinePoint,m_btPointSum);
     painter->restore();
 }
 
@@ -579,8 +596,6 @@ void HConnect::moveSelectPoint(int nSelectPoint, HFrame *pFrame, QPoint &point)
     }
     setRectABC();
 }
-
-
 
 ////////////////////////////////////////HInpubObj//////////////////////////////////////
 HInputObj::HInputObj(const QRect &rect, HRuleFile *pRuleFile)
@@ -690,6 +705,7 @@ void HInputObj::draw(QPainter *painter)
     QBrush brush1(m_clrLine);
     painter->setBrush(brush1);
     QPen pen4(m_clrLine);
+    pen4.setWidth(2);
     painter->setPen(pen4);
    // qDebug()<<"nRightX1="<<nRightX1;
     drawPins(painter,QRect(QPoint(nRightX1-60,nTopY0),QPoint(nRightX1,nBottomY0)));//保证处在最右边即可以
@@ -962,44 +978,37 @@ HAndObj::HAndObj(const QRect &rect, HRuleFile *pRuleFile):HDrawObj(rect,pRuleFil
     m_nInPointSum = 2;
     m_nOutPointSum = 1;
     m_strName = "与";
-    m_pointIn = new QPoint[2];
+    m_pointIn = new QPoint[MAXCOUNT_INPUT];
     calOutPoint();
     m_btObjType = TYPE_LOGICAND;
 }
 
 void HAndObj::calOutPoint()
 {
-    QRect rect = m_rectCurPos;
-    m_pointOut.setX(rect.right());
-    m_pointOut.setY(rect.top() + rect.height()/2);
+   QRect rect ;
+   if(m_nOutPointSum >=2)
+   {
+       rect.setLeft(m_rectCurPos.left());
+       rect.setRight(m_rectCurPos.right());
+       rect.setTop(m_rectCurPos.top() + m_rectCurPos.height()/(m_nInPointSum+4));
+       rect.setBottom(m_rectCurPos.bottom() - m_rectCurPos.height()*2/(m_nInPointSum+4));
 
-   reCalOrInputPoint();
+
+       m_pointOut.setX(rect.right());
+       m_pointOut.setY(rect.top() + rect.height()/2);
+
+       for(int i = 0; i < m_nInPointSum;i++)
+       {
+           m_pointIn[i].setX(rect.left());
+           m_pointIn[i].setY(rect.top() + rect.height()*(m_nInPointSum-i)/(m_nInPointSum+1));//上面是小 下面是大}
+       }
+    }
 }
 
 #include <QDebug>
 void HAndObj::reCalOrInputPoint()
 {
-    if(m_pointIn != NULL)
-    {
-        delete[] m_pointIn;
-        m_pointIn = NULL;
-    }
-    QRect rect ;
-    rect.setLeft(m_rectCurPos.left());
-    rect.setRight(m_rectCurPos.right());
-    rect.setTop(m_rectCurPos.top() + m_rectCurPos.height()/(m_nInPointSum+4));
-    rect.setBottom(m_rectCurPos.bottom() - m_rectCurPos.height()*2/(m_nInPointSum+4));
 
-
-    m_pointIn = new QPoint[m_nOutPointSum];
-    int nFenMu = m_nOutPointSum + 1;//分母
-    for(int i = 0; i < m_nInPointSum;i++)
-    {
-        m_pointIn[i].setX(rect.left());
-        m_pointIn[i].setY(rect.top() + rect.height()*(i+1)/nFenMu);//上面是小 下面是大
-
-        //qDebug()<<"i:"<<i << "x = "<<m_pointIn[i].x() << "y =" << m_pointIn[i].y();
-    }
 }
 
 void HAndObj::draw(QPainter *painter)

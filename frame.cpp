@@ -3,8 +3,10 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QMetaObject>
+#include <QScrollBar>
 #include <QDebug>
-HFrame::HFrame(QWidget * parent, Qt::WindowFlags f):QFrame(parent,f)
+HFrame::HFrame(QScrollArea* scrollArea,QWidget * parent, Qt::WindowFlags f):
+    m_pScrollArea(scrollArea),QFrame(parent,f)
 {
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(true);
@@ -61,6 +63,10 @@ void HFrame::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
 
+    QPalette pale = palette();
+    pale.setColor(QPalette::Background,Qt::white);
+    setPalette(pale);
+
     if(m_bGrid)
         drawGrid(painter);
 
@@ -80,6 +86,11 @@ void HFrame::paintEvent(QPaintEvent *event)
         if(isSelect(pConnect))
             pConnect->drawSelect(&painter);
     }
+}
+
+void HFrame::resizeEvent(QResizeEvent * event)
+{
+
 }
 
 void HFrame::setSelectCursor(int nSelectPoint)
@@ -134,6 +145,7 @@ bool HFrame::select(HDrawObj *pObj,bool bAdd)
 
     m_selectObjList.append(pObj);
     update();
+    return true;
 }
 
 bool HFrame::selectConnect(HConnect *pObj, bool bAdd)
@@ -147,6 +159,7 @@ bool HFrame::selectConnect(HConnect *pObj, bool bAdd)
         return false;
     m_selectConnectObjList.append(pObj);
     update();
+    return true;
 }
 
 bool HFrame::isSelect(const QObject *pObj)
@@ -167,12 +180,34 @@ void HFrame::drawGrid(QPainter &painter)
 {
     painter.save();
     QPen pen;
+    pen.setColor(Qt::red);
+    pen.setStyle(Qt::SolidLine);
+    painter.setPen(pen);
+    painter.drawLine(rect().topLeft(),rect().bottomLeft());
+    painter.drawLine(rect().topLeft(),rect().topRight());
+
+
+    /*绘制外框*/
     pen.setColor(QColor(0,0,128));
+    pen.setWidth(2);
+    painter.setPen(pen);
+    int nhBar = 0;
+    int nvBar = 0;
+    if(m_pScrollArea->horizontalScrollBar())
+        nhBar = m_pScrollArea->horizontalScrollBar()->height();
+    if(m_pScrollArea->verticalScrollBar())
+        nvBar = m_pScrollArea->verticalScrollBar()->width();
+    QRect rect1 = rect();
+    rect1.setTop(20);
+    rect1.setLeft(10);
+    rect1.setWidth(rect().width()-20-nhBar);
+    rect1.setHeight(rect().height()-20-nvBar);
+    painter.drawRect(rect1);
+
+    /*绘制表格*/
     pen.setWidth(1);
     pen.setStyle(Qt::DotLine);
     painter.setPen(pen);
-
-    QRect rect1 = rect();
     for(int x = rect1.left() / 100 * 500;x < rect1.right(); x+=20)
     {
         if(x!=0)
@@ -184,29 +219,6 @@ void HFrame::drawGrid(QPainter &painter)
         if(y!=0)
             painter.drawLine(QPoint(rect1.left(),y),QPoint(rect1.right(),y));
     }
-   /* int index = -1;
-    for(int x = rect1.left() / 100 * 500;x < rect1.right(); x+=5)
-       {
-            index++;
-           if(x!=0)
-               painter.drawLine(QPoint(x+10,rect1.top()),QPoint(x+10,rect1.top() + 5));
-           if(index % 5 == 0)
-           {
-               painter.drawLine(QPoint(x+10,rect1.top()),QPoint(x+10,rect1.top() + 10));
-               painter.drawText(QPoint(x+5,rect1.top()+25),QString("%1").arg(index));
-           }
-       }
-
-    index = -1;
-    for(int y = rect1.top() / 100 * 500;y < rect1.bottom(); y+=5)
-       {
-            index++;
-           if(y!=0)
-               painter.drawLine(QPoint(rect1.left(),y+10),QPoint(rect1.left() + 5,y+10));
-
-           if(index % 5 == 0)
-               painter.drawLine(QPoint(rect1.left(),y+10),QPoint(rect1.left() + 10,y+10));
-       }*/
     painter.restore();
 }
 

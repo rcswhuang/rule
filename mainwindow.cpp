@@ -7,10 +7,11 @@ MainWindow::MainWindow(QWidget *parent)
     createActions();
     createToolBar();
 
-    m_pFrame = new HFrame;
+
     m_pScrollArea = new QScrollArea(this);
+    m_pFrame = new HFrame(m_pScrollArea);
     m_pScrollArea->setWidget(m_pFrame);
-    m_pScrollArea->widget()->setMinimumSize(1200,600);
+    m_pScrollArea->widget()->resize(1200,1000);
     setCentralWidget(m_pScrollArea);
     resize(800,600);
    // connect(m_pScrollArea,SIGNAL())

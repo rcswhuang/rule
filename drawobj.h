@@ -8,7 +8,7 @@
 #include <QColor>
 //#include <QFrame>
 #include "ruleeditapi.h"
-
+#define MAXCOUNT_INPUT 30
 
 /*
  * 主要封装绘制对象的属性和操作
@@ -144,6 +144,9 @@ public:
     QPoint m_pointOut; //输出元件位置
     int m_nPageNo; //页面
     QPoint* m_pLinePoint; //所经点
+    QPolygon* m_pLinePoint1;
+
+
     quint8 m_btPointSum; //点数目
     quint8 m_btSelLine; //选择连接线点号
     QColor m_colorLine; //连接线颜色
