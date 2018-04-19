@@ -91,7 +91,7 @@ void HSelectTool::onMousePress(HFrame* pFrame,const QPoint& point,QMouseEvent* e
     HDrawObj* pObj = NULL;
     HConnect* pConnectObj = NULL;
     selectMode = enumNone;
-    //处于调整大小位置
+    //已选中，调整大小
     if(pFrame->m_selectObjList.count() == 1)
     {
         HDrawObj* pObj = (HDrawObj*)pFrame->m_selectObjList.first();
@@ -109,16 +109,17 @@ void HSelectTool::onMousePress(HFrame* pFrame,const QPoint& point,QMouseEvent* e
         //else if(g_nSelectPoint == 2 || g_nSelectPoint == 3)
         //    selectMode = enumMove;
     }
-    //选择对象，处于选中状态，按住shift键将多选
+
+    //未选中，选择对象
     if(selectMode == enumNone)
     {
         pObj = pFrame->pRuleFile->objectAt(point);
         if(pObj != NULL)
         {
             selectMode = enumMove;
-            pObj->nRightDeltaX = pObj->m_pointOut.x() - point.x();
-            if(pObj->m_nInPointSum > 0)
-                pObj->nLeftDeltaX = point.x() - pObj->m_pointIn[0].x();
+            //pObj->nRightDeltaX = pObj->m_pointOut.x() - point.x();
+            //if(pObj->m_nInPointSum > 0)
+             //   pObj->nLeftDeltaX = point.x() - pObj->m_pointIn[0].x();
             if(!pFrame->isSelect(pObj))
             {
                 pFrame->select(pObj,b_shiftKey);
@@ -127,7 +128,7 @@ void HSelectTool::onMousePress(HFrame* pFrame,const QPoint& point,QMouseEvent* e
         }
     }
 
-    //connect
+    //未选中，选择连接线
     if(selectMode == enumNone)
     {
         pConnectObj = pFrame->pRuleFile->connectAt(point);
@@ -162,6 +163,35 @@ void HSelectTool::onMousePress(HFrame* pFrame,const QPoint& point,QMouseEvent* e
 
 void HSelectTool::onMouseRelease(HFrame* pFrame,const QPoint& point,QMouseEvent* e)
 {
+    //2018-4-19
+    if(selectMode != enumNone)
+    {
+        //移动且对象唯一
+        /*
+        if(selectMode == enumMove && pFrame->m_selectObjList.count() == 1)
+        {
+            HDrawObj* pSelObj = (HDrawObj*)pFrame->m_selectObjList.first();
+            for(int i =0; i < pFrame->pRuleFile->drawObjList.count();i++)
+            {
+                HDrawObj* pObj = pFrame->pRuleFile->drawObjList.at(i);
+                if(pSelObj == pObj || pObj->m_nOutPointSum == 0) continue;
+
+                //针对or and等有进又出的对象
+                for(int k = 0; k < pSelObj->m_nInPointSum;i++)
+                {
+                    QPoint pt = pSelObj->m_pointIn[k];
+                    if(isHaveConnect(pFrame,pObj->dwID,pSelObj->dwID,k)) continue;
+                    QRect rect = QRect(pt,QSize(10,10));
+                    if(rect.contains(pObj->m_pointOut))
+                    {
+                        //增加一条直线
+                        addNewConnect(pFrame,pObj,pSelObj,k);
+                    }
+
+                }
+            }
+        }*/
+    }
     pFrame->update();
     HDrawTool::onMouseRelease(pFrame,point,e);
 }
@@ -206,6 +236,7 @@ void HSelectTool::onMouseMove(HFrame* pFrame,const QPoint& point,QMouseEvent* e)
     //以下是左键按下去的时候
     QPoint localPoint = point;
     QPoint delta = (QPoint)(localPoint - m_pointDown);
+
     for(int i = 0; i < pFrame->m_selectObjList.count(); i++)
     {
         HDrawObj* pObj = (HDrawObj*)pFrame->m_selectObjList[i];
@@ -304,6 +335,39 @@ void HSelectTool::onMouseDoubleClick(HFrame *pFrame, const QPoint &point, QMouse
         if(QString(pMObj->className()).compare("HInputObj") == 0)
             ((HInputObj*)pObj)->setInputProperty(pFrame);
     }
+}
+
+void HSelectTool::addNewConnect(HFrame *pFrame, HDrawObj *pObj, HDrawObj *pSelectObj, quint8 btIndex)
+{
+    if(!pFrame || !pFrame->pRuleFile)
+        return;
+    QPoint pointOut = pSelectObj->m_pointIn[btIndex];//线的out端
+    QPoint pointIn = pObj->m_pointOut;//线的In端
+
+    HConnect* newConnect = new HConnect(pObj->dwID,pSelectObj->dwID,pFrame->pRuleFile,btIndex);
+    pFrame->pRuleFile->addConnect(newConnect);
+
+    pSelectObj->m_rectCurPos.normalized();
+    pSelectObj->m_rectCurPos.setLeft(pSelectObj->m_rectCurPos.left()+50);
+    pSelectObj->m_rectCurPos.setRight(pSelectObj->m_rectCurPos.right()+50);
+    pSelectObj->calOutPoint();
+    //pFrame->update();
+}
+
+bool HSelectTool::isHaveConnect(HFrame *pFrame,quint16 wIn, quint16 wOut, quint8 btOutInIndex)
+{
+    if(!pFrame->pRuleFile)
+        return false;
+    for(int i = 0; i < pFrame->pRuleFile->connectObjList.count();i++)
+    {
+        HConnect* connect = pFrame->pRuleFile->connectObjList.at(i);
+        if(connect)
+        {
+            if(connect->dwInObjID == wIn && connect->dwOutObjID == wOut && connect->btOutIndex == btOutInIndex)
+                return true;
+        }
+    }
+    return false;
 }
 
 ///////////////////////////////////////////////HRectTool///////////////////////////////////////
@@ -409,14 +473,14 @@ void HConnectTool::onMousePress(HFrame *pFrame, const QPoint &point, QMouseEvent
 
 void HConnectTool::onMouseRelease(HFrame *pFrame, const QPoint &point, QMouseEvent *e)
 {
-    HDrawTool::onMouseRelease(pFrame,point,e);
+ /*   HDrawTool::onMouseRelease(pFrame,point,e);
     HConnect *pConnectLine = NULL;
     pConnectLine = new HConnect(pFrame->pRuleFile);
     pConnectLine->calLine(point);
     //pConnectLine->draw();
     HDrawTool::drawShape = enumSelection;
     pFrame->pRuleFile->addConnect(pConnectLine);
-    pFrame->update();
+    pFrame->update();*/
 }
 
 void HConnectTool::onMouseMove(HFrame *pFrame, const QPoint &point, QMouseEvent *e)

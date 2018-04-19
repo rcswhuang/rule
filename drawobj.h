@@ -128,7 +128,7 @@ public:
     //删除操作
    // void move(QPoint delta,HGraphicsView* pView);
     //void remove();
-    void calLine(const QPoint &point,int deltaX = 0,int deltaY = 0,bool bStart = false);
+    void calLine();
     void setRectABC();
     bool intersects(const QRect &rect);
 public:

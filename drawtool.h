@@ -6,7 +6,7 @@
 #include <QPainter>
 #include <QKeyEvent>
 class HFrame;
-
+class HDrawObj;
 class  HDrawTool
 {
 public:
@@ -55,8 +55,8 @@ public:
 
 public:
     int nDeltaX;//记录当前点到最右边的距离(遥信遥测等单输出对象）
-  //  bool isHaveConnect(HGraphicsView* pView,quint16 wIn,quint16 wOut,quint8 btOutInIndex);//是否连接
-  //  void addNewConnect(HGraphicsView* pView, HDrawObj* pObj,HDrawObj* pSelectObj,quint8 btIndex);//新的连接
+    bool isHaveConnect(HFrame*pFrame,quint16 wIn,quint16 wOut,quint8 btOutInIndex);//是否连接
+    void addNewConnect(HFrame*pFrame, HDrawObj* pObj,HDrawObj* pSelectObj,quint8 btIndex);//新的连接
   //  void invalConnect(HGraphicsView* pView,HDrawObj* pObj);//无效连接
 
     //还有一个connect对象

@@ -397,14 +397,15 @@ HConnect::HConnect(quint16 dwInObjID, quint16 dwOutObjID, HRuleFile *pRuleFile, 
     this->dwInObjID = dwInObjID;
     this->dwOutObjID = dwOutObjID;
     this->m_pRuleFile = pRuleFile;
-    HDrawObj* pObjIn;
-    HDrawObj* pObjOut;
+    HDrawObj* pObjIn = pRuleFile->findDrawObj(dwInObjID);
+    HDrawObj* pObjOut = pRuleFile->findDrawObj(dwOutObjID);
     m_pointIn = pObjIn->m_pointOut;
     m_pointOut = pObjOut->m_pointIn[btInIndex];
     btOutIndex = btInIndex;
     m_btSelLine = 0;
+    m_pLinePoint = NULL;
 
-    //calLine();
+    calLine();
 }
 
 //连接的线型：2中
@@ -420,7 +421,7 @@ HConnect::HConnect(quint16 dwInObjID, quint16 dwOutObjID, HRuleFile *pRuleFile, 
 /*
  * 计算连接线绘制路线
 */
-void HConnect::calLine(const QPoint &point,int deltaX,int deltaY,bool bStart)
+void HConnect::calLine()
 {
     QPoint pointIn = m_pointIn;
     QPoint pointOut = m_pointOut;
@@ -440,7 +441,7 @@ void HConnect::calLine(const QPoint &point,int deltaX,int deltaY,bool bStart)
     else if(pointIn.x() < pointOut.x())//A和D点
     {
         m_pLinePoint = new QPoint[4];
-        m_pLinePoint[0] = QPoint(point.x()-1,point.y());//A点
+        m_pLinePoint[0] = QPoint(pointIn.x()-1,pointIn.y());//A点
         m_pLinePoint[1] = QPoint(pointIn.x()+(pointOut.x()-pointIn.x())/2,pointIn.y());//B点
         m_pLinePoint[2] = QPoint(pointIn.x()+(pointOut.x()-pointIn.x())/2,pointOut.y());//C点
         m_pLinePoint[3] = pointOut;//D点
@@ -1061,12 +1062,14 @@ void HAndObj::draw(QPainter *painter)
     painter->setPen(pen1);
     drawPins(painter,QRect(QPoint(nLeftX2,nTopY2),QPoint(nRightX2,nBottomY2)));//保证处在最右边即可以
 
+    QFont font1("Arial",10);
+    painter->setFont(font1);
     QPen pen2(m_clrText);
     pen2.setWidth(2);
     painter->setPen(pen2);
     painter->drawText(QRect(QPoint(nLeftX3,nTopY3),QPoint(nRightX3,nBottomY3)),Qt::AlignCenter | Qt::AlignVCenter| Qt::TextSingleLine,m_strName);
 
-    QFont font("Arial",10);
+    QFont font("Arial",8);
     painter->setFont(font);
     QString strLabel;
     for(int i = 0; i < m_nInPointSum;i++)
