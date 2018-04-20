@@ -129,6 +129,7 @@ public:
    // void move(QPoint delta,HGraphicsView* pView);
     //void remove();
     void calLine();
+    void calLine(const QPoint& point);
     void setRectABC();
     bool intersects(const QRect &rect);
 public:
@@ -144,8 +145,6 @@ public:
     QPoint m_pointOut; //输出元件位置
     int m_nPageNo; //页面
     QPoint* m_pLinePoint; //所经点
-    QPolygon* m_pLinePoint1;
-
 
     quint8 m_btPointSum; //点数目
     quint8 m_btSelLine; //选择连接线点号

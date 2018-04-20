@@ -2,7 +2,7 @@
 #include "ruleeditapi.h"
 HRuleFile::HRuleFile(QObject *parent) : QObject(parent)
 {
-    dwDrawObjID = 0;
+    dwDrawObjID = 1;
 }
 
 

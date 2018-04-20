@@ -17,7 +17,7 @@ public:
 
 public:
     int nRuleFileID;//规则文件的ID，每个遥信的每个规则都有ID
-    unsigned long dwDrawObjID;//每个图元对象的ID
+    unsigned long dwDrawObjID;//每个图元对象的ID,每增加一个图元ID+1
     QString strRuleName;//规则名
     QString strFormula;//公式名
 
@@ -39,7 +39,7 @@ public:
 public:
     unsigned long generateDrawObjID()
     {
-        return dwDrawObjID++;
+        return ++dwDrawObjID;
     }
     void add(HDrawObj* pObj);
     void addConnect(HConnect* pObj);

@@ -167,8 +167,6 @@ void HDrawObj::drawPins(QPainter *painter, QRect rectPins)
         pt[6] = pt[1];
         painter->drawPolygon(pt,7);
     }
-
-
     painter->restore();
 }
 
@@ -213,7 +211,6 @@ QPoint HDrawObj::getSelectPoint(int nSelectPoint)
         break;
     }
     return QPoint(x,y);
-
 }
 
 void HDrawObj::getSelectRect(QVector<QRect> &rect)
@@ -254,8 +251,6 @@ void HDrawObj::getSelectRect(QVector<QRect> &rect)
     y = yCenter;
     rect.append(QRect(x-3,y-3,7,7));
 }
-
-
 
 void HDrawObj::drawSelect(QPainter *painter, SelectState selectState)
 {
@@ -386,6 +381,7 @@ HConnect::HConnect(HRuleFile *pRuleFile)
 {
     m_pRuleFile = pRuleFile;
     m_pLinePoint = NULL;
+    m_btSelLine = 0;
     btOutIndex = (quint8)-1;
     btInIndex = (quint8)-1;
     dwInObjID = (quint16)-1;
@@ -464,12 +460,31 @@ void HConnect::calLine()
         m_pLinePoint[0] = QPoint(pointIn.x()-1,pointIn.y());
         m_pLinePoint[1] = QPoint(pointIn.x()+10,pointIn.y());
         m_pLinePoint[2] = QPoint(pointIn.x()+10,pointIn.y() + 5*10);
-        m_pLinePoint[3] = QPoint(pointOut.x()-10,pointIn.y()+5*10);
+        m_pLinePoint[3] = QPoint(pointOut.x()-10,pointIn.y()+ 5*10);
         m_pLinePoint[4] = QPoint(pointOut.x()-10,pointOut.y());
         m_pLinePoint[5] = pointOut;
         m_btPointSum = 6;
     }
 }
+
+void HConnect::calLine(const QPoint &point)
+{
+    if(!m_pLinePoint)
+    {
+        delete[] m_pLinePoint;
+        m_pLinePoint = NULL;
+    }
+    QPoint midPoint = point;
+    m_pLinePoint = new QPoint[4];
+    m_pLinePoint[0] = QPoint(midPoint.x()-60,midPoint.y()+15);
+    m_pLinePoint[1] = QPoint(midPoint.x(),midPoint.y()+15);
+    m_pLinePoint[2] = QPoint(midPoint.x(),midPoint.y()-15);
+    m_pLinePoint[3] = QPoint(midPoint.x()+60,midPoint.y()-15);
+    m_btPointSum = 4;
+    m_pointIn = m_pLinePoint[0];
+    m_pointOut = m_pLinePoint[4];
+}
+
 
 void HConnect::moveTo(int deltaX, int deltaY)
 {
@@ -509,12 +524,12 @@ void HConnect::draw(QPainter *painter)
     painter->save();
     QPen pen(Qt::SolidLine);
     pen.setWidth(2);
-    if(!m_pLinePoint)
+    if(!m_btSelLine)
         pen.setColor(QColor(20,180,50));
     else
         pen.setColor(QColor(255,0,255));
     painter->setPen(pen);
-    painter->drawPolygon(m_pLinePoint,m_btPointSum);
+    painter->drawPolyline(m_pLinePoint,m_btPointSum);
     painter->restore();
 }
 
