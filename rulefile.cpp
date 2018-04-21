@@ -43,63 +43,122 @@ HDrawObj* HRuleFile::findDrawObj(unsigned long ulID)
 
 HDrawObj* HRuleFile::objectAt(const QPoint &point)
 {
-    QRect rect(point,QSize(1,1));
-    for(int i = 0; i < drawObjList.count();i++)
-    {
-        HDrawObj* pObj = (HDrawObj*)drawObjList[i];
-        if(pObj->m_rectCurPos.intersects(rect))
-            return pObj;
-    }
-    return NULL;
+	QRect rect(point, QSize(1, 1));
+	for (int i = 0; i < drawObjList.count(); i++)
+	{
+		HDrawObj* pObj = (HDrawObj*)drawObjList[i];
+		if (pObj->m_rectCurPos.intersects(rect))
+			return pObj;
+	}
+	return NULL;
 }
 
 HConnect* HRuleFile::connectAt(const QPoint& point)
 {
-    QRect rect(point,QSize(1,1));
-    for(int i = 0; i < connectObjList.count();i++)
-    {
-        HConnect* pObj = (HConnect*)connectObjList[i];
-        if(pObj->intersects(rect))
-            return pObj;
-    }
-    return NULL;
+	QRect rect(point, QSize(1, 1));
+	for (int i = 0; i < connectObjList.count(); i++)
+	{
+		HConnect* pObj = (HConnect*)connectObjList[i];
+		if (pObj->intersects(rect))
+			return pObj;
+	}
+	return NULL;
 }
 
 HResultObj* HRuleFile::resultObj()
 {
-    for(int i = 0; i < drawObjList.count();i++)
-    {
-        HDrawObj* pObj = (HDrawObj*)drawObjList[i];
-        if(pObj!=NULL && pObj->m_btObjType == TYPE_RESULT)
-            return (HResultObj*)pObj;
+	for (int i = 0; i < drawObjList.count(); i++)
+	{
+		HDrawObj* pObj = (HDrawObj*)drawObjList[i];
+		if (pObj != NULL && pObj->m_btObjType == TYPE_RESULT)
+			return (HResultObj*)pObj;
 
-      /*  if(pObj == NULL)
-            return false;
-        const QMetaObject *pMObj = pObj->metaObject();;
-        //qDebug()<<"className:"<<pMObj->className();
-        if(QString(pMObj->superClass()->className()).compare("HDrawObj") == 0)
-            return m_selectObjList.contains((HDrawObj*)pObj);
-        if(QString(pMObj->className()).compare("HConnect") == 0)
-           return m_selectConnectObjList.contains((HConnect*)pObj);*/
+		/*  if(pObj == NULL)
+			  return false;
+			  const QMetaObject *pMObj = pObj->metaObject();;
+			  //qDebug()<<"className:"<<pMObj->className();
+			  if(QString(pMObj->superClass()->className()).compare("HDrawObj") == 0)
+			  return m_selectObjList.contains((HDrawObj*)pObj);
+			  if(QString(pMObj->className()).compare("HConnect") == 0)
+			  return m_selectConnectObjList.contains((HConnect*)pObj);*/
 
-    }
-    return NULL;
+	}
+	return NULL;
 }
 
 bool HRuleFile::isObjConnect(HDrawObj *pDrawObj)
 {
-    unsigned long dwObjID = pDrawObj->m_pRuleFile->dwDrawObjID;
-    if(pDrawObj->m_nInPointSum > 0 || pDrawObj->m_nOutPointSum > 0)
-    {
-        for(int i = 0; i < connectObjList.count();i++)
-        {
-            HConnect* pConnect = (HConnect*)connectObjList[i];
-            if(pConnect->dwInObjID = dwObjID || pConnect->dwOutObjID == dwObjID)
-                return true;
+	unsigned long dwObjID = pDrawObj->m_pRuleFile->dwDrawObjID;
+	if (pDrawObj->m_nInPointSum > 0 || pDrawObj->m_nOutPointSum > 0)
+	{
+		for (int i = 0; i < connectObjList.count(); i++)
+		{
+			HConnect* pConnect = (HConnect*)connectObjList[i];
+			if (!pConnect) continue;
+			if (pConnect->dwInObjID == dwObjID || pConnect->dwOutObjID == dwObjID)
+				return true;
+		}
+		return false;
+	}
+	return true;
+}
+
+HResultObj* HRuleFile::getResultObj()
+{
+	HResultObj* pObj = NULL;
+	for (int i = 0; i < drawObjList.count(); i++)
+	{
+		HDrawObj* obj = drawObjList[i];
+		if (obj != NULL && obj->getObjType() == TYPE_RESULT)
+		{
+			pObj = (HResultObj*)obj;
+			break;
+		}
+	}
+	return pObj;
+}
+
+HDrawObj* HRuleFile::getConnectObj(HDrawObj* target, int nConnNo)
+{
+	unsigned long dwTargetObjID;
+	quint16 dwConnectedID;
+
+	dwTargetObjID = target->dwID;
+	for (int i = connectObjList.count(); i > 0; i--)
+	{
+		HConnect* conn = connectObjList[i];
+		if (conn && conn->dwOutObjID == dwTargetObjID && conn->btOutIndex == nConnNo)
+		{
+			dwConnectedID = conn->dwInObjID;
+			HDrawObj* pConnObj = findDrawObj(dwConnectedID);
+			if (!pConnObj) return NULL;
+			if (target->getObjType() == TYPE_RESULT)
+			{
+				if (pConnObj->getObjType() == TYPE_RESULT)
+					return NULL;
+				else
+					return pConnObj;
+			}
+			else if (target->getObjType() == TYPE_LOGICOR || target->getObjType() == TYPE_LOGICAND)
+			{
+				if (pConnObj->getObjType() == TYPE_LOGICOR || pConnObj->getObjType() == TYPE_LOGICAND)
+			    {
+					return pConnObj;
+                }
+				else if (pConnObj->getObjType() == TYPE_INPUT_DIGITAL)
+				{
+					return pConnObj;
+				}
+				else if (pConnObj->getObjType() == TYPE_INPUT_ANALOGUE)
+				{
+					return pConnObj;
+				}
+				else
+					return NULL;
+			}
         }
-        return false;
     }
-    return true;
+    return NULL;
 }
 
 //////////////////////////////////////////////////////////////////HPointRule////////////////////////////////////////////////////
@@ -208,6 +267,8 @@ HRuleFile* HProtectRule::ruleFile(int wType,int wPointNo,int wRelayValue)
         wRuleFileID = pPointRule->wJXOpenRuleFileID;
     else if(wRelayValue == RELAY_JXCLOSE)
         wRuleFileID = pPointRule->wJXCloseRuleFileID;
+    else
+        wRuleFileID = 0;
 
     HRuleFile *pRuleFile = getRuleFileByID(wRuleFileID);
     if(!pRuleFile) return NULL;
@@ -315,7 +376,6 @@ QDataStream& operator>>(QDataStream& in,HStationRule& stationRule)
     return in;
 }
 
-
 QDataStream& operator<<(QDataStream& out,const HStationRule& stationRule)
 {
     out<<QDataStream::Qt_5_2;
@@ -343,7 +403,6 @@ HProtectRule* HStationRule::protectRule(quint16 wProtNo)
         if(pProtRule->wProtectNo == wProtNo)
             return pProtRule;
     }
-
     return NULL;
 }
 
@@ -409,8 +468,91 @@ bool HStationRule::changeStationNo(quint16 wNewStationNo)
 
 
 
+///////////////////////////////遍历函数部分////////////////////////////////////////////////////
+//遍历主要是从结果往前推，而不是从前往后推
+bool HRuleFile::buildGeneralFormula()
+{
+	bool bFromulaRight = true;
+    strFormula = "";
+    //遍历所有对象，是否存在未连接对象，同时设置遍历标记
+    for(int i = 0; i < drawObjList.count();i++)
+    {
+        HDrawObj* pObj = (HDrawObj*)drawObjList[i];
+        if(pObj)
+        {
+            pObj->setVisiteFlag(false);
+            if(!isObjConnect(pObj))
+                pObj->setWrongFlag(true);
+            else
+                pObj->setWrongFlag(false);
+        }
+    }
 
+    //找到最后输出对象
+    HResultObj* pResultObj = getResultObj();
+    if(!pResultObj) //没有输出对象则公式全部错误
+    {
+        for(int i = 0; i < drawObjList.count();i++)
+        {
+            HDrawObj* pObj = (HDrawObj*)drawObjList[i];
+            if(pObj)
+            {
+                    pObj->setWrongFlag(false);
+            }
+        }
+        return false;
+    }
+    pResultObj->setVisiteFlag(true);
 
+    //从输出对象开始找到第一个连接对象
+	HDrawObj* pFirstObj = getConnectObj(pResultObj, 0);
+	if (!pFirstObj)
+		pResultObj->setWrongFlag(false);
+	else
+	{
+		pResultObj->setWrongFlag(true);
+		bFromulaRight = false;
+	}
+	if (!bFromulaRight)
+		return false;
+	if (strFormula.isEmpty())
+		return false;
 
+    return true;
+}
+
+bool HRuleFile::visitGeneralBuildObj(HDrawObj* pObj)
+{
+	int nOpCount;
+	bool bErrorFlag = true;
+	if (pObj->getObjType() == TYPE_INPUT_ANALOGUE || pObj->getObjType() == TYPE_INPUT_DIGITAL)
+	{
+		strFormula = strFormula + pObj->getOperatorFirst();
+		strFormula = strFormula + pObj->getOperatorMid();
+		strFormula = strFormula + pObj->getOperatorLast();
+	}
+	else //(pObj->getObjType == TYPE_LOGICAND)
+	{
+		strFormula = strFormula + pObj->getOperatorFirst();
+		for (nOpCount = 0; nOpCount < pObj->m_nInPointSum; nOpCount++)
+		{
+			HDrawObj* pConnObj = getConnectObj(pObj, nOpCount);
+			if (pConnObj)
+			{
+				bErrorFlag = visitGeneralBuildObj(pConnObj);
+				if (nOpCount < pObj->m_nInPointSum - 1)
+					strFormula = strFormula + pObj->getOperatorMid();
+			}
+			else
+			{
+				pObj->setWrongFlag(true);
+				bFromulaRight = false;
+			}
+		}
+		strFormula += pObj->getOperatorLast();
+	}
+	pObj->setVisiteFlag(true);
+	return bErrorFlag;
+}
 
 

@@ -15,28 +15,15 @@ class HRuleFile:public QObject
 public:
     explicit HRuleFile(QObject *parent = 0);
 
-public:
-    int nRuleFileID;//规则文件的ID，每个遥信的每个规则都有ID
-    unsigned long dwDrawObjID;//每个图元对象的ID,每增加一个图元ID+1
-    QString strRuleName;//规则名
-    QString strFormula;//公式名
 
-    bool bGrid;//显示网格
-    bool bDisplayID;//
-    bool bSimulateFirst;
-    bool bSimuState;
-    bool bFromulaRight;
-
-    QColor gridColor;
-
-    QList<HConnect*> connectObjList;
-    QList<HDrawObj*> drawObjList;
 
 public:
     //序列化函数
     friend QDataStream& operator>>(QDataStream &in,HRuleFile&);
     friend QDataStream& operator<<(QDataStream &out,const HRuleFile&);
 public:
+
+    //对象操作函数
     unsigned long generateDrawObjID()
     {
         return ++dwDrawObjID;
@@ -47,19 +34,38 @@ public:
     HConnect* connectAt(const QPoint& point);
     HResultObj* resultObj();//查找列表中是否存在输出图元
     HDrawObj* findDrawObj(unsigned long ulID);//通过ID来找对象
-
-
     void removeObj(HDrawObj* drawObj);
     void removeConnect(HConnect* connectObj);
     bool isObjConnect(HDrawObj* pDrawObj);//判断当前对象是否连接
+    HResultObj* getResultObj();
+    HDrawObj* getConnectObj(HDrawObj* target,int nConnNo);
 
     //遍历函数
+    bool buildGeneralFormula();
+	bool visitGeneralBuildObj(HDrawObj* pObj);
     //bool buildEspecialFormula();//遍历规则
    // bool visitEspecialBuildObj(HDrawObj* pDrawObj);//遍历访问某一个图元的所有信息
     //bool visitEspecialReportObj(HDrawObj* pDrawObj,QList<QObject*> pObjList);
 signals:
 
 public slots:
+
+public:
+    int nRuleFileID;//规则文件的ID，每个遥信的每个规则都有ID
+    unsigned long dwDrawObjID;//每个图元对象的ID,每增加一个图元ID+1
+    QString strRuleName;//规则名
+    QString strFormula;//公式名
+
+    bool bGrid;//显示网格
+    bool bDisplayID;//
+    bool bSimulateFirst;
+    bool bSimuState;
+    bool bFromulaRight;//公式是否正确
+
+    QColor gridColor;
+
+    QList<HConnect*> connectObjList;
+    QList<HDrawObj*> drawObjList;
 
 };
 

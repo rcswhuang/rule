@@ -28,6 +28,10 @@ public:
     //序列化操作部分
    // virtual void readData(int nVersion,QDataStream* ds);
    // virtual void writeData(int nVerion,QDataStream* ds);
+    //属性相关函数
+    quint8 getObjType();
+    void setWrongFlag(bool wrong);
+    void setVisiteFlag(bool visite);
 
     //绘制操作部分
     virtual void draw(QPainter* painter);
@@ -85,6 +89,9 @@ public:
 
     int nLeftDeltaX;//输入点在左边
     int nRightDeltaX;//输出点在右边
+
+    bool m_bWrong;
+    bool m_bVisit;//遍历
 
 };
 

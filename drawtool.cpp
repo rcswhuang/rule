@@ -106,8 +106,6 @@ void HSelectTool::onMousePress(HFrame* pFrame,const QPoint& point,QMouseEvent* e
         g_nSelectPoint = pObj->hitSelect(point,true);
         if(g_nSelectPoint != 0)
             selectMode = enumSize;
-        //else if(g_nSelectPoint == 2 || g_nSelectPoint == 3)
-        //    selectMode = enumMove;
     }
 
     //未选中，选择对象
@@ -143,7 +141,7 @@ void HSelectTool::onMousePress(HFrame* pFrame,const QPoint& point,QMouseEvent* e
     //未选择对象，则删除选中对象列表 //connect
     if(selectMode == enumNone)
     {
-            pFrame->selectConnect(NULL);
+        pFrame->selectConnect(NULL);
     }
 
 
@@ -189,7 +187,7 @@ void HSelectTool::onMouseRelease(HFrame* pFrame,const QPoint& point,QMouseEvent*
             }
 
             //判断是否连接到线
-            for(int i =0; i < pFrame->pRuleFile->connectObjList.count();i++)
+           /* for(int i =0; i < pFrame->pRuleFile->connectObjList.count();i++)
             {
                 HConnect* pObj = pFrame->pRuleFile->connectObjList.at(i);
                 if((quint16)-1 != pObj->dwInObjID && (quint16)-1 != pObj->dwOutObjID) continue;
@@ -207,7 +205,7 @@ void HSelectTool::onMouseRelease(HFrame* pFrame,const QPoint& point,QMouseEvent*
                         //pSelObj->calOutPoint();
                     }
                 }
-            }
+            }*/
 
         }
     }
