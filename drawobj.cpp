@@ -45,6 +45,22 @@ HDrawObj::HDrawObj(const QRect &rect, HRuleFile *pRuleFile)
     }
 }
 
+quint8 HDrawObj::getObjType()
+{
+    return m_btObjType;
+}
+
+void HDrawObj::setWrongFlag(bool wrong)
+{
+    m_bWrong = wrong;
+}
+
+void HDrawObj::setVisiteFlag(bool visite)
+{
+    m_bVisit = visite;
+}
+
+
 void HDrawObj::draw(QPainter *painter)
 {
     adjustPosition();

@@ -4,7 +4,9 @@
 #include <QAction>
 #include <QToolBar>
 #include <QScrollArea>
-
+#include <QTableWidget>
+#include <QTextBrowser>
+#include <QDockWidget>
 #include "frame.h"
 class MainWindow : public QMainWindow
 {
@@ -15,6 +17,7 @@ public:
     ~MainWindow();
     
 public:
+    void createDockWindows();
     void createActions();
     void createToolBar();
     
@@ -26,6 +29,8 @@ public slots:
     void onCreateLogicOr();
     void onCreateLogicAnd();
     void onDrawGrid();
+
+    void bgset_clicked();
 private:
     QScrollArea * m_pScrollArea;
     HFrame* m_pFrame;
@@ -67,6 +72,12 @@ private:
     QToolBar* attrToolBar;
     QToolBar* configToolBar;
     QToolBar* logicToolBar;
+
+    //
+    QDockWidget* rightDock;
+    QTabWidget* rightTab;
+    QTableWidget* attrTable;
+    QTextBrowser* reportBrowser;
 };
 
 #endif // MAINWINDOW_H

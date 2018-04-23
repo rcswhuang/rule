@@ -343,8 +343,14 @@ void HSelectTool::onMouseDoubleClick(HFrame *pFrame, const QPoint &point, QMouse
     {
         HDrawObj *pObj = (HDrawObj*)pFrame->m_selectObjList.first();
         const QMetaObject *pMObj = pObj->metaObject();
+        QString strClassName = pMObj->className();
         if(QString(pMObj->className()).compare("HInputObj") == 0)
             ((HInputObj*)pObj)->setInputProperty(pFrame);
+        else if(strClassName.compare("HAndObj") == 0 || strClassName.compare("HOrObj") == 0)
+        {
+            pFrame->setDrawObjProp(pObj);
+        }
+
     }
 }
 

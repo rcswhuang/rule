@@ -6,7 +6,6 @@
         <file>image/line.png</file>
         <file>image/out.png</file>
         <file>image/text.png</file>
-        <file>image/attribute.png</file>
         <file>image/bgcolor.png</file>
         <file>image/edit_copy.png</file>
         <file>image/edit_cut.png</file>
@@ -23,5 +22,6 @@
         <file>image/select.png</file>
         <file>image/cancel.png</file>
         <file>image/ok.png</file>
+        <file>image/report.png</file>
     </qresource>
 </RCC>
