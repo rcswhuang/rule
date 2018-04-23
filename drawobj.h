@@ -20,7 +20,7 @@ class HDrawObj : public QObject
 {
     Q_OBJECT
 public:
-    HDrawObj(QObject* object = 0);
+    //HDrawObj(QObject* object = 0);
     HDrawObj(const QRect& rect,HRuleFile* pRuleFile);
 
 
@@ -80,13 +80,13 @@ public:
     bool m_bConnect;
 
     bool m_bFill; //是否填充
-    QColor m_clrFill; //填充色
-    QColor m_clrLine; //线条颜色
-    QColor m_clrText; //文字颜色
-    QColor m_clrUpedge; //上边框颜色
-    QColor m_clrDownedge; //下边框颜色
-    QColor m_clrShadow; //阴影颜色
-
+/*    QString m_strFillClr; //填充色
+    QString m_strLineClr; //线条颜色
+    //QString m_clrText; //文字颜色
+    QString m_strUpedgeClr; //上边框颜色
+    QString m_strDownedgeClr; //下边框颜色
+    QString m_strShadowClr; //阴影颜色
+*/
     int nLeftDeltaX;//输入点在左边
     int nRightDeltaX;//输出点在右边
 
@@ -215,7 +215,7 @@ class HResultObj: public HDrawObj
 {
     Q_OBJECT
 public:
-    HResultObj(QObject* parent = 0);
+    //HResultObj(QObject* parent = 0);
     HResultObj(const QRect& rect,HRuleFile *pRuleFile);
 public:
     //绘制操作部分
@@ -242,7 +242,7 @@ class HOrObj: public HDrawObj
 {
     Q_OBJECT
 public:
-    HOrObj(QObject* parent = 0);
+    //HOrObj(QObject* parent = 0);
     HOrObj(const QRect& rect,HRuleFile *pRuleFile);
 public:
     //绘制操作部分
@@ -269,7 +269,7 @@ class HAndObj: public HDrawObj
 {
     Q_OBJECT
 public:
-    HAndObj(QObject* parent = 0);
+    //HAndObj(QObject* parent = 0);
     HAndObj(const QRect& rect,HRuleFile *pRuleFile);
 public:
     //绘制操作部分

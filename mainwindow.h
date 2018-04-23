@@ -28,9 +28,10 @@ public slots:
     void onCreateResultOutput();
     void onCreateLogicOr();
     void onCreateLogicAnd();
-    void onDrawGrid();
+    //void onDrawGrid();
 
     void bgset_clicked();
+    void gridset_clicked();
 private:
     QScrollArea * m_pScrollArea;
     HFrame* m_pFrame;

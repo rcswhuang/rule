@@ -7,15 +7,17 @@
 #include <QBrush>
 //#include "frame.h"
 #include "inputprop.h"
+#include "rulefile.h"
 #include <math.h>
 #include <QDebug>
-
+/*
 HDrawObj::HDrawObj(QObject *parent) : QObject(parent)
 {
 
 }
-
+*/
 HDrawObj::HDrawObj(const QRect &rect, HRuleFile *pRuleFile)
+    :m_rectCurPos(rect),m_pRuleFile(pRuleFile)
 {
     m_bConnect = false;
     m_btObjType = TYPE_NONE; //图符类型
@@ -24,23 +26,24 @@ HDrawObj::HDrawObj(const QRect &rect, HRuleFile *pRuleFile)
     m_bOutValue = false;//逻辑输出
     m_fOutValue = 0.0;//模拟量输出
 
-    m_rectCurPos = rect; //当前点矩形位置
-    m_pRuleFile = pRuleFile; //规则文件
+    //m_rectCurPos = rect; //当前点矩形位置
+    //m_pRuleFile = pRuleFile; //规则文件
     m_pointIn = NULL; //多点输入
     //m_pointOut; //实际上对外的连接点位置 对外只有一个输出点
     m_nInPointSum = 0; //输入点个数
     m_nOutPointSum = 1; //输出点个数
     m_bFill = true; //是否填充
-    m_clrFill = QColor(206,230,255); //填充色
-    m_clrLine = QColor(0,128,128); //线条颜色
-    m_clrText = QColor(0,0,255); //文字颜色
-    m_clrUpedge = QColor(255,255,255); //上边框颜色
-    m_clrDownedge = QColor(0,0,0); //下边框颜色
-    m_clrShadow = QColor(128,128,128); //阴影颜色
-    if(pRuleFile)
+    /*m_strFillClr = QColor(206,230,255).name(); //填充色
+    m_strLineClr = QColor(0,128,128).name(); //线条颜色
+    //m_clrText = QColor(0,0,255).name(); //文字颜色
+    m_strUpedgeClr = QColor(255,255,255).name(); //上边框颜色
+    m_strDownedgeClr = QColor(0,0,0).name(); //下边框颜色
+    m_strShadowClr = QColor(128,128,128).name(); //阴影颜色
+    */
+    if(m_pRuleFile)
     {
 
-        dwID = pRuleFile->generateDrawObjID();
+        dwID = m_pRuleFile->generateDrawObjID();
         qDebug()<<"dwID = "<<dwID;
     }
 }
@@ -101,8 +104,11 @@ void HDrawObj::drawMain(QPainter *painter, const QRect &rectMain)
 {
     if(painter == NULL) return;
     painter->save();
-    QBrush brush(m_clrFill);
-    QPen pen(m_clrUpedge);
+    QBrush brush;
+    brush.setColor(QColor(m_pRuleFile->m_strFillClr));
+    brush.setStyle(Qt::SolidPattern);
+    QPen pen;
+    pen.setColor(QColor(m_pRuleFile->m_strUpedgeClr));
     pen.setStyle(Qt::SolidLine);
     pen.setWidth(2);
     //pen.setBrush(brush);
@@ -112,7 +118,8 @@ void HDrawObj::drawMain(QPainter *painter, const QRect &rectMain)
     painter->drawRect(rectMain);
 
     //边缘
-    QPen pen2(m_clrDownedge);
+    QPen pen2;
+    pen2.setColor(QColor(m_pRuleFile->m_strDownedgeClr));
     pen2.setStyle(Qt::SolidLine);
     pen2.setWidth(2);
     painter->setPen(pen2);
@@ -120,7 +127,8 @@ void HDrawObj::drawMain(QPainter *painter, const QRect &rectMain)
     painter->drawLine(QPoint(rectMain.right(),rectMain.bottom()),QPoint(rectMain.right(),rectMain.top()-2));
 
     //阴影
-    QPen pen3(m_clrShadow);
+    QPen pen3;
+    pen3.setColor(QColor(m_pRuleFile->m_strShadowClr));
     pen3.setStyle(Qt::SolidLine);
     pen3.setWidth(2);
     painter->setPen(pen3);
@@ -128,12 +136,14 @@ void HDrawObj::drawMain(QPainter *painter, const QRect &rectMain)
     painter->drawLine(QPoint(rectMain.right()-1,rectMain.bottom()+1),QPoint(rectMain.right()-1,rectMain.top()-1));
 
     //线条
-    QPen pen4(m_clrDownedge);
+    QPen pen4;
+    pen4.setColor(QColor(m_pRuleFile->m_strDownedgeClr));
     pen4.setStyle(Qt::SolidLine);
     pen4.setWidth(1);
     painter->setPen(pen4);
     painter->drawLine(QPoint(rectMain.left()+2,rectMain.top() + rectMain.height()/(m_nInPointSum+2)),QPoint(rectMain.right()-2,rectMain.top() + rectMain.height()/(m_nInPointSum + 2)));
-    QPen pen5(m_clrShadow);
+    QPen pen5;
+    pen5.setColor(QColor(m_pRuleFile->m_strShadowClr));
     pen5.setStyle(Qt::SolidLine);
     pen5.setWidth(1);
     painter->setPen(pen5);
@@ -686,15 +696,18 @@ void HInputObj::draw(QPainter *painter)
     int nBottomY1 = nBottomY0 - (nBottomY0 - nTopY0)/4;
     
     painter->save();
-    QPen pen(m_clrUpedge);
+    QPen pen;
+    pen.setColor(QColor(m_pRuleFile->m_strUpedgeClr));
     pen.setWidth(2);
     pen.setStyle(Qt::SolidLine);
     painter->setPen(pen);
 
-    QBrush  brush(QColor(255,255,255));
+    QBrush  brush;
+    brush.setColor(QColor(255,255,255));
+    brush.setStyle(Qt::SolidPattern);
     if(m_bFill)
     {
-        brush.setColor(m_clrFill);
+        brush.setColor(QColor(m_pRuleFile->m_strFillClr));
     }
     painter->setBrush(brush);
     /*
@@ -718,7 +731,8 @@ void HInputObj::draw(QPainter *painter)
     painter->drawPolygon(pt,6);
     
     //下边框加粗线
-    QPen pen2(m_clrDownedge);
+    QPen pen2;
+    pen2.setColor(QColor(m_pRuleFile->m_strDownedgeClr));
     pen2.setWidth(2);
     pen2.setStyle(Qt::SolidLine);
     painter->setPen(pen2);
@@ -726,7 +740,8 @@ void HInputObj::draw(QPainter *painter)
     painter->drawLine(QPoint(nRightX1-10,nBottomY1),QPoint(nRightX1,(nTopY1 + nBottomY1)/2));
 
     //阴影线
-    QPen pen3(m_clrShadow);
+    QPen pen3;
+    pen3.setColor(QColor(m_pRuleFile->m_strShadowClr));
     pen3.setWidth(2);
     pen3.setStyle(Qt::SolidLine);
     painter->setPen(pen3);
@@ -734,9 +749,12 @@ void HInputObj::draw(QPainter *painter)
     painter->drawLine(QPoint(nRightX1-10-1,nBottomY1+1),QPoint(nRightX1-1,(nTopY1+nBottomY1)/2-1));
 
     //画连接点 此处的矩形没有意义，连接点一般是挨着最右边开始画，除非是逻辑运算 左边也有连接点
-    QBrush brush1(m_clrLine);
+    QBrush brush1;
+    brush1.setColor(QColor(m_pRuleFile->m_strLineClr));
+    brush1.setStyle(Qt::SolidPattern);
     painter->setBrush(brush1);
-    QPen pen4(m_clrLine);
+    QPen pen4;
+    pen4.setColor(QColor(m_pRuleFile->m_strLineClr));
     pen4.setWidth(2);
     painter->setPen(pen4);
    // qDebug()<<"nRightX1="<<nRightX1;
@@ -747,13 +765,14 @@ void HInputObj::draw(QPainter *painter)
     //显示仿真数据
     
     //绘制名字
-    QPen pen5(m_clrText);
+    QPen pen5;
+    pen5.setColor(QColor(Qt::black));
     pen5.setWidth(2);
     painter->setPen(pen5);
     if(btInputType == TYPE_INPUT_ANALOGUE)
-        m_strName = "遥测输入";
+        m_strName = "遥测";
     else if(btInputType == TYPE_INPUT_DIGITAL)
-        m_strName = "遥信输入";
+        m_strName = "遥信";
     painter->drawText(QRect(QPoint(nLeftX1,nTopY1),QPoint(nRightX1 - 30,nBottomY1)),Qt::AlignRight | Qt::AlignVCenter| Qt::TextSingleLine,m_strName);
     //绘制连接点名字
     
@@ -783,11 +802,6 @@ void HInputObj::setInputProperty(HFrame *pFrame)
 
 
 ///////////////////////////////////////////////HResultObj 输出///////////////////////////////
-HResultObj::HResultObj(QObject *parent)
-{
-
-}
-
 HResultObj::HResultObj(const QRect &rect, HRuleFile *pRuleFile):HDrawObj(rect,pRuleFile)
 {
     m_nInPointSum = 1;
@@ -825,15 +839,18 @@ void HResultObj::draw(QPainter *painter)
     int nBottomY1 = nBottomY0 - (nBottomY0 - nTopY0)/4;
 
     painter->save();
-    QPen pen(m_clrUpedge);
+    QPen pen;
+    pen.setColor(QColor(m_pRuleFile->m_strUpedgeClr));
     pen.setWidth(2);
     pen.setStyle(Qt::SolidLine);
     painter->setPen(pen);
 
-    QBrush  brush(QColor(255,255,255));
+    QBrush  brush;
+    brush.setColor(QColor(255,255,255));
+    brush.setStyle(Qt::SolidPattern);
     if(m_bFill)
     {
-        brush.setColor(m_clrFill);
+        brush.setColor(QColor(m_pRuleFile->m_strFillClr));
     }
     painter->setBrush(brush);
     /*
@@ -857,7 +874,8 @@ void HResultObj::draw(QPainter *painter)
     painter->drawPolygon(pt,6);
 
     //下边框加粗线
-    QPen pen2(m_clrDownedge);
+    QPen pen2;
+    pen2.setColor(QColor(m_pRuleFile->m_strDownedgeClr));
     pen2.setWidth(2);
     pen2.setStyle(Qt::SolidLine);
     painter->setPen(pen2);
@@ -865,7 +883,8 @@ void HResultObj::draw(QPainter *painter)
     painter->drawLine(QPoint(nRightX1-10,nBottomY1),QPoint(nRightX1,(nTopY1 + nBottomY1)/2));
 
     //阴影线
-    QPen pen3(m_clrShadow);
+    QPen pen3;
+    pen3.setColor(QColor(m_pRuleFile->m_strShadowClr));
     pen3.setWidth(2);
     pen3.setStyle(Qt::SolidLine);
     painter->setPen(pen3);
@@ -873,9 +892,12 @@ void HResultObj::draw(QPainter *painter)
     painter->drawLine(QPoint(nRightX1-10-1,nBottomY1+1),QPoint(nRightX1-1,(nTopY1+nBottomY1)/2-1));
 
     //画连接点 此处的矩形没有意义，连接点一般是挨着最右边开始画，除非是逻辑运算 左边也有连接点
-    QBrush brush1(m_clrLine);
+    QBrush brush1;
+    brush1.setColor(QColor(m_pRuleFile->m_strLineClr));
+    brush1.setStyle(Qt::SolidPattern);
     painter->setBrush(brush1);
-    QPen pen4(m_clrLine);
+    QPen pen4;
+    pen4.setColor(QColor(m_pRuleFile->m_strLineClr));
     painter->setPen(pen4);
    // qDebug()<<"nRightX1="<<nRightX1;
     drawPins(painter,QRect(QPoint(nLeftX1,nTopY0),QPoint(nLeftX1+60,nBottomY0)));//保证处在最右边即可以
@@ -885,7 +907,8 @@ void HResultObj::draw(QPainter *painter)
     //显示仿真数据
 
     //绘制名字
-    QPen pen5(m_clrText);
+    QPen pen5;
+    pen5.setColor(QColor(Qt::black));
     pen5.setWidth(1);
     painter->setPen(pen5);
     painter->drawText(QRect(QPoint(nLeftX1,nTopY1),QPoint(nLeftX1+30,nBottomY1)),Qt::AlignRight | Qt::AlignVCenter| Qt::TextSingleLine,m_strName);
@@ -896,11 +919,6 @@ void HResultObj::draw(QPainter *painter)
 
 
 ///////////////////////////////////////////////HOrObj 或///////////////////////////////
-HOrObj::HOrObj(QObject *parent)
-{
-
-}
-
 HOrObj::HOrObj(const QRect &rect, HRuleFile *pRuleFile):HDrawObj(rect,pRuleFile)
 {
     m_nInPointSum = 2;
@@ -978,15 +996,18 @@ void HOrObj::draw(QPainter *painter)
 
     painter->save();
     //绘制针脚
-    QBrush brush1(m_clrLine);
+    QBrush brush1;
+    brush1.setColor(QColor(m_pRuleFile->m_strLineClr));
+    brush1.setStyle(Qt::SolidPattern);
     painter->setBrush(brush1);
-    QPen pen1(m_clrLine);
+    QPen pen1;
+    pen1.setColor(QColor(m_pRuleFile->m_strLineClr));
     pen1.setWidth(1);
     pen1.setStyle(Qt::SolidLine);
     painter->setPen(pen1);
     drawPins(painter,QRect(QPoint(nLeftX2,nTopY2),QPoint(nRightX2,nBottomY2)));//保证处在最右边即可以
 
-    QPen pen2(m_clrText);
+    QPen pen2(Qt::black);
     pen2.setWidth(2);
     painter->setPen(pen2);
     painter->drawText(QRect(QPoint(nLeftX3,nTopY3),QPoint(nRightX3,nBottomY3)),Qt::AlignCenter | Qt::AlignVCenter| Qt::TextSingleLine,m_strName);
@@ -1004,11 +1025,6 @@ void HOrObj::draw(QPainter *painter)
 }
 
 ///////////////////////////////////////////////HAndObj 与///////////////////////////////
-HAndObj::HAndObj(QObject *parent)
-{
-
-}
-
 HAndObj::HAndObj(const QRect &rect, HRuleFile *pRuleFile):HDrawObj(rect,pRuleFile)
 {
     m_nInPointSum = 2;
@@ -1085,9 +1101,12 @@ void HAndObj::draw(QPainter *painter)
 
     painter->save();
     //绘制针脚
-    QBrush brush1(m_clrLine);
+    QBrush brush1;
+    brush1.setColor(QColor(m_pRuleFile->m_strLineClr));
+    brush1.setStyle(Qt::SolidPattern);
     painter->setBrush(brush1);
-    QPen pen1(m_clrLine);
+    QPen pen1;
+    pen1.setColor(QColor(m_pRuleFile->m_strLineClr));
     pen1.setWidth(1);
     pen1.setStyle(Qt::SolidLine);
     painter->setPen(pen1);
@@ -1095,7 +1114,8 @@ void HAndObj::draw(QPainter *painter)
 
     QFont font1("Arial",10);
     painter->setFont(font1);
-    QPen pen2(m_clrText);
+    QPen pen2;
+    pen2.setColor(QColor(Qt::black));
     pen2.setWidth(2);
     painter->setPen(pen2);
     painter->drawText(QRect(QPoint(nLeftX3,nTopY3),QPoint(nRightX3,nBottomY3)),Qt::AlignCenter | Qt::AlignVCenter| Qt::TextSingleLine,m_strName);

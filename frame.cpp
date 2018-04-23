@@ -12,14 +12,6 @@ HFrame::HFrame(QScrollArea* scrollArea,QWidget * parent, Qt::WindowFlags f):
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(true);
     pRuleFile = new HRuleFile;
-    m_strBgClr = QColor(Qt::white).name();
-    m_strGridClr = QColor(0,0,128).name();
-    m_strFillClr = QColor(206,230,255).name(); //填充色
-    m_strLineClr = QColor(0,128,128).name(); //线条颜色
-    //m_clrText = QColor(0,0,255).name(); //文字颜色
-    m_strUpedgeClr = QColor(255,255,255).name(); //上边框颜色
-    m_strDownedgeClr = QColor(0,0,0).name(); //下边框颜色
-    m_strShadowClr = QColor(128,128,128).name(); //阴影颜色
 }
 
 void HFrame::keyPressEvent(QKeyEvent *event)
@@ -73,10 +65,10 @@ void HFrame::paintEvent(QPaintEvent *event)
     QPainter painter(this);
 
     QPalette pale = palette();
-    pale.setColor(QPalette::Background,QColor(m_strBgClr));
+    pale.setColor(QPalette::Background,QColor(pRuleFile->m_strBgClr));
     setPalette(pale);
 
-    if(m_bGrid)
+    if(pRuleFile->m_bGrid)
         drawGrid(painter);
 
 
@@ -197,7 +189,7 @@ void HFrame::drawGrid(QPainter &painter)
 
 
     /*绘制外框*/
-    pen.setColor(QColor(m_strGridClr));
+    pen.setColor(QColor(pRuleFile->m_strGridClr));
     pen.setWidth(2);
     painter.setPen(pen);
     int nhBar = 0;

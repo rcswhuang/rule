@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(m_pScrollArea);
     resize(800,600);
    // connect(m_pScrollArea,SIGNAL())
-    onDrawGrid();
+    //onDrawGrid();
 }
 
 MainWindow::~MainWindow()
@@ -45,6 +45,7 @@ void MainWindow::createActions()
     bgAct = new QAction(QIcon(":image/bgcolor.png"),tr("颜色设置"),this);
     connect(bgAct,SIGNAL(triggered(bool)),this,SLOT(bgset_clicked()));
     gridAct = new QAction(QIcon(":image/grid.png"),tr("显示网格"),this);
+    connect(gridAct,SIGNAL(triggered(bool)),this,SLOT(gridset_clicked()));
     zoominAct = new QAction(QIcon(":image/zoom_in.png"),tr("放大"),this);
     zoomoutAct = new QAction(QIcon(":image/zoom_out.png"),tr("缩小"),this);
 
@@ -183,11 +184,12 @@ void MainWindow::onCreateLogicAnd()
     HDrawTool::drawShape = enumLogicAND;
 }
 
+/*
 void MainWindow::onDrawGrid()
 {
     m_pFrame->m_bGrid = true;
     m_pFrame->update();
-}
+}*/
 
 void MainWindow::bgset_clicked()
 {
@@ -195,3 +197,10 @@ void MainWindow::bgset_clicked()
     bgsetProp.exec();
 }
 
+void MainWindow::gridset_clicked()
+{
+    if(!m_pFrame && !m_pFrame->pRuleFile)
+        return;
+    m_pFrame->pRuleFile->m_bGrid = !m_pFrame->pRuleFile->m_bGrid;
+    m_pFrame->update();
+}

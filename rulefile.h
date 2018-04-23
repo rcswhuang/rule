@@ -56,13 +56,21 @@ public:
     QString strRuleName;//规则名
     QString strFormula;//公式名
 
-    bool bGrid;//显示网格
+    bool m_bGrid;//显示网格
+    QString m_strBgClr;
+    QString m_strGridClr;
+    QString m_strFillClr; //填充色
+    QString m_strLineClr; //线条颜色
+    //QString m_clrText; //文字颜色
+    QString m_strUpedgeClr; //上边框颜色
+    QString m_strDownedgeClr; //下边框颜色
+    QString m_strShadowClr; //阴影颜色
+
     bool bDisplayID;//
     bool bSimulateFirst;
     bool bSimuState;
     bool bFromulaRight;//公式是否正确
 
-    QColor gridColor;
 
     QList<HConnect*> connectObjList;
     QList<HDrawObj*> drawObjList;

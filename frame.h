@@ -59,17 +59,6 @@ public:
 
     HRuleFile* pRuleFile;//规则文件，QFrame打开的就是一个规则文件
 public:
-    bool m_bGrid;
-    QString m_strBgClr;
-    QString m_strGridClr;
-    QString m_strFillClr; //填充色
-    QString m_strLineClr; //线条颜色
-    //QString m_clrText; //文字颜色
-    QString m_strUpedgeClr; //上边框颜色
-    QString m_strDownedgeClr; //下边框颜色
-    QString m_strShadowClr; //阴影颜色
-
-
     QScrollArea* m_pScrollArea;
 private:
     DRAWSHAPE m_drawShape;

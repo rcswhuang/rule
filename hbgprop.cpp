@@ -26,17 +26,17 @@ HBgProp::~HBgProp()
 
 void HBgProp::initBgProp()
 {
-    if(!m_pFrame)
+    if(!m_pFrame || !m_pFrame->pRuleFile)
          return;
 
 
-    strBgClr = m_pFrame->m_strBgClr;
-    strGridClr = m_pFrame->m_strGridClr;
-    strFillClr = m_pFrame->m_strFillClr;
-    strLineClr = m_pFrame->m_strLineClr;
-    strUpedgeClr = m_pFrame->m_strUpedgeClr;
-    strDownedgeClr = m_pFrame->m_strDownedgeClr;
-    strShadowClr = m_pFrame->m_strShadowClr;
+    strBgClr = m_pFrame->pRuleFile->m_strBgClr;
+    strGridClr = m_pFrame->pRuleFile->m_strGridClr;
+    strFillClr = m_pFrame->pRuleFile->m_strFillClr;
+    strLineClr = m_pFrame->pRuleFile->m_strLineClr;
+    strUpedgeClr = m_pFrame->pRuleFile->m_strUpedgeClr;
+    strDownedgeClr = m_pFrame->pRuleFile->m_strDownedgeClr;
+    strShadowClr = m_pFrame->pRuleFile->m_strShadowClr;
 
     QString strbkColor = QString("background-color:")+ strBgClr;
     ui->bgBtn->setStyleSheet(strbkColor);
@@ -120,13 +120,13 @@ void HBgProp::shadowBtn_clicked()
 
 void HBgProp::set_clicked()
 {
-    m_pFrame->m_strBgClr = strBgClr;
-    m_pFrame->m_strGridClr = strGridClr;
-    m_pFrame->m_strFillClr = strFillClr;
-    m_pFrame->m_strLineClr = strLineClr;
-    m_pFrame->m_strUpedgeClr = strUpedgeClr;
-    m_pFrame->m_strDownedgeClr = strDownedgeClr;
-    m_pFrame->m_strShadowClr = strShadowClr;
+    m_pFrame->pRuleFile->m_strBgClr = strBgClr;
+    m_pFrame->pRuleFile->m_strGridClr = strGridClr;
+    m_pFrame->pRuleFile->m_strFillClr = strFillClr;
+    m_pFrame->pRuleFile->m_strLineClr = strLineClr;
+    m_pFrame->pRuleFile->m_strUpedgeClr = strUpedgeClr;
+    m_pFrame->pRuleFile->m_strDownedgeClr = strDownedgeClr;
+    m_pFrame->pRuleFile->m_strShadowClr = strShadowClr;
     QDialog::accept();
 }
 
