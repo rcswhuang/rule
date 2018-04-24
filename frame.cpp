@@ -344,21 +344,58 @@ bool HFrame::objOutConnectLine(HDrawObj* pObj,const int &deltaX,const QPoint &lo
 
 void HFrame::delObj()
 {
-     for(int i = 0; i < m_selectObjList.count();i++)
-     {
-         HDrawObj* drawObj = (HDrawObj*)m_selectObjList[i];
-         if(drawObj)
+    if(!pRuleFile) return;
+
+    //还要判断是否是连接线
+    QList<HDrawObj*>::iterator objIt = m_selectObjList.begin();
+    for(;objIt != m_selectObjList.end();objIt++)
+    {
+         HDrawObj* drawObj = (HDrawObj*)*objIt;
+         if(!drawObj) return;
+
+         HDrawObj* obj = pRuleFile->findDrawObj(drawObj->dwID);
+         if(!obj) return;
+
+         //删除连接线
+         QList<HConnect*>::iterator it = pRuleFile->connectObjList.begin();
+         for(;it != pRuleFile->connectObjList.end();++it)
          {
-             HDrawObj* obj = pRuleFile->findDrawObj(drawObj->dwID);
-             if(obj)
+             HConnect* conn = (HConnect*)*it;
+             if(conn->dwInObjID == obj->dwID || conn->dwOutObjID == obj->dwID)
              {
-                 pRuleFile->removeObj(obj);
-                 m_selectObjList.removeOne(drawObj);
+                 pRuleFile->removeConnect(conn);
+                 delete conn;
              }
-             //HConnect* conn = pRuleFile->findDrawObj()
          }
 
-     }
+         //将dwID>Obj的dwID重新-1编号
+         for(int i = 0; i < pRuleFile->drawObjList.count();i++)
+         {
+             HDrawObj* obj1 = (HDrawObj*)pRuleFile->drawObjList[i];
+             if(obj1->dwID < obj->dwID) continue;
+             unsigned long bakID = obj->dwID;
+             obj1->dwID--;
+             //在连接线里面找到连接到该对象的元素，然后ID也要-1
+             for(int k = 0; k < pRuleFile->connectObjList.count();k++)
+             {
+                 HConnect* conn1 = (HConnect*)pRuleFile->connectObjList[k];
+                 if(conn1->dwInObjID == bakID)
+                     conn1->dwInObjID = obj1->dwID;
+                 else if(conn1->dwOutObjID == bakID)
+                     conn1->dwOutObjID = obj1->dwID;
+             }
+         }
+
+         pRuleFile->removeObj(obj);
+         m_selectObjList.removeOne(drawObj);
+         delete obj;
+         drawObj = NULL;
+         obj = NULL;
+    }
+
+    //重置ID
+    this->update();
+
 }
 
 

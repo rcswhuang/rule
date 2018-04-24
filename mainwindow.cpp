@@ -241,6 +241,8 @@ void MainWindow::sizeset_clicked()
 
 void MainWindow::zoomin_clicked()
 {
+    if(!m_pFrame && !m_pFrame->pRuleFile)
+        return;
     m_pFrame->factor += (float)0.1;
     if(m_pFrame->factor < (float)0.5) m_pFrame->factor = (float)0.5;
     if(m_pFrame->factor > (float)1.5) m_pFrame->factor = (float)1.5;
@@ -249,6 +251,8 @@ void MainWindow::zoomin_clicked()
 
 void MainWindow::zoomout_clicked()
 {
+    if(!m_pFrame && !m_pFrame->pRuleFile)
+        return;
     m_pFrame->factor -= (float)0.1;
     if(m_pFrame->factor < (float)0.5) m_pFrame->factor = (float)0.5;
     if(m_pFrame->factor > (float)1.5) m_pFrame->factor = (float)1.5;
@@ -257,7 +261,9 @@ void MainWindow::zoomout_clicked()
 
 void MainWindow:: del_clicked()
 {
-
+    if(!m_pFrame && !m_pFrame->pRuleFile)
+        return;
+    m_pFrame->delObj();
 }
 
 void MainWindow:: cut_clicked()

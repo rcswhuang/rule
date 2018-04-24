@@ -173,6 +173,16 @@ HDrawObj* HRuleFile::getConnectObj(HDrawObj* target, int nConnNo)
     return NULL;
 }
 
+void HRuleFile::removeObj(HDrawObj* drawObj)
+{
+    drawObjList.removeOne(drawObj);
+}
+
+void HRuleFile::removeConnect(HConnect* connectObj)
+{
+    connectObjList.removeOne(connectObj);
+}
+
 //////////////////////////////////////////////////////////////////HPointRule////////////////////////////////////////////////////
 HPointRule::HPointRule()
 {
