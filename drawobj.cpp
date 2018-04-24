@@ -761,7 +761,11 @@ void HInputObj::draw(QPainter *painter)
     drawPins(painter,QRect(QPoint(nRightX1-60,nTopY0),QPoint(nRightX1,nBottomY0)));//保证处在最右边即可以
     
     //显示ID
-    
+    if(m_pRuleFile->bDisplayID)
+    {
+        QString strID = QString("U%1").arg(dwID);
+        painter->drawText(QRect(QPoint(nLeftX0,nTopY0),QPoint(nRightX0-10,nTopY1)),Qt::AlignCenter,strID);
+    }
     //显示仿真数据
     
     //绘制名字
@@ -903,7 +907,11 @@ void HResultObj::draw(QPainter *painter)
     drawPins(painter,QRect(QPoint(nLeftX1,nTopY0),QPoint(nLeftX1+60,nBottomY0)));//保证处在最右边即可以
 
     //显示ID
-
+    if(m_pRuleFile->bDisplayID)
+    {
+        QString strID = QString("U%1").arg(dwID);
+        painter->drawText(QRect(QPoint(nLeftX0,nTopY0),QPoint(nRightX0-10,nTopY1)),Qt::AlignCenter,strID);
+    }
     //显示仿真数据
 
     //绘制名字

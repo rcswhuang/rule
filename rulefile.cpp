@@ -2,7 +2,7 @@
 #include "ruleeditapi.h"
 HRuleFile::HRuleFile(QObject *parent) : QObject(parent)
 {
-    dwDrawObjID = 1;
+    dwDrawObjID = 0;
     m_bGrid = true;
     m_strBgClr = QColor(Qt::white).name();
     m_strGridClr = QColor(0,0,128).name();
@@ -12,6 +12,10 @@ HRuleFile::HRuleFile(QObject *parent) : QObject(parent)
     m_strUpedgeClr = QColor(255,255,255).name(); //上边框颜色
     m_strDownedgeClr = QColor(0,0,0).name(); //下边框颜色
     m_strShadowClr = QColor(128,128,128).name(); //阴影颜色
+    bDisplayID = false;//
+    bSimulateFirst = false;
+    bSimuState = false;
+    m_Size = QSize(1200,1000);
 }
 
 
@@ -49,7 +53,6 @@ HDrawObj* HRuleFile::findDrawObj(unsigned long ulID)
     return NULL;
 }
 
-
 HDrawObj* HRuleFile::objectAt(const QPoint &point)
 {
 	QRect rect(point, QSize(1, 1));
@@ -64,7 +67,7 @@ HDrawObj* HRuleFile::objectAt(const QPoint &point)
 
 HConnect* HRuleFile::connectAt(const QPoint& point)
 {
-	QRect rect(point, QSize(1, 1));
+    QRect rect(point, QSize(2, 2));
 	for (int i = 0; i < connectObjList.count(); i++)
 	{
 		HConnect* pObj = (HConnect*)connectObjList[i];

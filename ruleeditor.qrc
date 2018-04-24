@@ -12,7 +12,6 @@
         <file>image/edit_del.png</file>
         <file>image/edit_paste.png</file>
         <file>image/formula.png</file>
-        <file>image/full.png</file>
         <file>image/grid.png</file>
         <file>image/ID.png</file>
         <file>image/simulation.png</file>
@@ -23,5 +22,6 @@
         <file>image/cancel.png</file>
         <file>image/ok.png</file>
         <file>image/report.png</file>
+        <file>image/size.png</file>
     </qresource>
 </RCC>

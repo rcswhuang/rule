@@ -14,9 +14,6 @@ class HRuleFile:public QObject
     Q_OBJECT
 public:
     explicit HRuleFile(QObject *parent = 0);
-
-
-
 public:
     //序列化函数
     friend QDataStream& operator>>(QDataStream &in,HRuleFile&);
@@ -69,9 +66,8 @@ public:
     bool bDisplayID;//
     bool bSimulateFirst;
     bool bSimuState;
+    QSize m_Size;
     bool bFromulaRight;//公式是否正确
-
-
     QList<HConnect*> connectObjList;
     QList<HDrawObj*> drawObjList;
 

@@ -10,8 +10,9 @@ HFrame::HFrame(QScrollArea* scrollArea,QWidget * parent, Qt::WindowFlags f):
     m_pScrollArea(scrollArea),QFrame(parent,f)
 {
     setFocusPolicy(Qt::StrongFocus);
-    setMouseTracking(true);
+    setMouseTracking(false);
     pRuleFile = new HRuleFile;
+    factor = 1.0;
 }
 
 void HFrame::keyPressEvent(QKeyEvent *event)
@@ -31,7 +32,7 @@ void HFrame::keyReleaseEvent(QKeyEvent *event)
 void HFrame::mousePressEvent(QMouseEvent * event)
 {
     HDrawTool *pDrawTool = HDrawTool::findTool(HDrawTool::drawShape);
-    QPoint point = event->pos();
+    QPoint point = event->pos()/factor;
     if(pDrawTool)
         pDrawTool->onMousePress(this,point,event);
 }
@@ -39,7 +40,7 @@ void HFrame::mousePressEvent(QMouseEvent * event)
 void HFrame::mouseReleaseEvent(QMouseEvent *event)
 {
     HDrawTool *pDrawTool = HDrawTool::findTool(HDrawTool::drawShape);
-    QPoint point = event->pos();
+    QPoint point = event->pos()/factor;
     if(pDrawTool)
         pDrawTool->onMouseRelease(this,point,event);
 }
@@ -47,7 +48,7 @@ void HFrame::mouseReleaseEvent(QMouseEvent *event)
 void HFrame::mouseMoveEvent(QMouseEvent * event)
 {
     HDrawTool *pDrawTool = HDrawTool::findTool(HDrawTool::drawShape);
-    QPoint point = event->pos();
+    QPoint point = event->pos()/factor;
     if(pDrawTool)
         pDrawTool->onMouseMove(this,point,event);
 }
@@ -55,7 +56,7 @@ void HFrame::mouseMoveEvent(QMouseEvent * event)
 void HFrame::mouseDoubleClickEvent(QMouseEvent *event)
 {
     HDrawTool *pDrawTool = HDrawTool::findTool(HDrawTool::drawShape);
-    QPoint point = event->pos();
+    QPoint point = event->pos()/factor;
     if(pDrawTool)
         pDrawTool->onMouseDoubleClick(this,point,event);
 }
@@ -63,7 +64,8 @@ void HFrame::mouseDoubleClickEvent(QMouseEvent *event)
 void HFrame::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-
+    painter.save();
+    painter.scale(factor,factor);
     QPalette pale = palette();
     pale.setColor(QPalette::Background,QColor(pRuleFile->m_strBgClr));
     setPalette(pale);
@@ -87,6 +89,7 @@ void HFrame::paintEvent(QPaintEvent *event)
         if(isSelect(pConnect))
             pConnect->drawSelect(&painter);
     }
+    painter.restore();
 }
 
 void HFrame::resizeEvent(QResizeEvent * event)
@@ -180,12 +183,14 @@ bool HFrame::isSelect(const QObject *pObj)
 void HFrame::drawGrid(QPainter &painter)
 {
     painter.save();
+
     QPen pen;
     pen.setColor(Qt::red);
     pen.setStyle(Qt::SolidLine);
     painter.setPen(pen);
-    painter.drawLine(rect().topLeft(),rect().bottomLeft());
-    painter.drawLine(rect().topLeft(),rect().topRight());
+    QRect rect1 = QRect(0,0,pRuleFile->m_Size.width(),pRuleFile->m_Size.height());
+    painter.drawLine(rect1.topLeft(),rect1.bottomLeft());
+    painter.drawLine(rect1.topLeft(),rect1.topRight());
 
 
     /*绘制外框*/
@@ -198,14 +203,15 @@ void HFrame::drawGrid(QPainter &painter)
         nhBar = m_pScrollArea->horizontalScrollBar()->height();
     if(m_pScrollArea->verticalScrollBar())
         nvBar = m_pScrollArea->verticalScrollBar()->width();
-    QRect rect1 = rect();
-    rect1.setTop(20);
-    rect1.setLeft(10);
-    rect1.setWidth(rect().width()-20-nhBar);
-    rect1.setHeight(rect().height()-20-nvBar);
+
+    rect1.setTop(rect1.top()+20);
+    rect1.setLeft(rect1.left()+10);
+    rect1.setWidth(rect1.width()-20-nhBar);
+    rect1.setHeight(rect1.height()-20-nvBar);
     painter.drawRect(rect1);
 
     /*绘制表格*/
+
     pen.setWidth(1);
     pen.setStyle(Qt::DotLine);
     painter.setPen(pen);
@@ -336,8 +342,24 @@ bool HFrame::objOutConnectLine(HDrawObj* pObj,const int &deltaX,const QPoint &lo
 
 }
 
+void HFrame::delObj()
+{
+     for(int i = 0; i < m_selectObjList.count();i++)
+     {
+         HDrawObj* drawObj = (HDrawObj*)m_selectObjList[i];
+         if(drawObj)
+         {
+             HDrawObj* obj = pRuleFile->findDrawObj(drawObj->dwID);
+             if(obj)
+             {
+                 pRuleFile->removeObj(obj);
+                 m_selectObjList.removeOne(drawObj);
+             }
+             //HConnect* conn = pRuleFile->findDrawObj()
+         }
 
-
+     }
+}
 
 
 

@@ -26,6 +26,7 @@ public slots:
     void shadowBtn_clicked();
     void set_clicked();
     void cancle_clicked();
+    void default_clicked();
 public:
     HFrame* m_pFrame;
     QString strBgClr;

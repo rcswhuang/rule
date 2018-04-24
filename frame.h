@@ -20,20 +20,15 @@ public:
 public:
     virtual void	keyPressEvent(QKeyEvent * event);
     virtual void	keyReleaseEvent(QKeyEvent * event);
-   /* virtual void	leaveEvent(QEvent * event);*/
     virtual void	mouseDoubleClickEvent(QMouseEvent * event);
     virtual void	mouseMoveEvent(QMouseEvent * event);
     virtual void	mousePressEvent(QMouseEvent * event);
     virtual void	mouseReleaseEvent(QMouseEvent * event);
-    /*virtual void	moveEvent(QMoveEvent * event);
-    virtual bool	nativeEvent(const QByteArray & eventType, void * message, long * result);
-    virtual void	paintEvent(QPaintEvent * event);*/
     virtual void	resizeEvent(QResizeEvent * event);
-    /*virtual void	showEvent(QShowEvent * event);
-    virtual void	tabletEvent(QTabletEvent * event);
-    virtual void	wheelEvent(QWheelEvent * event);*/
     virtual void	paintEvent(QPaintEvent * event);
 
+public:
+    void delObj();
 public:
     bool isSelect(const QObject* pObj);
     bool select(HDrawObj* pObj,bool bAdd = false);
@@ -54,12 +49,12 @@ public:
 public:
     //QList<HDrawObj*> m_drawObjlist;
     QList<HDrawObj*> m_selectObjList;
-   // QList<HConnect*> m_connectObjList;
     QList<HConnect*> m_selectConnectObjList;
 
     HRuleFile* pRuleFile;//规则文件，QFrame打开的就是一个规则文件
-public:
     QScrollArea* m_pScrollArea;
+public:
+    float factor;
 private:
     DRAWSHAPE m_drawShape;
 };

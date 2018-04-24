@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>背景设置</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3">
+  <layout class="QVBoxLayout" name="verticalLayout_3" stretch="2,4,1">
    <property name="spacing">
     <number>0</number>
    </property>
@@ -217,6 +217,13 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="defaultBtn">
+       <property name="text">
+        <string>默认</string>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QPushButton" name="setBtn">

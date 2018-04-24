@@ -1,8 +1,13 @@
-﻿#include "mainwindow.h"
+﻿#if defined(_MSC_VER) &&(_MSC_VER >= 1600)
+#pragma execution_character_set("utf-8")
+#endif
+#include "mainwindow.h"
 #include "drawtool.h"
 #include <QVBoxLayout>
 #include <QHeaderView>
+#include <QScrollBar>
 #include "hbgprop.h"
+#include "hviewprop.h"
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
@@ -13,7 +18,10 @@ MainWindow::MainWindow(QWidget *parent)
     m_pScrollArea = new QScrollArea(this);
     m_pFrame = new HFrame(m_pScrollArea);
     m_pScrollArea->setWidget(m_pFrame);
-    m_pScrollArea->widget()->resize(1200,1000);
+    if(m_pFrame || m_pFrame->pRuleFile)
+        m_pScrollArea->widget()->resize(m_pFrame->pRuleFile->m_Size.width(),m_pFrame->pRuleFile->m_Size.height());
+    else
+        m_pScrollArea->widget()->resize(1200,1000);
     setCentralWidget(m_pScrollArea);
     resize(800,600);
    // connect(m_pScrollArea,SIGNAL())
@@ -32,22 +40,30 @@ void MainWindow::createActions()
     cancelAct = new QAction(QIcon(":image/cancel.png"),tr("Cancel"),this);
 
     delAct = new QAction(QIcon(":image/edit_del.png"),tr("&Delete"),this);
+    connect(delAct,SIGNAL(triggered(bool)),this,SLOT(del_clicked()));
     cutAct = new QAction(QIcon(":image/edit_cut.png"),tr("&Cut"),this);
+    connect(cutAct,SIGNAL(triggered(bool)),this,SLOT(cut_clicked()));
     copyAct = new QAction(QIcon(":image/edit_copy.png"),tr("&Copy"),this);
+    connect(copyAct,SIGNAL(triggered(bool)),this,SLOT(copy_clicked()));
     pasteAct = new QAction(QIcon(":image/edit_paste.png"),tr("&Paste"),this);
+    connect(pasteAct,SIGNAL(triggered(bool)),this,SLOT(paste_clicked()));
 
     formulaAct = new QAction(QIcon(":image/formula.png"),tr("生成公式"),this);
     attrAct = new QAction(QIcon(":image/report.png"),tr("规则报告"),this);
     idAct = new QAction(QIcon(":image/ID.png"),tr("ID"),this);
+    connect(idAct,SIGNAL(triggered(bool)),this,SLOT(idset_clicked()));
     simuAct = new QAction(QIcon(":image/simulation.png"),tr("公式仿真"),this);
 
-    fullAct = new QAction(QIcon(":image/full.png"),tr("调整大小"),this);
+    fullAct = new QAction(QIcon(":image/size.png"),tr("调整大小"),this);
+    connect(fullAct,SIGNAL(triggered(bool)),this,SLOT(sizeset_clicked()));
     bgAct = new QAction(QIcon(":image/bgcolor.png"),tr("颜色设置"),this);
     connect(bgAct,SIGNAL(triggered(bool)),this,SLOT(bgset_clicked()));
     gridAct = new QAction(QIcon(":image/grid.png"),tr("显示网格"),this);
     connect(gridAct,SIGNAL(triggered(bool)),this,SLOT(gridset_clicked()));
     zoominAct = new QAction(QIcon(":image/zoom_in.png"),tr("放大"),this);
+    connect(zoominAct,SIGNAL(triggered(bool)),this,SLOT(zoomin_clicked()));
     zoomoutAct = new QAction(QIcon(":image/zoom_out.png"),tr("缩小"),this);
+    connect(zoomoutAct,SIGNAL(triggered(bool)),this,SLOT(zoomout_clicked()));
 
 
     digitalPutAct = new QAction(QIcon(":/image/digital.png"),tr("&Digital"),this);
@@ -132,7 +148,7 @@ void MainWindow::createToolBar()
     configToolBar = new QToolBar;
     configToolBar->setIconSize(QSize(20,20));
     configToolBar->setMovable(false);
-    configToolBar->addAction(formulaAct);
+    configToolBar->addAction(fullAct);
     configToolBar->addAction(bgAct);
     configToolBar->addAction(gridAct);
     configToolBar->addAction(zoominAct);
@@ -203,4 +219,58 @@ void MainWindow::gridset_clicked()
         return;
     m_pFrame->pRuleFile->m_bGrid = !m_pFrame->pRuleFile->m_bGrid;
     m_pFrame->update();
+}
+
+void MainWindow::idset_clicked()
+{
+    if(!m_pFrame && !m_pFrame->pRuleFile)
+        return;
+    m_pFrame->pRuleFile->bDisplayID = !m_pFrame->pRuleFile->bDisplayID;
+    m_pFrame->update();
+}
+
+void MainWindow::sizeset_clicked()
+{
+    if(!m_pFrame && !m_pFrame->pRuleFile)
+        return;
+    HViewProp viewProp(m_pFrame->pRuleFile);
+    viewProp.exec();
+    m_pFrame->resize(m_pFrame->pRuleFile->m_Size.width(),m_pFrame->pRuleFile->m_Size.height());
+    //m_pFrame->update();
+}
+
+void MainWindow::zoomin_clicked()
+{
+    m_pFrame->factor += (float)0.1;
+    if(m_pFrame->factor < (float)0.5) m_pFrame->factor = (float)0.5;
+    if(m_pFrame->factor > (float)1.5) m_pFrame->factor = (float)1.5;
+    m_pFrame->resize(m_pFrame->pRuleFile->m_Size.width()*m_pFrame->factor,m_pFrame->pRuleFile->m_Size.height()*m_pFrame->factor);
+}
+
+void MainWindow::zoomout_clicked()
+{
+    m_pFrame->factor -= (float)0.1;
+    if(m_pFrame->factor < (float)0.5) m_pFrame->factor = (float)0.5;
+    if(m_pFrame->factor > (float)1.5) m_pFrame->factor = (float)1.5;
+    m_pFrame->resize(m_pFrame->pRuleFile->m_Size.width()*m_pFrame->factor,m_pFrame->pRuleFile->m_Size.height()*m_pFrame->factor);
+}
+
+void MainWindow:: del_clicked()
+{
+
+}
+
+void MainWindow:: cut_clicked()
+{
+
+}
+
+void MainWindow:: copy_clicked()
+{
+
+}
+
+void MainWindow:: paste_clicked()
+{
+
 }

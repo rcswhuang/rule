@@ -30,8 +30,16 @@ public slots:
     void onCreateLogicAnd();
     //void onDrawGrid();
 
+    void del_clicked();
+    void cut_clicked();
+    void copy_clicked();
+    void paste_clicked();
     void bgset_clicked();
     void gridset_clicked();
+    void idset_clicked();
+    void sizeset_clicked();
+    void zoomin_clicked();
+    void zoomout_clicked();
 private:
     QScrollArea * m_pScrollArea;
     HFrame* m_pFrame;

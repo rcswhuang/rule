@@ -16,6 +16,7 @@ HBgProp::HBgProp(HFrame* frame,QWidget *parent) :
     connect(ui->shadowBtn,SIGNAL(clicked(bool)),this,SLOT(shadowBtn_clicked()));
     connect(ui->setBtn,SIGNAL(clicked(bool)),this,SLOT(set_clicked()));
     connect(ui->cancleBtn,SIGNAL(clicked(bool)),this,SLOT(cancle_clicked()));
+    connect(ui->defaultBtn,SIGNAL(clicked(bool)),this,SLOT(default_clicked()));
     initBgProp();
 }
 
@@ -133,4 +134,23 @@ void HBgProp::set_clicked()
 void HBgProp::cancle_clicked()
 {
     QDialog::reject();
+}
+
+void HBgProp::default_clicked()
+{
+    strBgClr = QColor(Qt::white).name();
+    strGridClr = QColor(0,0,128).name();
+    strFillClr = QColor(206,230,255).name(); //填充色
+    strLineClr = QColor(0,128,128).name(); //线条颜色
+    //m_clrText = QColor(0,0,255).name(); //文字颜色
+    strUpedgeClr = QColor(255,255,255).name(); //上边框颜色
+    strDownedgeClr = QColor(0,0,0).name(); //下边框颜色
+    strShadowClr = QColor(128,128,128).name(); //阴影颜色
+    ui->bgBtn->setStyleSheet(QString("background-color:")+strBgClr);
+    ui->fillBtn->setStyleSheet(QString("background-color:")+strFillClr);
+    ui->lineBtn->setStyleSheet(QString("background-color:")+strLineClr);
+    ui->upedgeBtn->setStyleSheet(QString("background-color:")+strUpedgeClr);
+    ui->downedgeBtn->setStyleSheet(QString("background-color:")+strDownedgeClr);
+    ui->shadowBtn->setStyleSheet(QString("background-color:")+strShadowClr);
+    ui->gridBtn->setStyleSheet(QString("background-color:")+strGridClr);
 }
