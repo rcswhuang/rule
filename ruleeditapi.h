@@ -69,7 +69,7 @@ enum SELECTMODE
 
 //TYPE_INPUT的子类型
 #define TYPE_INPUT_DIGITAL  102
-#define TYPE_INPUT_ANALOGUE 103
+#define TYPE_INPUT_COMP 103
 
 
 //分 合 检修分 检修合 规则

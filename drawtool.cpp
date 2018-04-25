@@ -432,7 +432,7 @@ void HRectTool::onMouseRelease(HFrame *pFrame, const QPoint &point, QMouseEvent*
          break;
      case enumInputANALOGUE:
          pObj = new HInputObj(QRect(point,QSize(100,40)),pRuleFile);
-         ((HInputObj*)pObj)->setInputType(TYPE_INPUT_ANALOGUE);
+         ((HInputObj*)pObj)->setInputType(TYPE_INPUT_COMP);
          break;
      case enumOutRESUTL:
          if(pFrame->pRuleFile->resultObj() == NULL)

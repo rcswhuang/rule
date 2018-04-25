@@ -987,7 +987,7 @@ void HInputObj::draw(QPainter *painter)
     pen5.setColor(QColor(Qt::black));
     pen5.setWidth(2);
     painter->setPen(pen5);
-    if(btInputType == TYPE_INPUT_ANALOGUE)
+    if(btInputType == TYPE_INPUT_COMP)
         m_strName = "遥测";
     else if(btInputType == TYPE_INPUT_DIGITAL)
         m_strName = "遥信";

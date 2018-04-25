@@ -157,11 +157,7 @@ HDrawObj* HRuleFile::getConnectObj(HDrawObj* target, int nConnNo)
 			    {
 					return pConnObj;
                 }
-				else if (pConnObj->getObjType() == TYPE_INPUT_DIGITAL)
-				{
-					return pConnObj;
-				}
-				else if (pConnObj->getObjType() == TYPE_INPUT_ANALOGUE)
+                else if (pConnObj->getObjType() == TYPE_INPUT)
 				{
 					return pConnObj;
 				}
@@ -547,7 +543,7 @@ bool HRuleFile::visitGeneralBuildObj(HDrawObj* pObj)
 {
 	int nOpCount;
 	bool bErrorFlag = true;
-	if (pObj->getObjType() == TYPE_INPUT_ANALOGUE || pObj->getObjType() == TYPE_INPUT_DIGITAL)
+    if (pObj->getObjType() == TYPE_INPUT_COMP || pObj->getObjType() == TYPE_INPUT_DIGITAL)
 	{
 		strFormula = strFormula + pObj->getOperatorFirst();
 		strFormula = strFormula + pObj->getOperatorMid();

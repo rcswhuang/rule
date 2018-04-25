@@ -291,6 +291,8 @@ void MainWindow:: paste_clicked()
 
 void MainWindow::simulate_clicked()
 {
-    HSimulateProp prop;
+    if(!m_pFrame && !m_pFrame->pRuleFile)
+        return;
+    HSimulateProp prop(m_pFrame->pRuleFile);
     prop.exec();
 }
