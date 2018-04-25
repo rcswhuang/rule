@@ -26,13 +26,15 @@ public:
 
 public:
     //序列化操作部分
-   // virtual void readData(int nVersion,QDataStream* ds);
-   // virtual void writeData(int nVerion,QDataStream* ds);
+    virtual void readData(int nVersion,QDataStream* ds);
+    virtual void writeData(int nVersion,QDataStream* ds);
     //属性相关函数
+    void generateID();
+    void saveOldID();
     quint8 getObjType();
     void setWrongFlag(bool wrong);
     void setVisiteFlag(bool visite);
-
+    void setOffset();
     //绘制操作部分
     virtual void draw(QPainter* painter);
     virtual void drawPins(QPainter* painter,QRect rectPins);
@@ -64,7 +66,8 @@ public:
     //补充
 public:
     //属性
-    unsigned long dwID; //图符ID
+    quint32 dwOldID;//复制粘贴的时候
+    quint32 dwID; //图符ID
     quint8 m_btObjType; //图符类型 输入 逻辑等类型
     QString m_strName; //图元名称
     QString m_strRuleName; //规则文件名称
@@ -80,16 +83,6 @@ public:
     bool m_bConnect;
 
     bool m_bFill; //是否填充
-/*    QString m_strFillClr; //填充色
-    QString m_strLineClr; //线条颜色
-    //QString m_clrText; //文字颜色
-    QString m_strUpedgeClr; //上边框颜色
-    QString m_strDownedgeClr; //下边框颜色
-    QString m_strShadowClr; //阴影颜色
-*/
-    int nLeftDeltaX;//输入点在左边
-    int nRightDeltaX;//输出点在右边
-
     bool m_bWrong;
     bool m_bVisit;//遍历
 
@@ -123,8 +116,9 @@ public:
 
 public:
     //序列化操作
-    //virtual void readData(int nVersion,QDataStream* ds);
-    //virtual void writeData(int nVerion,QDataStream* ds);
+    virtual void readData(int nVersion,QDataStream* ds);
+    virtual void writeData(int nVerion,QDataStream* ds);
+    void setOffSet();
     //绘制操作
     void draw(QPainter* painter);
     void drawSelect(QPainter* painter);
@@ -168,8 +162,8 @@ public:
 
 public:
     //序列化操作部分
-  //  virtual void readData(int nVersion,QDataStream* ds);
-   // virtual void writeData(int nVerion,QDataStream* ds);
+    virtual void readData(int nVersion,QDataStream* ds);
+    virtual void writeData(int nVerion,QDataStream* ds);
 
     //绘制操作部分
     virtual void draw(QPainter* painter);
@@ -217,6 +211,8 @@ class HResultObj: public HDrawObj
 public:
     //HResultObj(QObject* parent = 0);
     HResultObj(const QRect& rect,HRuleFile *pRuleFile);
+    virtual void readData(int nVersion,QDataStream* ds);
+    virtual void writeData(int nVerion,QDataStream* ds);
 public:
     //绘制操作部分
     virtual void draw(QPainter* painter);
@@ -244,6 +240,8 @@ class HOrObj: public HDrawObj
 public:
     //HOrObj(QObject* parent = 0);
     HOrObj(const QRect& rect,HRuleFile *pRuleFile);
+    virtual void readData(int nVersion,QDataStream* ds);
+    virtual void writeData(int nVerion,QDataStream* ds);
 public:
     //绘制操作部分
     virtual void draw(QPainter* painter);
@@ -271,6 +269,8 @@ class HAndObj: public HDrawObj
 public:
     //HAndObj(QObject* parent = 0);
     HAndObj(const QRect& rect,HRuleFile *pRuleFile);
+    virtual void readData(int nVersion,QDataStream* ds);
+    virtual void writeData(int nVerion,QDataStream* ds);
 public:
     //绘制操作部分
     virtual void draw(QPainter* painter);

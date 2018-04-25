@@ -40,7 +40,7 @@ void HRuleFile::addConnect(HConnect* pObj)
     }
 }
 
-HDrawObj* HRuleFile::findDrawObj(unsigned long ulID)
+HDrawObj* HRuleFile::findDrawObj(quint32 ulID)
 {
     HDrawObj* pObj = NULL;
     for(int i =0; i < drawObjList.count();i++)
@@ -100,7 +100,7 @@ HResultObj* HRuleFile::resultObj()
 
 bool HRuleFile::isObjConnect(HDrawObj *pDrawObj)
 {
-	unsigned long dwObjID = pDrawObj->m_pRuleFile->dwDrawObjID;
+    quint32 dwObjID = pDrawObj->m_pRuleFile->dwDrawObjID;
 	if (pDrawObj->m_nInPointSum > 0 || pDrawObj->m_nOutPointSum > 0)
 	{
 		for (int i = 0; i < connectObjList.count(); i++)
@@ -132,7 +132,7 @@ HResultObj* HRuleFile::getResultObj()
 
 HDrawObj* HRuleFile::getConnectObj(HDrawObj* target, int nConnNo)
 {
-	unsigned long dwTargetObjID;
+    quint32 dwTargetObjID;
 	quint16 dwConnectedID;
 
 	dwTargetObjID = target->dwID;

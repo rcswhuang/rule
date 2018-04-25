@@ -34,6 +34,9 @@ public slots:
     void cut_clicked();
     void copy_clicked();
     void paste_clicked();
+
+    void simulate_clicked();
+
     void bgset_clicked();
     void gridset_clicked();
     void idset_clicked();

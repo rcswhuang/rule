@@ -25,27 +25,102 @@ HDrawObj::HDrawObj(const QRect &rect, HRuleFile *pRuleFile)
     m_strRuleName = ""; //规则文件名称
     m_bOutValue = false;//逻辑输出
     m_fOutValue = 0.0;//模拟量输出
-
-    //m_rectCurPos = rect; //当前点矩形位置
-    //m_pRuleFile = pRuleFile; //规则文件
     m_pointIn = NULL; //多点输入
     //m_pointOut; //实际上对外的连接点位置 对外只有一个输出点
     m_nInPointSum = 0; //输入点个数
     m_nOutPointSum = 1; //输出点个数
     m_bFill = true; //是否填充
-    /*m_strFillClr = QColor(206,230,255).name(); //填充色
-    m_strLineClr = QColor(0,128,128).name(); //线条颜色
-    //m_clrText = QColor(0,0,255).name(); //文字颜色
-    m_strUpedgeClr = QColor(255,255,255).name(); //上边框颜色
-    m_strDownedgeClr = QColor(0,0,0).name(); //下边框颜色
-    m_strShadowClr = QColor(128,128,128).name(); //阴影颜色
-    */
     if(m_pRuleFile)
     {
 
         dwID = m_pRuleFile->generateDrawObjID();
         qDebug()<<"dwID = "<<dwID;
     }
+}
+
+void HDrawObj::readData(int nVersion,QDataStream* ds)
+{
+    if(!ds) return;
+
+    quint32 n32;
+    *ds >> n32; //图符ID
+    dwID = n32;
+    quint8  n8;
+    *ds >> n8;
+    m_btObjType = n8; //图符类型 输入 逻辑等类型
+    QString s;
+    *ds >> s;
+    m_strName = s; //图元名称
+    *ds >> s;
+    m_strRuleName = s; //规则文件名称
+    QRect rect;
+    *ds >> rect;
+    m_rectCurPos = rect;//当前点矩形位置
+    int n;
+    *ds >> n;
+    m_nInPointSum = n; //输入点个数
+    QPoint pt;
+    if(m_pointIn)
+    {
+        delete[] m_pointIn;
+        m_pointIn = NULL;
+    }
+    if(m_nInPointSum == 0)
+        m_pointIn = NULL;
+    else
+    {
+        m_pointIn = new QPoint[m_nInPointSum];
+        for(int i = 0; i < m_nInPointSum;i++)
+        {
+            *ds >> pt;
+            m_pointIn[i] = pt;
+        }
+    }
+
+    *ds >> n;
+    m_nOutPointSum = n; //输出点个数
+    *ds >> pt;
+    m_pointOut = pt;
+
+}
+
+void HDrawObj::writeData(int nVersion,QDataStream* ds)
+{
+    if(!ds)
+        return ;
+    *ds<<(quint32)dwID; //图符ID
+    *ds<<(quint8)m_btObjType; //图符类型 输入 逻辑等类型
+    *ds<<(QString)m_strName; //图元名称
+    *ds<<(QString)m_strRuleName; //规则文件名称
+    *ds<<(QRect)m_rectCurPos; //当前点矩形位置
+    *ds<<(int)m_nInPointSum;
+    if(m_pointIn)
+    {
+        for(int i = 0; i < m_nInPointSum;i++)
+            *ds<<(QPoint)m_pointIn[i];
+    }
+    *ds<<(int)m_nOutPointSum;
+    *ds<<(QPoint)m_pointOut;
+}
+
+void HDrawObj::generateID()
+{
+    if(m_pRuleFile)
+    {
+
+        dwID = m_pRuleFile->generateDrawObjID();
+        qDebug()<<"dwID = "<<dwID;
+    }
+}
+
+void HDrawObj::saveOldID()
+{
+    dwOldID = dwID;
+}
+
+void HDrawObj::setOffset()
+{
+    m_rectCurPos.adjust(10,10,10,10);
 }
 
 quint8 HDrawObj::getObjType()
@@ -430,6 +505,65 @@ HConnect::HConnect(quint16 dwInObjID, quint16 dwOutObjID, HRuleFile *pRuleFile, 
     calLine();
 }
 
+void HConnect::readData(int nVersion,QDataStream* ds)
+{
+    if(!ds) return;
+    quint16 n16;
+    *ds>>n16;
+    dwInObjID = n16;
+    *ds>>n16;
+    dwOutObjID = n16;
+    quint8 n8;
+    *ds>>n8;
+    btInIndex = n8;
+    *ds>>n8;
+    btOutIndex = n8;
+    QPoint pt;
+    *ds>>pt;
+    m_pointIn = pt;
+    *ds>>pt;
+    m_pointOut = pt;
+    *ds>>n8;
+    m_btPointSum = n8;
+    if(m_btPointSum == 0) m_pLinePoint = NULL;
+    else
+    {
+        m_pLinePoint = new QPoint[m_btPointSum];
+        for(int i = 0; i < m_btPointSum;i++)
+        {
+            *ds>>pt;
+            m_pLinePoint[i] = pt;
+        }
+    }
+    *ds>>n8;
+    m_btSelLine = n8;
+}
+
+void HConnect::writeData(int nVerion,QDataStream* ds)
+{
+    if(!ds) return;
+    *ds<<(quint16) dwInObjID; //输入元件对象ID
+    *ds<<(quint16) dwOutObjID;//输出元件对象ID
+    *ds<<(quint8) btInIndex; //输入元件对象索引
+    *ds<<(quint8) btOutIndex; //输出元件对象索引
+    *ds<<(QPoint) m_pointIn; //输入元件位置
+    *ds<<(QPoint) m_pointOut; //输出元件位置
+    *ds<<(quint8) m_btPointSum; //点数目
+    if(m_btPointSum > 0)
+    {
+        for(int i = 0; i < m_btPointSum;i++)
+            *ds<<(QPoint)m_pLinePoint[i];
+    }
+    *ds<<(quint8)m_btSelLine; //选择连接线点号
+}
+
+void HConnect::setOffSet()
+{
+    m_pointIn += QPoint(10,10);
+    m_pointOut += QPoint(10,10);
+    calLine();
+}
+
 //连接的线型：2中
 /*
  * 1.   A点 口----------口 B点 平行或者垂直  经过的点2个 就是A和B两点
@@ -678,6 +812,86 @@ HInputObj::HInputObj(const QRect &rect, HRuleFile *pRuleFile)
     calOutPoint();
 }
 
+void HInputObj::readData(int nVersion,QDataStream* ds)
+{
+    if(!ds) return;
+    HDrawObj::readData(nVersion,ds);
+    quint8 n8;
+    *ds >> n8;
+    btInputType = n8;//102:遥信 103:遥测
+    quint16 n16;
+    *ds >> n16;
+    wMode1 = n16;         //间隔or装置
+    *ds >> n16;
+    wStationID1 = n16;    //厂站地址
+    *ds >> n16;
+    wProtID1 = n16;       //设备地址
+    *ds >> n8;
+    btInType1 = n8;       //遥信 遥测 遥控等
+    *ds >> n16;
+    wPointID1 = n16;      //点号
+    *ds >> n16;
+    wAttr1 = n16;         //点属性
+    float f;
+    *ds >> f;
+    fReserved1 = f;       //保留
+
+    //比较值2
+    *ds >> n16;
+    wMode2 = n16;
+    *ds >> n16;
+    wStationID2 = n16;
+    *ds >> n16;
+    wProtID2 = n16;
+    *ds >> n8;
+    btInType2 = n8;//遥信 遥测 遥控等
+    *ds >> n16;
+    wPointID2 = n16;
+    *ds >> n16;
+    wAttr2 = n16;
+    *ds >> f;
+    fRating = f;//测点1的额定值 ???
+
+    //比较值2
+    *ds >> f;
+    m_fCompValue = f;
+
+    bool b;
+    *ds >> b;
+    bCompType = b;//0:测点比较常数 1:测点比较测点
+    *ds >> n8;
+    btCondition = n8;//条件 大于 小于 等于
+}
+
+void HInputObj::writeData(int nVersion,QDataStream* ds)
+{
+    if(!ds) return;
+    HDrawObj::writeData(nVersion,ds);
+    *ds<<(quint8) btInputType;//102:遥信 103:遥测
+    *ds<<(quint16) wMode1;         //间隔or装置
+    *ds<<(quint16) wStationID1;    //厂站地址
+    *ds<<(quint16) wProtID1;       //设备地址
+    *ds<<(quint8) btInType1;       //遥信 遥测 遥控等
+    *ds<<(quint16) wPointID1;      //点号
+    *ds<<(quint16) wAttr1;         //点属性
+    *ds<<(float) fReserved1;       //保留
+
+    //比较值2
+    *ds<<(quint16) wMode2;
+    *ds<<(quint16) wStationID2;
+    *ds<<(quint16) wProtID2;
+    *ds<<(quint8) btInType2;//遥信 遥测 遥控等
+    *ds<<(quint16) wPointID2;
+    *ds<<(quint16) wAttr2;
+    *ds<<(float) fRating;//测点1的额定值 ???
+
+    //比较值2
+    *ds<<(float) m_fCompValue;
+
+    *ds<<(bool) bCompType;//0:测点比较常数 1:测点比较测点
+    *ds<<(quint8) btCondition;//条件 大于 小于 等于
+
+}
 
 void HInputObj::draw(QPainter *painter)
 {
@@ -816,6 +1030,18 @@ HResultObj::HResultObj(const QRect &rect, HRuleFile *pRuleFile):HDrawObj(rect,pR
     m_btObjType = TYPE_RESULT;
 }
 
+void HResultObj::readData(int nVersion,QDataStream* ds)
+{
+    if(!ds) return;
+    HDrawObj::readData(nVersion,ds);
+}
+
+void HResultObj::writeData(int nVersion,QDataStream* ds)
+{
+    if(!ds) return;
+    HDrawObj::writeData(nVersion,ds);
+}
+
 void HResultObj::calOutPoint()
 {
     QRect rect = m_rectCurPos;
@@ -937,6 +1163,18 @@ HOrObj::HOrObj(const QRect &rect, HRuleFile *pRuleFile):HDrawObj(rect,pRuleFile)
     m_btObjType = TYPE_LOGICOR;
 }
 
+void HOrObj::readData(int nVersion,QDataStream* ds)
+{
+    if(!ds) return;
+    HDrawObj::readData(nVersion,ds);
+}
+
+void HOrObj::writeData(int nVersion,QDataStream* ds)
+{
+    if(!ds) return;
+    HDrawObj::writeData(nVersion,ds);
+}
+
 void HOrObj::calOutPoint()
 {
     QRect rect ;
@@ -1015,6 +1253,12 @@ void HOrObj::draw(QPainter *painter)
     painter->setPen(pen1);
     drawPins(painter,QRect(QPoint(nLeftX2,nTopY2),QPoint(nRightX2,nBottomY2)));//保证处在最右边即可以
 
+    if(m_pRuleFile->bDisplayID)
+    {
+        QString strID = QString("U%1").arg(dwID);
+        painter->drawText(QRect(QPoint(nLeftX0,nTopY0),QPoint(nRightX0-10,nTopY1)),Qt::AlignCenter,strID);
+    }
+
     QPen pen2(Qt::black);
     pen2.setWidth(2);
     painter->setPen(pen2);
@@ -1041,6 +1285,18 @@ HAndObj::HAndObj(const QRect &rect, HRuleFile *pRuleFile):HDrawObj(rect,pRuleFil
     m_pointIn = new QPoint[MAXCOUNT_INPUT];
     calOutPoint();
     m_btObjType = TYPE_LOGICAND;
+}
+
+void HAndObj::readData(int nVersion,QDataStream* ds)
+{
+    if(!ds) return;
+    HDrawObj::readData(nVersion,ds);
+}
+
+void HAndObj::writeData(int nVersion,QDataStream* ds)
+{
+    if(!ds) return;
+    HDrawObj::writeData(nVersion,ds);
 }
 
 void HAndObj::calOutPoint()
@@ -1119,6 +1375,12 @@ void HAndObj::draw(QPainter *painter)
     pen1.setStyle(Qt::SolidLine);
     painter->setPen(pen1);
     drawPins(painter,QRect(QPoint(nLeftX2,nTopY2),QPoint(nRightX2,nBottomY2)));//保证处在最右边即可以
+
+    if(m_pRuleFile->bDisplayID)
+    {
+        QString strID = QString("U%1").arg(dwID);
+        painter->drawText(QRect(QPoint(nLeftX0,nTopY0),QPoint(nRightX0-10,nTopY1)),Qt::AlignCenter,strID);
+    }
 
     QFont font1("Arial",10);
     painter->setFont(font1);

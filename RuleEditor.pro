@@ -18,7 +18,8 @@ SOURCES += main.cpp\
     inputprop.cpp \
     hlogicprop.cpp \
     hbgprop.cpp \
-    hviewprop.cpp
+    hviewprop.cpp \
+    hsimulateprop.cpp
 
 HEADERS  += mainwindow.h \
     drawtool.h \
@@ -30,7 +31,8 @@ HEADERS  += mainwindow.h \
     ruleeditapi.h \
     hlogicprop.h \
     hbgprop.h \
-    hviewprop.h
+    hviewprop.h \
+    hsimulateprop.h
 
 RESOURCES += \
     ruleeditor.qrc
@@ -39,4 +41,5 @@ FORMS += \
     inputprop.ui \
     logicprop.ui \
     bgprop.ui \
-    viewprop.ui
+    viewprop.ui \
+    simulateprop.ui

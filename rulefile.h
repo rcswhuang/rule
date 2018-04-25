@@ -21,16 +21,22 @@ public:
 public:
 
     //对象操作函数
-    unsigned long generateDrawObjID()
+    quint32 generateDrawObjID()
     {
         return ++dwDrawObjID;
     }
+
+    void refreshDrawObjID()
+    {
+        dwDrawObjID = drawObjList.count()+1;
+    }
+
     void add(HDrawObj* pObj);
     void addConnect(HConnect* pObj);
     HDrawObj* objectAt(const QPoint &point);
     HConnect* connectAt(const QPoint& point);
     HResultObj* resultObj();//查找列表中是否存在输出图元
-    HDrawObj* findDrawObj(unsigned long ulID);//通过ID来找对象
+    HDrawObj* findDrawObj(quint32 ulID);//通过ID来找对象
     void removeObj(HDrawObj* drawObj);
     void removeConnect(HConnect* connectObj);
     bool isObjConnect(HDrawObj* pDrawObj);//判断当前对象是否连接
@@ -49,7 +55,7 @@ public slots:
 
 public:
     int nRuleFileID;//规则文件的ID，每个遥信的每个规则都有ID
-    unsigned long dwDrawObjID;//每个图元对象的ID,每增加一个图元ID+1
+    quint32 dwDrawObjID;//每个图元对象的ID,每增加一个图元ID+1
     QString strRuleName;//规则名
     QString strFormula;//公式名
 

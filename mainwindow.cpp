@@ -8,6 +8,7 @@
 #include <QScrollBar>
 #include "hbgprop.h"
 #include "hviewprop.h"
+#include "hsimulateprop.h"
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
@@ -53,6 +54,7 @@ void MainWindow::createActions()
     idAct = new QAction(QIcon(":image/ID.png"),tr("ID"),this);
     connect(idAct,SIGNAL(triggered(bool)),this,SLOT(idset_clicked()));
     simuAct = new QAction(QIcon(":image/simulation.png"),tr("公式仿真"),this);
+    connect(simuAct,SIGNAL(triggered(bool)),this,SLOT(simulate_clicked()));
 
     fullAct = new QAction(QIcon(":image/size.png"),tr("调整大小"),this);
     connect(fullAct,SIGNAL(triggered(bool)),this,SLOT(sizeset_clicked()));
@@ -268,15 +270,27 @@ void MainWindow:: del_clicked()
 
 void MainWindow:: cut_clicked()
 {
-
+    if(!m_pFrame && !m_pFrame->pRuleFile)
+        return;
+    m_pFrame->cutObj();
 }
 
 void MainWindow:: copy_clicked()
 {
-
+    if(!m_pFrame && !m_pFrame->pRuleFile)
+        return;
+    m_pFrame->copyObj();
 }
 
 void MainWindow:: paste_clicked()
 {
+    if(!m_pFrame && !m_pFrame->pRuleFile)
+        return;
+    m_pFrame->pasteObj();
+}
 
+void MainWindow::simulate_clicked()
+{
+    HSimulateProp prop;
+    prop.exec();
 }

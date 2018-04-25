@@ -29,6 +29,11 @@ public:
 
 public:
     void delObj();
+    void cutObj();
+    void copyObj();
+    void pasteObj();
+    QString getClipboardFile();
+    void updatePasteObj();
 public:
     bool isSelect(const QObject* pObj);
     bool select(HDrawObj* pObj,bool bAdd = false);

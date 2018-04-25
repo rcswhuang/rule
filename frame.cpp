@@ -4,6 +4,8 @@
 #include <QPainter>
 #include <QMetaObject>
 #include <QScrollBar>
+#include <QProcessEnvironment>
+#include <QDir>
 #include <hlogicprop.h>
 #include <QDebug>
 HFrame::HFrame(QScrollArea* scrollArea,QWidget * parent, Qt::WindowFlags f):
@@ -373,7 +375,7 @@ void HFrame::delObj()
          {
              HDrawObj* obj1 = (HDrawObj*)pRuleFile->drawObjList[i];
              if(obj1->dwID < obj->dwID) continue;
-             unsigned long bakID = obj->dwID;
+             quint32 bakID = obj->dwID;
              obj1->dwID--;
              //在连接线里面找到连接到该对象的元素，然后ID也要-1
              for(int k = 0; k < pRuleFile->connectObjList.count();k++)
@@ -394,14 +396,165 @@ void HFrame::delObj()
     }
 
     //重置ID
+    pRuleFile->refreshDrawObjID();
     this->update();
 
 }
 
+void HFrame::cutObj()
+{
+    copyObj();
+    delObj();
+}
 
+void HFrame::copyObj()
+{
+    QByteArray bytes;
+    QDataStream stream(&bytes,QIODevice::WriteOnly);
+    //写入stream
+    stream<<m_selectObjList.count();
+    QList<HDrawObj*>::iterator it = m_selectObjList.begin();
+    for(;it != m_selectObjList.end();++it)
+    {
+        HDrawObj* pObj = (HDrawObj*)(*it);
+        if(pObj)
+        {
+            stream<<pObj->m_btObjType;
+            pObj->writeData(QDataStream::Qt_5_7,&stream);
+        }
+    }
 
+    stream<<m_selectConnectObjList.count();
+    QList<HConnect*>::iterator itc = m_selectConnectObjList.begin();
+    for(;itc != m_selectConnectObjList.end();++itc)
+    {
+        HConnect* pObj = (HConnect*)(*itc);
+        if(pObj)
+        {
+            pObj->writeData(QDataStream::Qt_5_7,&stream);
+        }
+    }
 
+    QString clipboardPath = getClipboardFile();
+    QFile file(clipboardPath);
+    if(file.open(QIODevice::WriteOnly))
+    {
+        QDataStream cbStream(&file);
+        cbStream.writeBytes(bytes.data(),bytes.length());
+        file.close();
+    }
+}
 
+void HFrame::pasteObj()
+{
+    QString clipboardPath = getClipboardFile();
+    QFile file(clipboardPath);
+    if(!file.exists() || !file.open(QIODevice::ReadOnly))
+        return;
+    QDataStream stream(&file);
+    int drawObjCount;
+    stream>>drawObjCount;
+    if(drawObjCount == 0) return;
+    QPoint point = QPoint(0,0);
+    for(int i = 0; i < drawObjCount;i++)
+    {
+        quint8 btObjType;
+        stream>>btObjType;
+        HDrawObj* pObj = NULL;
+        if(TYPE_INPUT == btObjType)
+        {
+            pObj = new HInputObj(QRect(point,QSize(100,40)),pRuleFile);
+        }
+        else if(TYPE_LOGICAND == btObjType)
+        {
+            pObj = new HAndObj(QRect(point,QSize(80,84)),pRuleFile);
+        }
+        else if(TYPE_LOGICOR == btObjType)
+        {
+            pObj = new HOrObj(QRect(point,QSize(80,84)),pRuleFile);
+        }
+        else if(TYPE_RESULT == btObjType)
+        {
+            pObj = new HResultObj(QRect(point,QSize(100,40)),pRuleFile);
+        }
+        else
+            return;
 
+        pObj->readData(QDataStream::Qt_5_7,&stream);
+        pRuleFile->add(pObj);
+    }
 
+    //连接线
+    int connObjCount;
+    stream>>connObjCount;
+    if(connObjCount == 0) return;
+    for(int i = 0; i < connObjCount;i++)
+    {
+        HConnect* conn = new HConnect();
+        conn->readData(QDataStream::Qt_5_7,&stream);
+        pRuleFile->addConnect(conn);
+    }
 
+    //更新一下拷贝之后的信息
+    updatePasteObj();
+}
+
+QString HFrame::getClipboardFile()
+{
+    QString clipboardPath = QProcessEnvironment::systemEnvironment().value("wfsystem_dir");
+    clipboardPath.append("/data/rule");
+    QDir dir(clipboardPath);
+    if(!dir.exists())
+        dir.mkdir(clipboardPath);
+    clipboardPath.append("/ruleclipboard.data");
+    return clipboardPath;
+}
+
+void HFrame::updatePasteObj()
+{
+    if(!pRuleFile) return;
+    pRuleFile->refreshDrawObjID();
+
+    //将选择的部分变成新增的部分
+    for(int i = 0; i < m_selectObjList.count();i++)
+    {
+        HDrawObj* pObj = (HDrawObj*)m_selectObjList[i];
+        if(pObj)
+        {
+            pObj->m_pRuleFile = pRuleFile;
+            pObj->saveOldID();
+            pObj->generateID();
+            pObj->setWrongFlag(false);
+            pObj->setOffset();
+        }
+    }
+
+    //更新连接线
+    /*将连接线上oldID*/
+    for(int i = 0; i < m_selectConnectObjList.count();i++)
+    {
+        HConnect* conn = (HConnect*)m_selectConnectObjList[i];
+        bool bConnectIn,bConnectOut;
+        bConnectIn = bConnectOut = false;
+        for(int k = 0; k < m_selectObjList.count();k++)
+        {
+            HDrawObj* drawObj = (HDrawObj*)m_selectObjList[i];
+            if(drawObj && conn->dwInObjID == drawObj->dwOldID && !bConnectIn)
+            {
+                conn->dwInObjID = drawObj->dwID;
+                bConnectIn = true;
+            }
+            if(drawObj && conn->dwOutObjID == drawObj->dwOldID && !bConnectOut)
+            {
+                conn->dwOutObjID = drawObj->dwID;
+                bConnectOut = true;
+            }
+        }
+        if(bConnectIn && bConnectOut)
+        {
+            conn->setOffSet();
+            conn->m_pRuleFile = pRuleFile;
+        }
+    }
+    update();
+}
