@@ -155,8 +155,9 @@ typedef struct _tagRULEPARAM
 }RULEPARAM;
 
 //定义回调函数 去获取实时库的当前测点的信息，包含当前值 当前状态等等
-//typedef RULE_EXPORT  bool (* LPRULEDATACALLBACK)(int msgType,RULEPARAM *ruleParam);
-
+typedef RULE_EXPORT  bool (* LPRULEDATACALLBACK)(int msgType,RULEPARAM *ruleParam);
+LPRULEDATACALLBACK m_lpRuleDataCallBack = NULL;
+quint8 m_btAppType = -1;
 /*
  * typedef FORMULA_EXPORT bool (*LPFORMULAPROC)(int nMsgType,WPARAM wParam,LPARAM lParam,int nDBID);
 bool RULE_EXPORT initRuleFiles(quint8 btType,char* szFilePath,LPRULEDATACALLBACK lpDataCallBack);

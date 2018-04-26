@@ -193,12 +193,12 @@ public:
 
     //遥信通常是测点的值和0/1进行比较。 遥测通常是遥测1和遥测2比较，遥测1和浮点数比较
     //比较值1：可以是遥信、也可以是遥测
-    quint16 wMode1;         //间隔or装置
-    quint16 wStationID1;    //厂站地址
-    quint16 wProtID1;       //设备地址
-    quint8 btInType1;       //遥信 遥测 遥控等
-    quint16 wPointID1;      //点号
-    quint16 wAttr1;         //点属性
+    quint16 m_wMode1;         //间隔or装置
+    quint16 m_wStationID1;    //厂站地址
+    quint16 m_wProtID1;       //设备地址(GIN) / 类型(ID)
+    quint8 m_btInType1;       //内部类型
+    quint16 m_wPointID1;      //GIN号/ID号
+    quint16 m_wAttr1;         //点属性
     float fReserved1;       //保留
 
     //比较值2
