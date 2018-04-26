@@ -293,6 +293,13 @@ void MainWindow::simulate_clicked()
 {
     if(!m_pFrame && !m_pFrame->pRuleFile)
         return;
-    HSimulateProp prop(m_pFrame->pRuleFile);
-    prop.exec();
+    if(!m_pFrame->pRuleFile->bSimuState)
+    {
+        HSimulateProp prop(m_pFrame->pRuleFile);
+        prop.exec();
+        //需要遍历一遍
+        m_pFrame->pRuleFile->buildSimulateFormula();
+    }
+    m_pFrame->pRuleFile->bSimuState = !m_pFrame->pRuleFile->bSimuState;
+    m_pFrame->update();
 }

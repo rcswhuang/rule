@@ -53,9 +53,9 @@ void HSimulateProp::initSimulateProp()
 
 
             QComboBox* box = new QComboBox;
-            box->addItem("FALSE",true);
-            box->addItem("TRUE",false);
-            box->setCurrentIndex(0);
+            box->addItem("FALSE",false);
+            box->addItem("TRUE",true);
+            box->setCurrentIndex(box->findData(obj->m_bOutValue));
             ui->simTable->setCellWidget(i,1,box);
         }
     }
@@ -73,9 +73,10 @@ void HSimulateProp::okBtn_clicked()
             obj->m_bOutValue = bValue;
         }
     }
+    QDialog::accept();
 }
 
 void HSimulateProp::cancleBtn_clicked()
 {
-
+    QDialog::reject();
 }

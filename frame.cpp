@@ -12,7 +12,7 @@ HFrame::HFrame(QScrollArea* scrollArea,QWidget * parent, Qt::WindowFlags f):
     m_pScrollArea(scrollArea),QFrame(parent,f)
 {
     setFocusPolicy(Qt::StrongFocus);
-    setMouseTracking(false);
+    setMouseTracking(true);
     pRuleFile = new HRuleFile;
     factor = 1.0;
 }
@@ -293,7 +293,6 @@ bool HFrame::isLinkConnectObj(HDrawObj *pObj)
     return true;
 }
 
-
 bool HFrame::findConnectInRect(const HDrawObj*pObj,const quint16 wIndex,int nMoveDirect)
 {
     bool bfind = false;
@@ -307,7 +306,6 @@ bool HFrame::findConnectInRect(const HDrawObj*pObj,const quint16 wIndex,int nMov
         }
     }
     return bfind;
-
 }
 
 

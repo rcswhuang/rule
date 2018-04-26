@@ -6,7 +6,7 @@
 #include <QPoint>
 #include <QBrush>
 //#include "frame.h"
-#include "inputprop.h"
+#include "hdigitalprop.h"
 #include "rulefile.h"
 #include <math.h>
 #include <QDebug>
@@ -435,6 +435,10 @@ QString HDrawObj::getOperatorFirst()
     case TYPE_INPUT:
         strOperator = " ";
         break;
+    case TYPE_LOGICAND:
+    case TYPE_LOGICOR:
+        strOperator = " (";
+        break;
     }
     return strOperator;
 }
@@ -446,8 +450,14 @@ QString HDrawObj::getOperatorMid()
     {
     default:
         return "";
+    case TYPE_LOGICAND:
+        strOperator = " & ";
+        break;
+    case TYPE_LOGICOR:
+        strOperator = " | ";
+        break;
     case TYPE_INPUT:
-        strOperator = m_strName;
+        strOperator = m_strRuleName;
         break;
     }
     return strOperator;
@@ -460,6 +470,10 @@ QString HDrawObj::getOperatorLast()
     {
     default:
         return "";
+    case TYPE_LOGICAND:
+    case TYPE_LOGICOR:
+        strOperator = " )";
+        break;
     case TYPE_INPUT:
         strOperator = " ";
         break;
@@ -467,6 +481,15 @@ QString HDrawObj::getOperatorLast()
     return strOperator;
 }
 
+void HDrawObj::addInValue(int nNo,bool value)
+{
+    memset(&m_bInVal,0,MAXCOUNT_INPUT);
+}
+
+bool HDrawObj::outValue()//逻辑表达式的值
+{
+    return m_bOutValue;
+}
 ////////////////////////////////////////HConnect///////////////////////////////////////
 HConnect::HConnect()
 {
@@ -981,7 +1004,17 @@ void HInputObj::draw(QPainter *painter)
         painter->drawText(QRect(QPoint(nLeftX0,nTopY0),QPoint(nRightX0-10,nTopY1)),Qt::AlignCenter,strID);
     }
     //显示仿真数据
-    
+    if(m_pRuleFile->bSimuState)
+    {
+        painter->save();
+        QPen pensim;
+        pensim.setColor(QColor(Qt::red));
+        pensim.setWidth(1);
+        painter->setPen(pensim);
+        QString strSim = QString("%1").arg(m_bOutValue);
+        painter->drawText(QRect(QPoint(nRightX0-20,nTopY0),QPoint(nRightX0-10,nTopY1)),Qt::AlignCenter,strSim);
+        painter->restore();
+    }
     //绘制名字
     QPen pen5;
     pen5.setColor(QColor(Qt::black));
@@ -1011,13 +1044,21 @@ void HInputObj::setInputProperty(HFrame *pFrame)
     switch(btInputType)
     {
     case TYPE_INPUT_DIGITAL:
-        HInputProp digitalPorp;
+        HDigitalProp digitalPorp;
         digitalPorp.exec();
         break;
     }
 }
 
+void HInputObj::addInValue(int nNo,bool value)
+{
 
+}
+
+bool HInputObj::outValue()//逻辑表达式的值
+{
+    return m_bOutValue;
+}
 
 ///////////////////////////////////////////////HResultObj 输出///////////////////////////////
 HResultObj::HResultObj(const QRect &rect, HRuleFile *pRuleFile):HDrawObj(rect,pRuleFile)
@@ -1151,7 +1192,19 @@ void HResultObj::draw(QPainter *painter)
     painter->restore();
 }
 
+void HResultObj::addInValue(int nNo,bool value)
+{
+    if(nNo >=0 && nNo < m_nInPointSum)
+    {
+        m_bInVal[nNo] = value;
+    }
+}
 
+bool HResultObj::outValue()//逻辑表达式的值
+{
+    //m_bOutValue
+    return false;
+}
 ///////////////////////////////////////////////HOrObj 或///////////////////////////////
 HOrObj::HOrObj(const QRect &rect, HRuleFile *pRuleFile):HDrawObj(rect,pRuleFile)
 {
@@ -1195,14 +1248,8 @@ void HOrObj::calOutPoint()
             m_pointIn[i].setY(rect.top() + rect.height()*(i+1)/(m_nInPointSum+1));//上面是小 下面是大}
         }
     }
-
-   reCalOrInputPoint();
 }
 
-void HOrObj::reCalOrInputPoint()
-{
-
-}
 
 void HOrObj::draw(QPainter *painter)
 {
@@ -1276,6 +1323,23 @@ void HOrObj::draw(QPainter *painter)
     painter->restore();
 }
 
+void HOrObj::addInValue(int nNo,bool value)
+{
+    if(nNo >=0 && nNo < m_nInPointSum)
+    {
+        m_bInVal[nNo] = value;
+    }
+}
+
+bool HOrObj::outValue()//逻辑表达式的值
+{
+    m_bOutValue = m_bInVal[0];
+    for(int i = 1; i < m_nInPointSum;i++)
+        m_bOutValue |= m_bInVal[i];
+
+    return m_bOutValue;
+}
+
 ///////////////////////////////////////////////HAndObj 与///////////////////////////////
 HAndObj::HAndObj(const QRect &rect, HRuleFile *pRuleFile):HDrawObj(rect,pRuleFile)
 {
@@ -1321,12 +1385,6 @@ void HAndObj::calOutPoint()
     }
 }
 
-#include <QDebug>
-void HAndObj::reCalOrInputPoint()
-{
-
-}
-
 void HAndObj::draw(QPainter *painter)
 {
     HDrawObj::draw(painter);
@@ -1358,10 +1416,8 @@ void HAndObj::draw(QPainter *painter)
     //ID 暂时不写
     //value
 
-
     //绘制主窗口
     drawMain(painter,QRect(QPoint(nLeftX1,nTopY1),QPoint(nRightX1,nBottomY1)));
-
 
     painter->save();
     //绘制针脚
@@ -1402,3 +1458,18 @@ void HAndObj::draw(QPainter *painter)
     painter->restore();
 }
 
+void HAndObj::addInValue(int nNo,bool value)
+{
+    if(nNo >=0 && nNo < m_nInPointSum)
+    {
+        m_bInVal[nNo] = value;
+    }
+}
+
+bool HAndObj::outValue()//逻辑表达式的值
+{
+    m_bOutValue = m_bInVal[0];
+    for(int i = 1; i < m_nInPointSum;i++)
+        m_bOutValue &= m_bInVal[i];
+    return m_bOutValue;
+}

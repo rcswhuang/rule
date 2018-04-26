@@ -23,7 +23,7 @@ public:
     //对象操作函数
     quint32 generateDrawObjID()
     {
-        return ++dwDrawObjID;
+        return dwDrawObjID++;
     }
 
     void refreshDrawObjID()
@@ -46,6 +46,11 @@ public:
     //遍历函数
     bool buildGeneralFormula();
 	bool visitGeneralBuildObj(HDrawObj* pObj);
+
+    //仿真遍历
+    void buildSimulateFormula();
+    void visitSimulateBuildObj(HDrawObj* obj);
+
     //bool buildEspecialFormula();//遍历规则
    // bool visitEspecialBuildObj(HDrawObj* pDrawObj);//遍历访问某一个图元的所有信息
     //bool visitEspecialReportObj(HDrawObj* pDrawObj,QList<QObject*> pObjList);
@@ -73,7 +78,9 @@ public:
     bool bSimulateFirst;
     bool bSimuState;
     QSize m_Size;
-    bool bFromulaRight;//公式是否正确
+    bool bFormulaRight;//公式是否正确
+    RULEFILEDATA m_ruleFileData;
+
     QList<HConnect*> connectObjList;
     QList<HDrawObj*> drawObjList;
 

@@ -35,6 +35,7 @@ public:
     void setWrongFlag(bool wrong);
     void setVisiteFlag(bool visite);
     void setOffset();
+
     //绘制操作部分
     virtual void draw(QPainter* painter);
     virtual void drawPins(QPainter* painter,QRect rectPins);
@@ -47,14 +48,23 @@ public:
     };
     //绘制左中右四个角的矩形选择框
     virtual void drawSelect(QPainter* painter,SelectState selectState);
+
     //判断当前鼠标点是否处在左中右的矩形选择框内
     virtual int  hitSelect(const QPoint &point,bool bSelected);
+
     //选择在移动的时候
     virtual void  moveSelectPoint(int nSelectPoint,HFrame *pFrame,QPoint &point);
+
     //其他部分
    // virtual void generateID();
     virtual void adjustPosition();
     virtual void calOutPoint(){}//计算对外输出点的位置
+
+    //获取值
+    virtual void addInValue(int nNo,bool value);
+    virtual bool outValue();//逻辑表达式的值
+
+
     QPoint getSelectPoint(int nSelectPoint);
     void getSelectRect(QVector<QRect> &rect);
 
@@ -70,7 +80,7 @@ public:
     quint32 dwID; //图符ID
     quint8 m_btObjType; //图符类型 输入 逻辑等类型
     QString m_strName; //图元名称
-    QString m_strRuleName; //规则文件名称
+    QString m_strRuleName; //规则名称(遥信: ~[xxx站.xx间隔.xx点.工程值])
     bool m_bOutValue;//逻辑输出
     float m_fOutValue;//模拟量输出
 
@@ -85,6 +95,7 @@ public:
     bool m_bFill; //是否填充
     bool m_bWrong;
     bool m_bVisit;//遍历
+    bool m_bInVal[MAXCOUNT_INPUT];//输入对象值
 
 };
 
@@ -167,8 +178,13 @@ public:
 
     //绘制操作部分
     virtual void draw(QPainter* painter);
-
     virtual void calOutPoint();//计算对外输出点的位置
+
+    //获取值
+    virtual void addInValue(int nNo,bool value);
+    virtual bool outValue();//逻辑表达式的值
+
+
     void setInputType(quint8 inputType){btInputType = inputType;}
     void setInputProperty(HFrame* pFrame);
 public:
@@ -199,10 +215,6 @@ public:
 
     bool bCompType;//0:测点比较常数 1:测点比较测点
     quint8 btCondition;//条件 大于 小于 等于
-
-    //输出
-    float m_fOutValue;
-    bool m_bOutValue;
 };
 
 class HResultObj: public HDrawObj
@@ -216,16 +228,11 @@ public:
 public:
     //绘制操作部分
     virtual void draw(QPainter* painter);
-   //virtual void drawPins(QPainter* painter,QRect rectPins);
-    //绘制左中右四个角的矩形选择框
-    //virtual void drawSelect(QPainter* painter,SelectState selectState);
-    //判断当前鼠标点是否处在左中右的矩形选择框内
-    //virtual int  hitSelect(const QPoint &point,bool bSelected);
-    //选择在移动的时候
-    //virtual void  moveSelectPoint(int nSelectPoint,HFrame *pFrame,QPoint &point);
-    //其他部分
-   // virtual void generateID();
-    //virtual void adjustPosition();
+
+    //获取值
+    virtual void addInValue(int nNo,bool value);
+    virtual bool outValue();//逻辑表达式的值
+
     virtual void calOutPoint();//计算对外输出点的位置
 
 public:
@@ -245,6 +252,10 @@ public:
 public:
     //绘制操作部分
     virtual void draw(QPainter* painter);
+
+    //获取值
+    virtual void addInValue(int nNo,bool value);
+    virtual bool outValue();//逻辑表达式的值
    //virtual void drawPins(QPainter* painter,QRect rectPins);
     //绘制左中右四个角的矩形选择框
     //virtual void drawSelect(QPainter* painter,SelectState selectState);
@@ -256,10 +267,7 @@ public:
    // virtual void generateID();
     //virtual void adjustPosition();
     virtual void calOutPoint();//计算对外输出点的位置
-public:
-    bool outValue(){return false;}//逻辑表达式的值
-public:
-    void reCalOrInputPoint();//重新计算输入点个数的坐标，或可能是多个元素一起或
+
 };
 
 ////////////////////////////////////////////////与//////////////////////////////////
@@ -274,6 +282,10 @@ public:
 public:
     //绘制操作部分
     virtual void draw(QPainter* painter);
+
+    //获取值
+    virtual void addInValue(int nNo,bool value);
+    virtual bool outValue();//逻辑表达式的值
    //virtual void drawPins(QPainter* painter,QRect rectPins);
     //绘制左中右四个角的矩形选择框
     //virtual void drawSelect(QPainter* painter,SelectState selectState);
@@ -285,10 +297,6 @@ public:
    // virtual void generateID();
     //virtual void adjustPosition();
     virtual void calOutPoint();//计算对外输出点的位置
-public:
-    bool outValue(){return false;}//逻辑表达式的值
-public:
-    void reCalOrInputPoint();//重新计算输入点个数的坐标，或可能是多个元素一起或
 };
 
 

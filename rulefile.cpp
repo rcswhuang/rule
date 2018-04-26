@@ -490,7 +490,7 @@ bool HStationRule::changeStationNo(quint16 wNewStationNo)
 //遍历主要是从结果往前推，而不是从前往后推
 bool HRuleFile::buildGeneralFormula()
 {
-	bool bFromulaRight = true;
+     bFormulaRight = true;
     strFormula = "";
     //遍历所有对象，是否存在未连接对象，同时设置遍历标记
     for(int i = 0; i < drawObjList.count();i++)
@@ -525,13 +525,19 @@ bool HRuleFile::buildGeneralFormula()
     //从输出对象开始找到第一个连接对象
 	HDrawObj* pFirstObj = getConnectObj(pResultObj, 0);
 	if (!pFirstObj)
-		pResultObj->setWrongFlag(false);
+    {
+        pResultObj->setWrongFlag(true);
+        if(!visitGeneralBuildObj(pFirstObj))
+        {
+            bFormulaRight = false;
+        }
+    }
 	else
 	{
-		pResultObj->setWrongFlag(true);
-		bFromulaRight = false;
+        pResultObj->setWrongFlag(false);
+        bFormulaRight = false;
 	}
-	if (!bFromulaRight)
+    if (!bFormulaRight)
 		return false;
 	if (strFormula.isEmpty())
 		return false;
@@ -543,7 +549,7 @@ bool HRuleFile::visitGeneralBuildObj(HDrawObj* pObj)
 {
 	int nOpCount;
 	bool bErrorFlag = true;
-    if (pObj->getObjType() == TYPE_INPUT_COMP || pObj->getObjType() == TYPE_INPUT_DIGITAL)
+    if (pObj->getObjType() == TYPE_INPUT)
 	{
 		strFormula = strFormula + pObj->getOperatorFirst();
 		strFormula = strFormula + pObj->getOperatorMid();
@@ -564,7 +570,7 @@ bool HRuleFile::visitGeneralBuildObj(HDrawObj* pObj)
 			else
 			{
 				pObj->setWrongFlag(true);
-				bFromulaRight = false;
+                bFormulaRight = false;
 			}
 		}
 		strFormula += pObj->getOperatorLast();
@@ -573,4 +579,66 @@ bool HRuleFile::visitGeneralBuildObj(HDrawObj* pObj)
 	return bErrorFlag;
 }
 
+///////////////////////////////////////////////////////////仿真遍历函数//////////////////////////////////////////////////////
+void HRuleFile::buildSimulateFormula()
+{
+    //首先获取唯一输出对象
+    HResultObj* pResultObj = getResultObj();
+    if(!pResultObj) return;
+    //然后获取和输出对象连接的
+    quint32 nConnObjID = 0; //连接对象ID
+    quint32 nResultObjID = pResultObj->dwID;
+    QList<HConnect*>::iterator it = connectObjList.begin();
+    for(;it != connectObjList.end();++it)
+    {
+       HConnect *conn = (HConnect*)(*it);
+       if(conn->dwOutObjID == nResultObjID)
+       {
+           nConnObjID = conn->dwInObjID;
+           HDrawObj* drawObj = (HDrawObj*)findDrawObj(nConnObjID);
+           if(drawObj)
+           {
+               return;
+           }
+           if(TYPE_LOGICAND == drawObj->getObjType())
+           {
+               visitSimulateBuildObj(drawObj);
+               pResultObj->m_bOutValue = drawObj->m_bOutValue;
+           }
+           else if(TYPE_LOGICOR == drawObj->getObjType())
+           {
+               visitSimulateBuildObj(drawObj);
+               pResultObj->m_bOutValue = drawObj->m_bOutValue;
+           }
+           else if(TYPE_INPUT == drawObj->getObjType())
+           {
+               pResultObj->m_bOutValue = drawObj->m_bOutValue;
+           }
+       }
+    }
+}
 
+void HRuleFile::visitSimulateBuildObj(HDrawObj* drawObj)
+{
+    if(!drawObj)
+        return;
+    if(TYPE_LOGICAND == drawObj->getObjType() || TYPE_LOGICOR == drawObj->getObjType())
+    {
+        for(int i = 0; i < drawObj->m_nInPointSum;i++)
+        {
+            HDrawObj* obj = getConnectObj(drawObj,i);
+            if(obj &&(TYPE_LOGICAND == obj->getObjType() || TYPE_LOGICOR == obj->getObjType()))
+            {
+                visitSimulateBuildObj(obj);
+                drawObj->addInValue(i,obj->outValue());
+            }
+            else if(obj && TYPE_INPUT == obj->getObjType())
+            {
+                drawObj->addInValue(i,obj->outValue());
+            }
+        }
+
+        //最后输出值
+        drawObj->outValue();
+    }
+}

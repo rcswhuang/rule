@@ -58,6 +58,14 @@ enum SELECTMODE
     enumSize //选择 改变大小
 };
 
+//定义规则应用对象，后台，五防本身，装置连锁
+//后台，五防而言是测点，装置而言一般是GIN号
+#define TYPE_APP_JK   0
+#define TYPE_APP_WF   1
+#define TYPE_APP_LOCK 2
+
+#define TYPE_RULE_GENERAL  0  //普通规则 适用大部分
+#define TYPE_RULE_SECOND   1 //二级规则 暂时不用
 
 //类型定义
 #define TYPE_NONE     0
@@ -65,7 +73,6 @@ enum SELECTMODE
 #define TYPE_RESULT   2//输出类型
 #define TYPE_LOGICOR  3
 #define TYPE_LOGICAND 4
-
 
 //TYPE_INPUT的子类型
 #define TYPE_INPUT_DIGITAL  102
@@ -81,7 +88,41 @@ enum SELECTMODE
 #define COND_OPEN  0x00 //遥信分
 #define COND_CLOSE 0x01 //遥信合
 
+//定义内部测点类型
+#define TYPE_INSID_NULL       0
+#define TYPE_INSIDE_ANALOGUE  1
+#define TYPE_INSIDE_DIGITAL   2
+#define TYPE_INSIDE_SELPOINT  3
+#define TYPE_INSIDE_RELAY     4
+#define TYPE_INSIDE_PULSE     5
+#define TYPE_INSIDE_TUNE      6
 
+//回调函数消息类型
+#define WM_SEL_POINT     0  //对话框选择测点
+#define WM_ID_GETDBINFO  1  //通过ID来获取测点信息
+#define WM_GIN_GETDBINFO 2  //通过GIN来获取测点信息
+
+//规则文件接口类型
+/*
+ * 主要是接收接口传递过来的站内相关参数信息
+*/
+typedef struct _tagRuleFileData
+{
+    QString strStationName;
+    QString strProtectName;//装置/间隔
+    QString strPointName;
+    quint16 wStationNo;
+    quint16 wProtectNo;
+    quint16 wPointNo;
+    quint16 wPointType;//测点类型 遥测 遥信 遥控
+    quint16 wFormulaType;//规则类型
+    quint16 wFormulaID;//测点分/合等规则ID号
+    quint16 wReserve1;
+    quint16 wReserve2;
+    quint16 wReserve3;
+
+
+}RULEFILEDATA;
 
 
 //对外接口
@@ -91,8 +132,6 @@ enum SELECTMODE
  * 对于独立五防来说，没有装置一说，测点信息都是全站唯一的。所以获取后台监控的规则和独立五防的规则原理是一致，但做法有点区别
 */
 
-
-/*
 typedef struct _tagRULEPARAM
 {
     //
@@ -102,23 +141,24 @@ typedef struct _tagRULEPARAM
     quint16 wPointNo;
     quint16 wAttr;
 
-    quint8 btInType;
+    quint8 btInsideType;
     quint16 wOpenFormulaID;
     quint16 wCloseFormulaID;
     quint16 wOpenJXFormulaID;
     quint16 wCloseJXFormulaID;
 
-    char szStationName[128];
-    char szProtectName[128];
-    char szPointName[128];
-    char szAttr[128];
+    QString strStationName;
+    QString strProtectName;
+    QString strPointName;
+    QString strAttr;
     float fRating;//额定值
-}RULEPARAM;*/
+}RULEPARAM;
 
 //定义回调函数 去获取实时库的当前测点的信息，包含当前值 当前状态等等
-//typedef bool (* LPRULEDATACALLBACK)(int msgType,RULEPARAM *ruleParam);
+//typedef RULE_EXPORT  bool (* LPRULEDATACALLBACK)(int msgType,RULEPARAM *ruleParam);
 
 /*
+ * typedef FORMULA_EXPORT bool (*LPFORMULAPROC)(int nMsgType,WPARAM wParam,LPARAM lParam,int nDBID);
 bool RULE_EXPORT initRuleFiles(quint8 btType,char* szFilePath,LPRULEDATACALLBACK lpDataCallBack);
 
 void RULE_EXPORT exitRuleFiles();
