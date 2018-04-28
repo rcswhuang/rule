@@ -27,6 +27,7 @@ public slots:
 private:
     Ui::compareProp *ui;
     HDrawObj* m_pDrawObj;
+    quint8 m_btCompType;//测点1是与测点2或常数比较
     quint8 m_btCondition;
     QString m_strAttr1; //测点1属性
     QString m_strAttr2; //测点2属性

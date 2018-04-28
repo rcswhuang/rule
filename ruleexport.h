@@ -2,7 +2,7 @@
 #define HRULEEXPORT_H
 
 #if defined (_WIN32) || defined (WIN32)
-    #if define (RULE_DLL)
+    #if defined(RULE_DLL)
         #define RULE_EXPORT __declspec(dllexport)
     #else
         #define RULE_EXPORT __declspec(dllimport)

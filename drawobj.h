@@ -202,7 +202,7 @@ public:
     quint16 m_wAttr1;         //点属性
     float  fReserved1;       //保留
 
-    //比较值2
+    //比较值2测点
     quint16 m_wMode2;
     quint16 m_wStationID2;
     quint16 m_wProtID2;
@@ -211,11 +211,13 @@ public:
     quint16 m_wPointID2;
     quint16 m_wAttr2;
     float fRating;//测点1的额定值 ???
-
-    //比较值2
+    //比较值2常量
     float m_fCompValue;
 
-    bool bCompType;//0:测点比较常数 1:测点比较测点
+    //比较值2的类型
+    quint8 m_btCompType;//0:测点比较常数 1:测点比较测点
+
+    //比较值1和比较值2 比较关系
     quint8 m_btCondition;//条件 大于 小于 等于
 };
 

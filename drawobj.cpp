@@ -32,7 +32,6 @@ HDrawObj::HDrawObj(const QRect &rect, HRuleFile *pRuleFile)
     m_bFill = true; //是否填充
     if(m_pRuleFile)
     {
-
         dwID = m_pRuleFile->generateDrawObjID();
         qDebug()<<"dwID = "<<dwID;
     }
@@ -832,7 +831,7 @@ HInputObj::HInputObj(const QRect &rect, HRuleFile *pRuleFile)
     //比较值2
     m_fCompValue = 0.0;
 
-    bCompType = false;//0:测点比较常数 1:测点比较测点
+    m_btCompType = false;//0:测点比较常数 1:测点比较测点
     m_btCondition = -1;//条件 大于 小于 等于
     calOutPoint();
 }
@@ -885,9 +884,8 @@ void HInputObj::readData(int nVersion,QDataStream* ds)
     *ds >> f;
     m_fCompValue = f;
 
-    bool b;
-    *ds >> b;
-    bCompType = b;//0:测点比较常数 1:测点比较测点
+    *ds >> n8;
+    m_btCompType = n8;//0:测点比较常数 1:测点比较测点
     *ds >> n8;
     m_btCondition = n8;//条件 大于 小于 等于
 }
@@ -917,7 +915,7 @@ void HInputObj::writeData(int nVersion,QDataStream* ds)
     //比较值2
     *ds<<(float) m_fCompValue;
 
-    *ds<<(bool) bCompType;//0:测点比较常数 1:测点比较测点
+    *ds<<(quint8) m_btCompType;//0:测点比较常数 1:测点比较测点
     *ds<<(quint8) m_btCondition;//条件 大于 小于 等于
 
 }

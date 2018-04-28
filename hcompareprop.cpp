@@ -4,6 +4,7 @@
 #include "hcompareprop.h"
 #include "ui_compareprop.h"
 #include "ruleeditapi.h"
+#include "drawobj.h"
 #include <QDoubleValidator>
 extern LPRULEDATACALLBACK m_lpRuleDataCallBack;
 extern quint8 m_btAppType;
@@ -44,6 +45,96 @@ void HCompareProp::initCompareProp()
     ui->comp2LineEdit->setText(strConst);
     ui->comp2TypeComboBox->setCurrentIndex(0);
 
+    //初始化
+    //每次启动都要去组态/运行模块读一次
+    HInputObj* pInputObj = (HInputObj*)m_pDrawObj;
+    m_btCondition = pInputObj->m_btCondition;//大于 小于
+    m_btCompType = pInputObj->m_btCompType;
+    m_fConstValue = pInputObj->m_fCompValue;//常量
+    ui->compComboBox->setCurrentIndex(ui->compComboBox->findData(m_btCondition));
+    ui->comp2TypeComboBox->setCurrentIndex(ui->comp2TypeComboBox->findData(m_btCompType));
+    strConst = QString("%1").arg(m_fConstValue);
+    ui->comp2LineEdit->setText(strConst);
+
+
+    //获取比较值1
+    if(m_wStationNo1 == pInputObj->m_wStationID1)
+    {
+        m_wMode1 = pInputObj->m_wMode1;
+        m_wPointNo1 = pInputObj->m_wPointID1;
+        m_wPointType1 = pInputObj->m_btType1;
+        m_wAttr1 = pInputObj->m_wAttr1;
+        m_btInsideType1 = pInputObj->m_btInType1;
+    }
+    RULEPARAM *ruleParam = new RULEPARAM;
+    memset(ruleParam,0,sizeof(RULEPARAM));
+    ruleParam->wStationNo = m_wStationNo1;
+    ruleParam->wPointNo = m_wPointNo1;
+    ruleParam->wPointType = m_wPointType1;
+    if(m_lpRuleDataCallBack)
+    {
+        if(TYPE_APP_JK == m_btAppType || TYPE_APP_WF == m_btAppType)
+        {
+            m_lpRuleDataCallBack(WM_ID_GETDBINFO,ruleParam);
+        }
+        else if(TYPE_APP_LOCK == m_btAppType)
+        {
+            m_lpRuleDataCallBack(WM_GIN_GETDBINFO,ruleParam);
+        }
+
+        m_strStationName1 = ruleParam->strStationName;
+        m_strProtectName1 = ruleParam->strProtectName;
+        m_strPointName1 = ruleParam->strPointName;
+        m_strAttr1 = ruleParam->strAttr;
+        m_btInsideType1 = ruleParam->btInsideType;
+    }
+    else
+    {
+        m_strStationName1 = "";
+        m_strProtectName1 = "";
+        m_strPointName1 = "";
+        m_strAttr1 = "";
+    }
+
+    //获取比较值2
+    if(m_wStationNo2 == pInputObj->m_wStationID2)
+    {
+        m_wMode2 = pInputObj->m_wMode2;
+        m_wPointNo2 = pInputObj->m_wPointID2;
+        m_wPointType2 = pInputObj->m_btType2;
+        m_wAttr1 = pInputObj->m_wAttr2;
+        m_btInsideType2 = pInputObj->m_btInType2;
+    }
+    //RULEPARAM *ruleParam = new RULEPARAM;
+    memset(ruleParam,0,sizeof(RULEPARAM));
+    ruleParam->wStationNo = m_wStationNo2;
+    ruleParam->wPointNo = m_wPointNo2;
+    ruleParam->wPointType = m_wPointType2;
+    if(m_lpRuleDataCallBack)
+    {
+        if(TYPE_APP_JK == m_btAppType || TYPE_APP_WF == m_btAppType)
+        {
+            m_lpRuleDataCallBack(WM_ID_GETDBINFO,ruleParam);
+        }
+        else if(TYPE_APP_LOCK == m_btAppType)
+        {
+            m_lpRuleDataCallBack(WM_GIN_GETDBINFO,ruleParam);
+        }
+
+        m_strStationName2 = ruleParam->strStationName;
+        m_strProtectName2 = ruleParam->strProtectName;
+        m_strPointName2 = ruleParam->strPointName;
+        m_strAttr2 = ruleParam->strAttr;
+        m_btInsideType2 = ruleParam->btInsideType;
+    }
+    else
+    {
+        m_strStationName2 = "";
+        m_strProtectName2 = "";
+        m_strPointName2 = "";
+        m_strAttr2 = "";
+    }
+    refreshCompareProp();
 }
 
 void HCompareProp::comp1SelBtn_clicked()
@@ -89,7 +180,7 @@ void HCompareProp::comp1SelBtn_clicked()
 
         delete ruleParam;
     }
-    //refreshDlg();
+    refreshCompareProp();
 }
 
 void HCompareProp::comp2SelBtn_clicked()
@@ -131,6 +222,7 @@ void HCompareProp::comp2SelBtn_clicked()
         ui->comp2LineEdit->setText(m_strPointName1);
         delete ruleParam;
     }
+    refreshCompareProp();
 }
 
 void HCompareProp::comp2TypeComboBox_clicked()
@@ -150,13 +242,15 @@ void HCompareProp::comp2TypeComboBox_clicked()
         QString strConst = QString("%1").arg((double)m_fConstValue);
         ui->comp2LineEdit->setText(strConst);
     }
-
+    m_btCompType = btCompareType;
+    refreshCompareProp();
 }
 
 void HCompareProp::comp2LineEdit_textEdited(const QString& value)
 {
     m_fConstValue = value.toFloat();
     ui->textBrowser->setText(value);
+    refreshCompareProp();
 }
 
 void HCompareProp::refreshCompareProp()
@@ -164,6 +258,55 @@ void HCompareProp::refreshCompareProp()
     //textBrowser显示内容=[m_comp1LineEdit] + ">" + m_comp2LineEdit
     //m_comp2LineEdit 如果是遥测 则变成[m_comp2LineEdit]
     //QString strTextBrowser = "(" + ")";
+    QString strComp1;
+    QString strComp2;
+    quint8 nComp2 = ui->comp2TypeComboBox->currentData().toUInt();
+    if(m_btAppType == TYPE_APP_JK || m_btAppType == TYPE_APP_WF)
+    {
+        strComp1 = "["+m_strStationName1+"."+m_strPointName1+"."+m_strAttr1+"]";
+        ui->comp1LineEdit->setText(strComp1);
+
+        if(TYPE_COMPARE_CONST == nComp2)
+        {
+            strComp2 = QString("%1").arg(m_fConstValue);
+        }
+        else
+        {
+            strComp2 = "["+m_strStationName2+"."+m_strPointName2+"."+m_strAttr2+"]";
+        }
+        ui->comp2LineEdit->setText(strComp2);
+    }
+    else if(m_btAppType == TYPE_APP_LOCK)
+    {
+
+    }
+
+    QString strCond;//条件表达式
+    quint8 nCond = ui->compComboBox->currentData().toUInt();
+    switch(nCond)
+    {
+    case OP_GREATER:  //>
+        strCond = ">";
+        break;
+    case OP_LOWER:  // <
+        strCond = "<";
+        break;
+    case OP_EQUAL: // =
+        strCond = "=";
+        break;
+    case OP_GEQUAL: //>=
+        strCond = ">=";
+        break;
+    case OP_LEQUAL: //<=
+        strCond = "<=";
+        break;
+    case OP_NEQUAL:
+        strCond = "!=";
+        break;
+    }
+    m_strFormula = "("+strComp1+strCond+strComp2+")";
+    m_strContent = strComp1 + strCond + strComp2;
+    ui->textBrowser->setText(m_strContent);
 }
 
 

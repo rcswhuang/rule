@@ -2,7 +2,7 @@
 #include "ruleeditapi.h"
 HRuleFile::HRuleFile(QObject *parent) : QObject(parent)
 {
-    dwDrawObjID = 0;
+    dwDrawObjID = 1;
     m_bGrid = true;
     m_strBgClr = QColor(Qt::white).name();
     m_strGridClr = QColor(0,0,128).name();

@@ -167,14 +167,18 @@ typedef struct _tagRULEPARAM
 
 
 //定义回调函数 去获取实时库的当前测点的信息，包含当前值 当前状态等等
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 typedef RULE_EXPORT  bool (* LPRULEDATACALLBACK)(int msgType,RULEPARAM *ruleParam);
 
-/*
- * typedef FORMULA_EXPORT bool (*LPFORMULAPROC)(int nMsgType,WPARAM wParam,LPARAM lParam,int nDBID);
 bool RULE_EXPORT initRuleFiles(quint8 btType,char* szFilePath,LPRULEDATACALLBACK lpDataCallBack);
 
 void RULE_EXPORT exitRuleFiles();
 
+void RULE_EXPORT openRuleWindow();
+/*
 int  RULE_EXPORT openRuleFrame(
                     QWidget* pWidget, //父窗口
                     quint16 wStationNo, //厂站ID
@@ -204,7 +208,9 @@ void RULE_EXPORT deleteRuleFile(quint16 wStationNo,quint16 wPointType,quint16 wP
 //更改了规则厂站号
 bool RULE_EXPORT changeStationNo(quint16 wOldStationNo,quint16 wNewStationNo);
 */
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif // RULEEDITAPI_H
 

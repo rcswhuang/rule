@@ -5,11 +5,12 @@
 #-------------------------------------------------
 QT += widgets
 
-TARGET = RuleEditor
-TEMPLATE = app
+TARGET = rule
+TEMPLATE = lib
+DESTDIR = ../lib
+DEFINES += RULE_DLL
 
-
-SOURCES += main.cpp\
+SOURCES += \ #main.cpp\
         mainwindow.cpp \
     drawtool.cpp \
     drawobj.cpp \
@@ -20,7 +21,8 @@ SOURCES += main.cpp\
     hviewprop.cpp \
     hsimulateprop.cpp \
     hdigitalprop.cpp \
-    hcompareprop.cpp
+    hcompareprop.cpp \
+    hrulehandle.cpp
 
 HEADERS  += mainwindow.h \
     drawtool.h \
@@ -34,7 +36,8 @@ HEADERS  += mainwindow.h \
     hviewprop.h \
     hsimulateprop.h \
     hdigitalprop.h \
-    hcompareprop.h
+    hcompareprop.h \
+    hrulehandle.h
 
 RESOURCES += \
     ruleeditor.qrc
