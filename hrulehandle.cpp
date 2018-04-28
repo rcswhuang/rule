@@ -1,6 +1,5 @@
 #include "hrulehandle.h"
-#include <QApplication>
-#include "mainwindow.h"
+#include "hrulewindow.h"
 LPRULEDATACALLBACK m_lpRuleDataCallBack = NULL;
 quint8 m_btAppType = -1;
 QString strRuleFilePath = "";
@@ -42,18 +41,20 @@ bool  HRuleHandle::initRuleFiles(quint8 btType,char* szFilePath,LPRULEDATACALLBA
 
 void  HRuleHandle::exitRuleFiles()
 {
-
+//
 }
 
-void  HRuleHandle::openRuleWindow()
+void  HRuleHandle::openRuleWindow(quint16 wStationNo, //厂站ID
+                                  quint16 wPointType, //测点类型 （如果有装置就是装置的地址)
+                                  quint16 wPointNo,  //测点ID
+                                  quint8  btRelayType, //分，合，检修分，检修合
+                                  quint16 wRuleID, //规则ID
+                                  quint8 btType, //规则类型
+                                  QString &strFormula //公式字符串
+                                  )
 {
-    int argc = 1;
-    QApplication* a = new QApplication(argc, NULL);
-    MainWindow *w = new MainWindow;
-    w->setAttribute(Qt::WA_DeleteOnClose);
-    w->setWindowModality(Qt::ApplicationModal);
-    w->show();
-    a->exec();
+
+
 }
 
 
@@ -70,7 +71,14 @@ void RULE_EXPORT exitRuleFiles()
     HRuleHandle::Initstance()->exitRuleFiles();
 }
 
-void RULE_EXPORT openRuleWindow()
+void RULE_EXPORT openRuleWindow(quint16 wStationNo, //厂站ID
+                                quint16 wPointType, //测点类型 （如果有装置就是装置的地址)
+                                quint16 wPointNo,  //测点ID
+                                quint8  btRelayType, //分，合，检修分，检修合
+                                quint16 wRuleID, //规则ID
+                                quint8 btType, //规则类型
+                                QString &strFormula //公式字符串
+                                )
 {
-    HRuleHandle::Initstance()->openRuleWindow();
+    HRuleHandle::Initstance()->openRuleWindow(wStationNo,wPointType,wPointNo,btRelayType,wRuleID,btType,strFormula);
 }

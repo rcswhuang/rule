@@ -163,9 +163,6 @@ typedef struct _tagRULEPARAM
  * 规则重要说明：对于后台监控来说，规则是对应到厂站/装置/测点/分、合等等
  * 对于独立五防来说，没有装置一说，测点信息都是全站唯一的。所以获取后台监控的规则和独立五防的规则原理是一致，但做法有点区别
 */
-
-
-
 //定义回调函数 去获取实时库的当前测点的信息，包含当前值 当前状态等等
 #ifdef __cplusplus
 extern "C"
@@ -177,7 +174,14 @@ bool RULE_EXPORT initRuleFiles(quint8 btType,char* szFilePath,LPRULEDATACALLBACK
 
 void RULE_EXPORT exitRuleFiles();
 
-void RULE_EXPORT openRuleWindow();
+void RULE_EXPORT openRuleWindow(quint16 wStationNo, //厂站ID
+                                quint16 wPointType, //测点类型 （如果有装置就是装置的地址)
+                                quint16 wPointNo,  //测点ID
+                                quint8  btRelayType, //分，合，检修分，检修合
+                                quint16 wRuleID, //规则ID
+                                quint8 btType, //规则类型
+                                QString &strFormula //公式字符串
+                                );
 /*
 int  RULE_EXPORT openRuleFrame(
                     QWidget* pWidget, //父窗口

@@ -6,12 +6,12 @@
 QT += widgets
 
 TARGET = rule
-TEMPLATE = lib
-DESTDIR = ../lib
+TEMPLATE = app
+#DESTDIR = ../lib
 DEFINES += RULE_DLL
 
-SOURCES += \ #main.cpp\
-        mainwindow.cpp \
+SOURCES += main.cpp\
+        #mainwindow.cpp \
     drawtool.cpp \
     drawobj.cpp \
     rulefile.cpp \
@@ -22,10 +22,11 @@ SOURCES += \ #main.cpp\
     hsimulateprop.cpp \
     hdigitalprop.cpp \
     hcompareprop.cpp \
-    hrulehandle.cpp
+    hrulehandle.cpp \
+    hrulewindow.cpp
 
-HEADERS  += mainwindow.h \
-    drawtool.h \
+HEADERS  += drawtool.h \
+    #mainwindow.h \
     drawobj.h \
     rulefile.h \
     ruleexport.h \
@@ -37,7 +38,8 @@ HEADERS  += mainwindow.h \
     hsimulateprop.h \
     hdigitalprop.h \
     hcompareprop.h \
-    hrulehandle.h
+    hrulehandle.h \
+    hrulewindow.h
 
 RESOURCES += \
     ruleeditor.qrc
@@ -48,4 +50,5 @@ FORMS += \
     viewprop.ui \
     simulateprop.ui \
     digitalprop.ui \
-    compareprop.ui
+    compareprop.ui \
+    rulewindow.ui
