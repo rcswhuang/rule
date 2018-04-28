@@ -810,28 +810,30 @@ HInputObj::HInputObj(const QRect &rect, HRuleFile *pRuleFile)
     m_bOutValue = 0;
 
     btInputType = -1;
-    wMode1 = -1;         //间隔or装置
-    wStationID1 = -1;    //厂站地址
-    wProtID1 = -1;       //设备地址
-    btInType1 = -1;       //遥信 遥测 遥控等
-    wPointID1 = -1;      //点号
-    wAttr1 = -1;         //点属性
+    m_wMode1 = -1;         //间隔or装置
+    m_wStationID1 = -1;    //厂站地址
+    m_wProtID1 = -1;       //设备地址
+    m_btType1 = -1;
+    m_btInType1 = -1;       //遥信 遥测 遥控等
+    m_wPointID1 = -1;      //点号
+    m_wAttr1 = -1;         //点属性
     fReserved1 = -1;       //保留
 
     //比较值2
-    wMode2 = -1;
-    wStationID2 = -1;
-    wProtID2 = -1;
-    btInType2 = -1;//遥信 遥测 遥控等
-    wPointID2 = -1;
-    wAttr2 = -1;
+    m_wMode2 = -1;
+    m_wStationID2 = -1;
+    m_wProtID2 = -1;
+    m_btType2 = -1;
+    m_btInType2 = -1;//遥信 遥测 遥控等
+    m_wPointID2 = -1;
+    m_wAttr2 = -1;
     fRating = -1;//测点1的额定值 ???
 
     //比较值2
     m_fCompValue = 0.0;
 
     bCompType = false;//0:测点比较常数 1:测点比较测点
-    btCondition = -1;//条件 大于 小于 等于
+    m_btCondition = -1;//条件 大于 小于 等于
     calOutPoint();
 }
 
@@ -844,34 +846,38 @@ void HInputObj::readData(int nVersion,QDataStream* ds)
     btInputType = n8;//102:遥信 103:遥测
     quint16 n16;
     *ds >> n16;
-    wMode1 = n16;         //间隔or装置
+    m_wMode1 = n16;         //间隔or装置
     *ds >> n16;
-    wStationID1 = n16;    //厂站地址
+    m_wStationID1 = n16;    //厂站地址
     *ds >> n16;
-    wProtID1 = n16;       //设备地址
+    m_wProtID1 = n16;       //设备地址
     *ds >> n8;
-    btInType1 = n8;       //遥信 遥测 遥控等
+    m_btType1 = n8;
+    *ds >> n8;
+    m_btInType1 = n8;       //遥信 遥测 遥控等
     *ds >> n16;
-    wPointID1 = n16;      //点号
+    m_wPointID1 = n16;      //点号
     *ds >> n16;
-    wAttr1 = n16;         //点属性
+    m_wAttr1 = n16;         //点属性
     float f;
     *ds >> f;
     fReserved1 = f;       //保留
 
     //比较值2
     *ds >> n16;
-    wMode2 = n16;
+    m_wMode2 = n16;
     *ds >> n16;
-    wStationID2 = n16;
+    m_wStationID2 = n16;
     *ds >> n16;
-    wProtID2 = n16;
+    m_wProtID2 = n16;
     *ds >> n8;
-    btInType2 = n8;//遥信 遥测 遥控等
+    m_btType2 = n8;
+    *ds >> n8;
+    m_btInType2 = n8;//遥信 遥测 遥控等
     *ds >> n16;
-    wPointID2 = n16;
+    m_wPointID2 = n16;
     *ds >> n16;
-    wAttr2 = n16;
+    m_wAttr2 = n16;
     *ds >> f;
     fRating = f;//测点1的额定值 ???
 
@@ -883,7 +889,7 @@ void HInputObj::readData(int nVersion,QDataStream* ds)
     *ds >> b;
     bCompType = b;//0:测点比较常数 1:测点比较测点
     *ds >> n8;
-    btCondition = n8;//条件 大于 小于 等于
+    m_btCondition = n8;//条件 大于 小于 等于
 }
 
 void HInputObj::writeData(int nVersion,QDataStream* ds)
@@ -891,28 +897,28 @@ void HInputObj::writeData(int nVersion,QDataStream* ds)
     if(!ds) return;
     HDrawObj::writeData(nVersion,ds);
     *ds<<(quint8) btInputType;//102:遥信 103:遥测
-    *ds<<(quint16) wMode1;         //间隔or装置
-    *ds<<(quint16) wStationID1;    //厂站地址
-    *ds<<(quint16) wProtID1;       //设备地址
-    *ds<<(quint8) btInType1;       //遥信 遥测 遥控等
-    *ds<<(quint16) wPointID1;      //点号
-    *ds<<(quint16) wAttr1;         //点属性
+    *ds<<(quint16) m_wMode1;         //间隔or装置
+    *ds<<(quint16) m_wStationID1;    //厂站地址
+    *ds<<(quint16) m_wProtID1;       //设备地址
+    *ds<<(quint8) m_btInType1;       //遥信 遥测 遥控等
+    *ds<<(quint16) m_wPointID1;      //点号
+    *ds<<(quint16) m_wAttr1;         //点属性
     *ds<<(float) fReserved1;       //保留
 
     //比较值2
-    *ds<<(quint16) wMode2;
-    *ds<<(quint16) wStationID2;
-    *ds<<(quint16) wProtID2;
-    *ds<<(quint8) btInType2;//遥信 遥测 遥控等
-    *ds<<(quint16) wPointID2;
-    *ds<<(quint16) wAttr2;
+    *ds<<(quint16) m_wMode2;
+    *ds<<(quint16) m_wStationID2;
+    *ds<<(quint16) m_wProtID2;
+    *ds<<(quint8) m_btInType2;//遥信 遥测 遥控等
+    *ds<<(quint16) m_wPointID2;
+    *ds<<(quint16) m_wAttr2;
     *ds<<(float) fRating;//测点1的额定值 ???
 
     //比较值2
     *ds<<(float) m_fCompValue;
 
     *ds<<(bool) bCompType;//0:测点比较常数 1:测点比较测点
-    *ds<<(quint8) btCondition;//条件 大于 小于 等于
+    *ds<<(quint8) m_btCondition;//条件 大于 小于 等于
 
 }
 

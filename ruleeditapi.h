@@ -102,6 +102,17 @@ enum SELECTMODE
 #define WM_ID_GETDBINFO  1  //通过ID来获取测点信息
 #define WM_GIN_GETDBINFO 2  //通过GIN来获取测点信息
 
+
+//比较符定义
+#define OP_GREATER      0x01 //>
+#define OP_LOWER        0x02  // <
+#define OP_EQUAL        0x03 // =
+#define OP_GEQUAL       0x04 //>=
+#define OP_LEQUAL       0x05 //<=
+#define OP_NEQUAL       0x06 // !=
+
+#define TYPE_COMPARE_ANALOGUE 0x01
+#define TYPE_COMPARE_CONST    0x02
 //规则文件接口类型
 /*
  * 主要是接收接口传递过来的站内相关参数信息
@@ -120,25 +131,18 @@ typedef struct _tagRuleFileData
     quint16 wReserve1;
     quint16 wReserve2;
     quint16 wReserve3;
-
-
 }RULEFILEDATA;
 
-
-//对外接口
-
 /*
- * 规则重要说明：对于后台监控来说，规则是对应到厂站/装置/测点/分、合等等
- * 对于独立五防来说，没有装置一说，测点信息都是全站唯一的。所以获取后台监控的规则和独立五防的规则原理是一致，但做法有点区别
+ * 规则模块采用此参数去组态模块或者运行模块获取测点信息
 */
-
 typedef struct _tagRULEPARAM
 {
     //
-    quint16 wStationNo;
-    quint16 wProtectNo;
-    quint16 wPointType;
-    quint16 wPointNo;
+    quint16 wStationNo;//站号
+    quint16 wProtectNo; //装置ID 联锁组态用
+    quint16 wPointType; //测点类型 五防用
+    quint16 wPointNo;//当联锁组态时为GIN号，当是测点类型时为点号
     quint16 wAttr;
 
     quint8 btInsideType;
@@ -153,11 +157,18 @@ typedef struct _tagRULEPARAM
     QString strAttr;
     float fRating;//额定值
 }RULEPARAM;
+//对外接口
+
+/*
+ * 规则重要说明：对于后台监控来说，规则是对应到厂站/装置/测点/分、合等等
+ * 对于独立五防来说，没有装置一说，测点信息都是全站唯一的。所以获取后台监控的规则和独立五防的规则原理是一致，但做法有点区别
+*/
+
+
 
 //定义回调函数 去获取实时库的当前测点的信息，包含当前值 当前状态等等
 typedef RULE_EXPORT  bool (* LPRULEDATACALLBACK)(int msgType,RULEPARAM *ruleParam);
-LPRULEDATACALLBACK m_lpRuleDataCallBack = NULL;
-quint8 m_btAppType = -1;
+
 /*
  * typedef FORMULA_EXPORT bool (*LPFORMULAPROC)(int nMsgType,WPARAM wParam,LPARAM lParam,int nDBID);
 bool RULE_EXPORT initRuleFiles(quint8 btType,char* szFilePath,LPRULEDATACALLBACK lpDataCallBack);

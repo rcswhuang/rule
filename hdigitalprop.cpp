@@ -1,13 +1,15 @@
 ﻿#include "hdigitalprop.h"
 #include "ui_digitalprop.h"
 #include "ruleeditapi.h"
-//extern LPRULEDATACALLBACK m_lpRuleDataCallBack;
-
+#include "drawobj.h"
+extern LPRULEDATACALLBACK m_lpRuleDataCallBack;
+extern quint8 m_btAppType;
 HDigitalProp::HDigitalProp(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::digitalPropDlg)
 {
     ui->setupUi(this);
+    initDlg();
 }
 
 HDigitalProp::~HDigitalProp()
@@ -24,26 +26,58 @@ void HDigitalProp::initDlg()
     ui->condComboBox->addItem("分位置",COND_OPEN);
     ui->condComboBox->addItem("合位置",COND_CLOSE);
 
+    //每次启动都要去组态/运行模块读一次
+    HInputObj* pInputObj = (HInputObj*)m_pDrawObj;
+    if(m_wStationNo == pInputObj->m_wStationID1)
+    {
+        m_wMode = pInputObj->m_wMode1;
+        m_wPointNo = pInputObj->m_wPointID1;
+        m_wPointType = pInputObj->m_btType1;
+        m_wAttr = pInputObj->m_wAttr1;
+        m_btInsideType = pInputObj->m_btInType1;
+    }
+    m_btCondition = pInputObj->m_btCondition;
 
+    RULEPARAM *ruleParam = new RULEPARAM;
+    memset(ruleParam,0,sizeof(RULEPARAM));
+    ruleParam->wStationNo = m_wStationNo;
+    ruleParam->wPointNo = m_wPointNo;
+    ruleParam->wPointType = m_wPointType;
 
+    ruleParam->btInsideType = TYPE_INSIDE_DIGITAL;
+    if(m_lpRuleDataCallBack)
+    {
+        if(TYPE_APP_JK == m_btAppType || TYPE_APP_WF == m_btAppType)
+        {
+            m_lpRuleDataCallBack(WM_ID_GETDBINFO,ruleParam);
+        }
+        else if(TYPE_APP_LOCK == m_btAppType)
+        {
+            m_lpRuleDataCallBack(WM_GIN_GETDBINFO,ruleParam);
+        }
+
+        m_strStationName = ruleParam->strStationName;
+        m_strProtectName = ruleParam->strProtectName;
+        m_strPointName = ruleParam->strPointName;
+        m_strAttr = ruleParam->strAttr;
+        m_btInsideType = ruleParam->btInsideType;
+    }
+    else
+    {
+        m_strStationName = "";
+        m_strProtectName = "";
+        m_strPointName = "";
+        m_strAttr = "";
+    }
+
+    ui->condComboBox->setCurrentIndex(ui->condComboBox->findData(m_btCondition));
+    refreshDlg();
 }
-
-void HDigitalProp::accept()
-{
-
-    QDialog::accept();
-}
-
-void HDigitalProp::conditionSelect(int)
-{
-
-}
-
 
 void HDigitalProp::ptSelBtn_clicked()
 {
     RULEPARAM *ruleParam = new RULEPARAM;
-    memset(ruleFileData,0,sizeof(RULEFILEDATA));
+    memset(ruleParam,0,sizeof(RULEPARAM));
     ruleParam->wStationNo = m_wStationNo;
     ruleParam->wPointNo = m_wPointNo;
     ruleParam->wPointType = m_wPointType;
@@ -102,17 +136,18 @@ void HDigitalProp::refreshDlg()
             m_strContent = m_strPointName + "=" +strCondition;
         }
     }
-    ui->frNameLineEdit = m_strContent;
+    ui->frNameLineEdit->setText(m_strContent);
 }
 
 void HDigitalProp::okBtn_clicked()
 {
     ((HInputObj*)m_pDrawObj)->m_wMode1 = m_wMode;
     ((HInputObj*)m_pDrawObj)->m_wStationID1 = m_wStationNo;
-    ((HInputObj*)m_pDrawObj)->m_wProtID1 = m_wPointType; //类型
+    ((HInputObj*)m_pDrawObj)->m_btType1 = m_wPointType; //类型
     ((HInputObj*)m_pDrawObj)->m_btInType1 = m_btInsideType;
     ((HInputObj*)m_pDrawObj)->m_wPointID1 = m_wPointNo;      //点号
     ((HInputObj*)m_pDrawObj)->m_wAttr1 = m_wAttr;         //点属性
+    ((HInputObj*)m_pDrawObj)->m_btCondition = m_btCondition;
 
     ((HInputObj*)m_pDrawObj)->m_strRuleName = m_strFormula;
     ((HInputObj*)m_pDrawObj)->m_strName = m_strContent;

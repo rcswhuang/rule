@@ -195,26 +195,28 @@ public:
     //比较值1：可以是遥信、也可以是遥测
     quint16 m_wMode1;         //间隔or装置
     quint16 m_wStationID1;    //厂站地址
-    quint16 m_wProtID1;       //设备地址(GIN) / 类型(ID)
-    quint8 m_btInType1;       //内部类型
+    quint16 m_wProtID1;       //设备地址(读GIN用，用于联锁)  与下面m_btType1二选一
+    quint8  m_btType1;        //测点类型(读ID用，大部分用此)
+    quint8  m_btInType1;       //内部类型
     quint16 m_wPointID1;      //GIN号/ID号
     quint16 m_wAttr1;         //点属性
-    float fReserved1;       //保留
+    float  fReserved1;       //保留
 
     //比较值2
-    quint16 wMode2;
-    quint16 wStationID2;
-    quint16 wProtID2;
-    quint8 btInType2;//遥信 遥测 遥控等
-    quint16 wPointID2;
-    quint16 wAttr2;
+    quint16 m_wMode2;
+    quint16 m_wStationID2;
+    quint16 m_wProtID2;
+    quint8  m_btType2;
+    quint8  m_btInType2;//遥信 遥测 遥控等
+    quint16 m_wPointID2;
+    quint16 m_wAttr2;
     float fRating;//测点1的额定值 ???
 
     //比较值2
     float m_fCompValue;
 
     bool bCompType;//0:测点比较常数 1:测点比较测点
-    quint8 btCondition;//条件 大于 小于 等于
+    quint8 m_btCondition;//条件 大于 小于 等于
 };
 
 class HResultObj: public HDrawObj

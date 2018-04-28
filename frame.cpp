@@ -7,6 +7,7 @@
 #include <QProcessEnvironment>
 #include <QDir>
 #include <hlogicprop.h>
+#include "hcompareprop.h"
 #include <QDebug>
 HFrame::HFrame(QScrollArea* scrollArea,QWidget * parent, Qt::WindowFlags f):
     m_pScrollArea(scrollArea),QFrame(parent,f)
@@ -237,6 +238,14 @@ void HFrame::setDrawObjProp(HDrawObj* pObj)
     {
         HLogicProp logicProc(pObj);
         logicProc.exec();
+    }
+    else if(TYPE_INPUT == pObj->getObjType())
+    {
+        if(((HInputObj*)pObj)->btInputType == TYPE_INPUT_COMP)
+        {
+            HCompareProp compProp;
+            compProp.exec();
+        }
     }
     update();
 }

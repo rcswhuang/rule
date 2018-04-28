@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     hbgprop.cpp \
     hviewprop.cpp \
     hsimulateprop.cpp \
-    hdigitalprop.cpp
+    hdigitalprop.cpp \
+    hcompareprop.cpp
 
 HEADERS  += mainwindow.h \
     drawtool.h \
@@ -32,7 +33,8 @@ HEADERS  += mainwindow.h \
     hbgprop.h \
     hviewprop.h \
     hsimulateprop.h \
-    hdigitalprop.h
+    hdigitalprop.h \
+    hcompareprop.h
 
 RESOURCES += \
     ruleeditor.qrc
@@ -42,4 +44,5 @@ FORMS += \
     bgprop.ui \
     viewprop.ui \
     simulateprop.ui \
-    digitalprop.ui
+    digitalprop.ui \
+    compareprop.ui
