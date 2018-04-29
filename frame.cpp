@@ -565,3 +565,11 @@ void HFrame::updatePasteObj()
     }
     update();
 }
+
+void HFrame::setStationData(quint16 wStationNo,quint16 wPointType,quint16 wPointNo,quint8  btRelayType,quint16 wRuleID, quint8 btType, QString &strFormula)
+{
+
+}
+
+
+

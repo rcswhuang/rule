@@ -28,6 +28,8 @@ public:
     virtual void	paintEvent(QPaintEvent * event);
 
 public:
+    void setStationData(quint16 wStationNo,quint16 wPointType,quint16 wPointNo,quint8  btRelayType,quint16 wRuleID, quint8 btType, QString &strFormula);
+public:
     void delObj();
     void cutObj();
     void copyObj();
@@ -60,6 +62,13 @@ public:
     QScrollArea* m_pScrollArea;
 public:
     float factor;
+    quint16 wStationNo;
+    quint16 wPointType;
+    quint16 wPointNo;
+    quint8  btRelayType;
+    quint16 wRuleID;
+    quint8 btType;
+    QString &strFormula;
 private:
     DRAWSHAPE m_drawShape;
 };

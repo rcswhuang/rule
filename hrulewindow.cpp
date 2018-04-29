@@ -2,6 +2,7 @@
 #pragma execution_character_set("utf-8")
 #endif
 #include "hrulewindow.h"
+#include "ui_rulewindow.h"
 #include "drawtool.h"
 #include <QVBoxLayout>
 #include <QHeaderView>
@@ -9,8 +10,13 @@
 #include "hbgprop.h"
 #include "hviewprop.h"
 #include "hsimulateprop.h"
-#include "ui_rulewindow.h"
+#include "rulefile.h"
 #include <QToolBar>
+extern LPRULEDATACALLBACK m_lpRuleDataCallBack;
+extern quint8 m_btAppType;
+extern QString strRuleFilePath;
+extern HStationRuleList g_StationRuleList;
+
 HRuleWindow::HRuleWindow(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::HRuleWindow)
@@ -321,4 +327,165 @@ void HRuleWindow::simulate_clicked()
     }
     m_pFrame->pRuleFile->bSimuState = !m_pFrame->pRuleFile->bSimuState;
     m_pFrame->update();
+}
+
+//获取一个HRuleFile对象，传递给m_pFrame
+HRuleFile* HRuleWindow::getRuleFile(quint16 wStationNo,quint16 wPointType,quint16 wPointNo,quint8  btYKType,quint16 wRuleID, quint8 btRuleType, QString &strFormula)
+{
+    quint16 wStID;//站号
+    quint16 wProtID; //装置ID 联锁组态用
+    quint16 wPtTypeID; //测点类型 五防用
+    quint16 wPtNo;//当联锁组态时为GIN号，当是测点类型时为点号
+
+    quint8 btInsideType;
+    quint16 wOpenFormulaID;
+    quint16 wCloseFormulaID;
+    quint16 wOpenJXFormulaID;
+    quint16 wCloseJXFormulaID;
+
+    QString strStationName;
+    QString strProtectName;//装置/间隔
+    QString strPointName;
+
+    RULEPARAM* ruleParam = new RULEPARAM;
+    memset(ruleParam,0,sizeof(RULEPARAM));
+    ruleParam->wStationNo = wStationNo;
+    //ruleParam->wPointType = wPointType;
+    ruleParam->wPointNo = wPointNo;
+
+    if(m_lpRuleDataCallBack)
+    {
+        if(m_btAppType == TYPE_APP_JK || m_btAppType == TYPE_APP_WF)
+        {
+            ruleParam->wPointType = wPointType;
+            m_lpRuleDataCallBack(m_btAppType,ruleParam);
+        }
+        else if(m_btAppType == TYPE_APP_LOCK)
+        {
+            ruleParam->wProtectNo = wPointType;
+            m_lpRuleDataCallBack(m_btAppType,ruleParam);
+        }
+    }
+
+    wOpenFormulaID = ruleParam->wOpenFormulaID;
+    wCloseFormulaID = ruleParam->wCloseFormulaID;
+    wOpenJXFormulaID = ruleParam->wOpenJXFormulaID;
+    wCloseJXFormulaID = ruleParam->wCloseJXFormulaID;
+    btInsideType = ruleParam->btInsideType;
+    strStationName = ruleParam->strStationName;
+    strPointName = ruleParam->strPointName;
+    strProtectName = ruleParam->strProtectName;
+
+    if(m_btAppType == TYPE_APP_JK)
+    {
+        wStID = ruleParam->wStationNo;
+        wProtID = ruleParam->wProtectNo;
+        wPtNo = ruleParam->wPointNo;
+        wPtTypeID = ruleParam->wPointType;
+    }
+    //还有其他的----huangw
+
+
+    //对应厂站/间隔/测点来获取具体的规则信息
+    HStationRule* stationRule = (HStationRule*)g_StationRuleList.findStationRule(wStID);
+    if(!stationRule)
+    {
+        stationRule = new HStationRule;
+        stationRule->m_wStationNo = wStID;
+        stationRule->m_strStationName = strStationName;
+        QString strRuleName = QString("%1_%2.FOR").arg(strStationName).arg(wStationNo);
+        stationRule->m_strRuleFileName = strRuleName;
+        g_StationRuleList.addStationRule(stationRule);
+    }
+
+    HProtectRule* protectRule = stationRule->protectRule(wProtID);//间隔，装置
+    if(!protectRule)
+    {
+        protectRule = new HProtectRule;
+        protectRule->m_wStationNo = wStID;
+        protectRule->m_wProtectNo = wProtID;
+        protectRule->m_strDeviceName = strProtectName;
+        stationRule->addProtectRule(protectRule);
+    }
+
+    HPointRule* pointRule = protectRule->pointRule(wPtTypeID,wPtNo);
+    if(!pointRule)
+    {
+        pointRule = new HPointRule;
+        pointRule->m_wStationNo = wStID;
+        pointRule->m_wProtectNo = wProtID;
+        pointRule->m_wPointNo = wPtNo;
+        pointRule->m_wPointType = wPointType;
+        pointRule->m_strPointName = strPointName;
+        protectRule->addPointRule(pointRule);
+    }
+
+    //规则ID
+    pointRule->m_btInsideType = btInsideType;
+    pointRule->m_wOpenFormulaID = wOpenFormulaID;
+    pointRule->m_wCloseFormulaID = wCloseFormulaID;
+    pointRule->m_wJXOpenFormulaID = wOpenJXFormulaID;
+    pointRule->m_wJXCloseRuleFileID = wCloseJXFormulaID;
+
+    //---huangw
+    //规则文件ID
+    quint16 wRuleFileID;
+    if(CTRL_OPEN == btYKType)
+        wRuleFileID = pointRule->m_wOpenRuleFileID;
+    else if(CTRL_CLOSE == btYKType)
+        wRuleFileID = pointRule->m_wCloseRuleFileID;
+    else if(CTRL_JXOPEN == btYKType)
+        wRuleFileID = pointRule->m_wJXOpenRuleFileID;
+    else if(CTRL_JXCLOSE == btYkTYpe)
+        wRuleFileID = pointRule->m_wJXCloseRuleFileID;
+
+    HRuleFile* pRuleFile = (HRuleFile*)protectRule->getRuleFileByID(wRuleFileID);
+    if(!pRuleFile)
+    {
+        pRuleFile = new HRuleFile;
+        pRuleFile->m_nRuleFileID = stationRule->generateID();
+        protectRule->addRuleFile(pRuleFile);
+    }
+
+    //复制给规则文件
+    pRuleFile->m_ruleFileData.wStationNo = wStID;
+    pRuleFile->m_ruleFileData.wProtectNo = wProtID;
+    pRuleFile->m_ruleFileData.wPointNo = wPtNo;
+    pRuleFile->m_ruleFileData.btPointType = wPointType;//测点类型 遥测 遥信 遥控
+    pRuleFile->m_ruleFileData.btYKType = btYKType;
+    pRuleFile->m_ruleFileData.btFormulaType = btRuleType;//规则类型:普通规则、二级规则
+    //pRuleFile->m_ruleFileData.wFormulaID = ;//测点分/合等规则ID号
+
+    QString strYKRule;//遥控规则类型：分、合、检修分、检修合
+    if(CTRL_OPEN == btYKType)
+    {
+        strYKRule = "分规则";
+        pRuleFile->m_ruleFileData.wFormulaID = pointRule->m_wOpenFormulaID;
+        pointRule->m_wOpenRuleFileID = pRuleFile->m_nRuleFileID;
+    }
+    else if(CTRL_CLOSE == btYKType)
+    {
+        strYKRule = "合规则";
+        pRuleFile->m_ruleFileData.wFormulaID = pointRule->m_wCloseFormulaID;
+        pointRule->m_wCloseRuleFileID = pRuleFile->m_nRuleFileID;
+    }
+    else if(CTRL_JXOPEN == btYKType)
+    {
+        strYKRule = "检修分规则";
+        pRuleFile->m_ruleFileData.wFormulaID = pointRule->m_wJXOpenFormulaID;
+        pointRule->m_wJXOpenRuleFileID = pRuleFile->m_nRuleFileID;
+    }
+    else if(CTRL_JXCLOSE == btYkTYpe)
+    {
+        strYKRule = "检修合规则";
+        pRuleFile->m_ruleFileData.wFormulaID = pointRule->m_wJXCloseFormulaID;
+        pointRule->m_wJXCloseRuleFileID = pRuleFile->m_nRuleFileID;
+    }
+
+    pRuleFile->m_strRuleName = QString("%1%2%3").arg(strStationName).arg(strPointName).arg(strYKRule);
+
+    //---huangw
+
+    delete ruleParam;
+    return pRuleFile;
 }

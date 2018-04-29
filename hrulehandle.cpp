@@ -1,8 +1,10 @@
 #include "hrulehandle.h"
 #include "hrulewindow.h"
+#include "rulefile.h"
 LPRULEDATACALLBACK m_lpRuleDataCallBack = NULL;
 quint8 m_btAppType = -1;
 QString strRuleFilePath = "";
+HStationRuleList g_StationRuleList;
 
 HRuleHandle* HRuleHandle::m_pInstance = NULL;
 HRuleHandle* HRuleHandle::Initstance()
@@ -47,14 +49,12 @@ void  HRuleHandle::exitRuleFiles()
 void  HRuleHandle::openRuleWindow(quint16 wStationNo, //厂站ID
                                   quint16 wPointType, //测点类型 （如果有装置就是装置的地址)
                                   quint16 wPointNo,  //测点ID
-                                  quint8  btRelayType, //分，合，检修分，检修合
+                                  quint8  btYKType, //分，合，检修分，检修合
                                   quint16 wRuleID, //规则ID
-                                  quint8 btType, //规则类型
+                                  quint8 btRuleType, //规则类型
                                   QString &strFormula //公式字符串
                                   )
 {
-
-
 }
 
 

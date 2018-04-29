@@ -59,9 +59,9 @@ signals:
 public slots:
 
 public:
-    int nRuleFileID;//规则文件的ID，每个遥信的每个规则都有ID
+    int m_nRuleFileID;//规则文件的ID，每个遥信的每个规则都有ID
     quint32 dwDrawObjID;//每个图元对象的ID,每增加一个图元ID+1
-    QString strRuleName;//规则名
+    QString m_strRuleName;//规则名
     QString strFormula;//公式名
 
     bool m_bGrid;//显示网格
@@ -98,20 +98,20 @@ public:
     friend  QDataStream& operator>>(QDataStream& in,HPointRule&);
     friend  QDataStream& operator<<(QDataStream& out,const HPointRule&);
 public:
-    quint16 wStationNo;
-    quint16 wProtectNo;
-    quint16 wPointNo;
-    quint16 wPointType;
-    quint8  btInsideType;
-    quint16 wOpenFormulaID;
-    quint16 wCloseFormulaID;
-    quint16 wJXOpenFormulaID;
-    quint16 wJXCloseFormulaID;
-    quint16 wOpenRuleFileID;
-    quint16 wCloseRuleFileID;
-    quint16 wJXOpenRuleFileID;
-    quint16 wJXCloseRuleFileID;
-    char szPointName[MAXSTRINGLEN];
+    quint16 m_wStationNo;
+    quint16 m_wProtectNo;
+    quint16 m_wPointNo;
+    quint16 m_wPointType;
+    quint8  m_btInsideType;
+    quint16 m_wOpenFormulaID;
+    quint16 m_wCloseFormulaID;
+    quint16 m_wJXOpenFormulaID;
+    quint16 m_wJXCloseFormulaID;
+    quint16 m_wOpenRuleFileID;
+    quint16 m_wCloseRuleFileID;
+    quint16 m_wJXOpenRuleFileID;
+    quint16 m_wJXCloseRuleFileID;
+    QString m_strPointName;
 };
 
 
@@ -126,24 +126,24 @@ public:
     friend QDataStream& operator>>(QDataStream &in,HProtectRule&);
     friend QDataStream& operator<<(QDataStream &out,const HProtectRule&);
 public:
-    quint16 wStationNo;
-    quint16 wProtectNo;
-    QList<HRuleFile*> pRuleFileList; //每个点都有一个规则，多少个点就有多少个规则
-    QList<HPointRule*> pPointRuleList;//每个点都在装置里面
-    char szDeviceName[MAXSTRINGLEN];
+    quint16 m_wStationNo;
+    quint16 m_wProtectNo;
+    QList<HRuleFile*> m_pRuleFileList; //每个点都有一个规则，多少个点就有多少个规则
+    QList<HPointRule*> m_pPointRuleList;//每个点都在装置里面
+    QString m_strDeviceName;
 
 public:
     bool addPointRule(HPointRule* pPointRule);//增加点规则
     HPointRule* pointRule(quint8 btType,quint16 wPointID);//获取规则
     HPointRule* findPointRule(int nIndex);
-    int pointRuleCount(){return pPointRuleList.count();}
+    int pointRuleCount(){return m_pPointRuleList.count();}
     bool delPointRuleByID(quint8 btType,int wPointID);
 
     bool addRuleFile(HRuleFile* pRuleFile);
     HRuleFile* ruleFile(int wType,int wPointNo,int wRelayValue);
     HRuleFile* findRuleFile(int nIndex);
     HRuleFile* getRuleFileByID(quint16 wRuleFileID);
-    int ruleFileCount(){return pRuleFileList.count();}
+    int ruleFileCount(){return m_pRuleFileList.count();}
     bool delRuleFileByID(int wRuleFileID);
     bool delRuleFile(int wType,int wPointNo,int wReleayNo);
 
@@ -163,16 +163,16 @@ public:
     friend QDataStream& operator>>(QDataStream& in,HStationRule&);
     friend QDataStream& operator<<(QDataStream& out,const HStationRule&);
 public:
-    quint16 wStationNo;
-    quint16 wRuleFileID;//规则文件的的ID
-    QList<HProtectRule*> pProtRuleList;
-    char szStationName[MAXSTRINGLEN];
-    char szRuleFileName[MAXSTRINGLEN];
+    quint16 m_wStationNo;
+    quint16 m_wRuleFileID;//规则文件的的ID
+    QList<HProtectRule*> m_pProtRuleList;
+    QString m_strStationName;
+    QString m_strRuleFileName;
 
 public:
-    char* stationName(){return szStationName;}
-    char* ruleFileName() {return szRuleFileName;}
-    quint16 generateID(){return wRuleFileID++;}
+    QString stationName(){return m_strStationName;}
+    QString ruleFileName() {return m_strRuleFileName;}
+    quint16 generateID(){return m_wRuleFileID++;}
     void maxRuleFileID();
     bool addProtectRule(HProtectRule* pProtRule);
     HProtectRule* protectRule(quint16 wProtNo);
@@ -185,6 +185,18 @@ public:
     //导出及序列化操作
 };
 
+
+class HStationRuleList
+{
+public:
+    HStationRuleList();
+    ~HStationRuleList();
+public:
+    void addStationRule(HStationRule* stRule);
+    HStationRule* findStationRule(wStationID);
+protected:
+    QList<HStationRule*> m_StationRuleList;
+};
 
 
 

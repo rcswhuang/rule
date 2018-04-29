@@ -79,11 +79,11 @@ enum SELECTMODE
 #define TYPE_INPUT_COMP 103
 
 
-//分 合 检修分 检修合 规则
-#define RELAY_OPEN    0x00
-#define RELAY_CLOSE   0x01
-#define RELAY_JXOPEN  0x02
-#define RELAY_JXCLOSE 0x03
+//遥控:分 合 检修分 检修合 规则
+#define CTRL_OPEN    0x00
+#define CTRL_CLOSE   0x01
+#define CTRL_JXOPEN  0x02
+#define CTRL_JXCLOSE 0x03
 
 #define COND_OPEN  0x00 //遥信分
 #define COND_CLOSE 0x01 //遥信合
@@ -125,8 +125,9 @@ typedef struct _tagRuleFileData
     quint16 wStationNo;
     quint16 wProtectNo;
     quint16 wPointNo;
-    quint16 wPointType;//测点类型 遥测 遥信 遥控
-    quint16 wFormulaType;//规则类型
+    quint8  btPointType;//测点类型 遥测 遥信 遥控
+    quint8  btYKType;
+    quint8  btFormulaType;//规则类型
     quint16 wFormulaID;//测点分/合等规则ID号
     quint16 wReserve1;
     quint16 wReserve2;

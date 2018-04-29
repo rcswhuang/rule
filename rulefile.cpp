@@ -225,16 +225,16 @@ QDataStream& operator<<(QDataStream& out,const HProtectRule& pProtRule)
 
 bool HProtectRule::addPointRule(HPointRule* pPointRule)//增加点规则
 {
-    pPointRuleList.append(pPointRule);
+    m_pPointRuleList.append(pPointRule);
     return true;
 }
 
 HPointRule* HProtectRule::pointRule(quint8 btType,quint16 wPointID)//获取规则
 {
     HPointRule* pPointRule;
-    for(int i =0; i < pPointRuleList.count();i++)
+    for(int i =0; i < m_pPointRuleList.count();i++)
     {
-        pPointRule = (HPointRule*)pPointRuleList[i];
+        pPointRule = (HPointRule*)m_pPointRuleList[i];
         if(pPointRule->wPointType == btType && pPointRule->wPointNo == wPointID)
             return pPointRule;
     }
@@ -243,21 +243,21 @@ HPointRule* HProtectRule::pointRule(quint8 btType,quint16 wPointID)//获取规�
 
 HPointRule* HProtectRule::findPointRule(int nIndex)
 {
-    if(pPointRuleList.count() < 0 || pPointRuleList.count() < nIndex)
+    if(m_pPointRuleList.count() < 0 || m_pPointRuleList.count() < nIndex)
         return NULL;
-    return pPointRuleList[nIndex];
+    return m_pPointRuleList[nIndex];
 }
 
 //int pointRuleCount(){return pPointRuleList.count();}
 bool HProtectRule::delPointRuleByID(quint8 btType,int wPointID)
 {
     HPointRule *pPointRule = NULL;
-    for(int i = 0; i < pPointRuleList.count(); i++)
+    for(int i = 0; i < m_pPointRuleList.count(); i++)
     {
         pPointRule = (HPointRule*)pPointRuleList[i];
         if(pPointRule->wPointType == btType && pPointRule->wPointNo == wPointID)
         {
-            pPointRuleList.removeOne(pPointRule);
+            m_pPointRuleList.removeOne(pPointRule);
             delete pPointRule;
             return true;
         }
@@ -267,9 +267,9 @@ bool HProtectRule::delPointRuleByID(quint8 btType,int wPointID)
 
 bool HProtectRule::addRuleFile(HRuleFile* pRuleFile)
 {
-    if(pRuleFileList.contains(pRuleFile))
+    if(m_pRuleFileList.contains(pRuleFile))
         return false;
-    pRuleFileList.append(pRuleFile);
+    m_pRuleFileList.append(pRuleFile);
     return true;
 }
 
@@ -277,13 +277,13 @@ HRuleFile* HProtectRule::ruleFile(int wType,int wPointNo,int wRelayValue)
 {
     HPointRule* pPointRule = pointRule(wType,wPointNo);
     quint16 wRuleFileID;
-    if(wRelayValue == RELAY_OPEN)
+    if(wRelayValue == CTRL_OPEN)
         wRuleFileID = pPointRule->wOpenRuleFileID;
-    else if(wRelayValue == RELAY_CLOSE)
+    else if(wRelayValue == CTRL_CLOSE)
         wRuleFileID = pPointRule->wCloseRuleFileID;
-    else if(wRelayValue == RELAY_JXOPEN)
+    else if(wRelayValue == CTRL_JXOPEN)
         wRuleFileID = pPointRule->wJXOpenRuleFileID;
-    else if(wRelayValue == RELAY_JXCLOSE)
+    else if(wRelayValue == CTRL_JXCLOSE)
         wRuleFileID = pPointRule->wJXCloseRuleFileID;
     else
         wRuleFileID = 0;
@@ -296,18 +296,18 @@ HRuleFile* HProtectRule::ruleFile(int wType,int wPointNo,int wRelayValue)
 
 HRuleFile* HProtectRule::findRuleFile(int nIndex)
 {
-    if(nIndex < 0 || nIndex > pRuleFileList.count())
+    if(nIndex < 0 || nIndex > m_pRuleFileList.count())
         return NULL;
-    return pRuleFileList[nIndex];
+    return m_pRuleFileList[nIndex];
 }
 
 HRuleFile* HProtectRule::getRuleFileByID(quint16 wRuleFileID)
 {
     HRuleFile *pRuleFile = NULL;
-    for(int i = 0; i < pRuleFileList.count();i++)
+    for(int i = 0; i < m_pRuleFileList.count();i++)
     {
-        pRuleFile = (HRuleFile*)pRuleFileList[i];
-        if(pRuleFile->nRuleFileID == (int)wRuleFileID)
+        pRuleFile = (HRuleFile*)m_pRuleFileList[i];
+        if(pRuleFile->m_nRuleFileID == (int)wRuleFileID)
             return pRuleFile;
     }
     return NULL;
@@ -317,10 +317,10 @@ HRuleFile* HProtectRule::getRuleFileByID(quint16 wRuleFileID)
 bool HProtectRule::delRuleFileByID(int wRuleFileID)
 {
     HRuleFile* pRuleFile = NULL;
-    for(int i = 0; i < pRuleFileList.count();i++)
+    for(int i = 0; i < m_pRuleFileList.count();i++)
     {
-        pRuleFile = (HRuleFile*)pRuleFileList[i];
-        if(pRuleFile->nRuleFileID == wRuleFileID)
+        pRuleFile = (HRuleFile*)m_pRuleFileList[i];
+        if(pRuleFile->m_nRuleFileID == wRuleFileID)
         {
             pRuleFileList.removeOne(pRuleFile);
             delete pRuleFile;
@@ -334,13 +334,13 @@ bool HProtectRule::delRuleFile(int wType,int wPointNo,int wRelayValue)
 {
     HPointRule *pPointRule = pointRule(wType,wPointNo);
     quint16 wRuleFileID;
-    if(wRelayValue == RELAY_OPEN)
+    if(wRelayValue == CTRL_OPEN)
         wRuleFileID = pPointRule->wOpenRuleFileID;
-    else if(wRelayValue == RELAY_CLOSE)
+    else if(wRelayValue == CTRL_CLOSE)
         wRuleFileID = pPointRule->wCloseRuleFileID;
-    else if(wRelayValue == RELAY_JXOPEN)
+    else if(wRelayValue == CTRL_JXOPEN)
         wRuleFileID = pPointRule->wJXOpenRuleFileID;
-    else if(wRelayValue == RELAY_JXCLOSE)
+    else if(wRelayValue == CTRL_JXCLOSE)
         wRuleFileID = pPointRule->wJXCloseRuleFileID;
 
     if(delRuleFileByID(wRuleFileID))
@@ -362,21 +362,21 @@ HStationRule::~HStationRule()
 
 void HStationRule::maxRuleFileID()
 {
-    wRuleFileID = 0;
+    m_wRuleFileID = 0;
 }
 
 bool HStationRule::addProtectRule(HProtectRule* pProtRule)
 {
-    pProtRuleList.append(pProtRule);
+    m_pProtRuleList.append(pProtRule);
     return true;
 }
 
 QDataStream& operator>>(QDataStream& in,HStationRule& stationRule)
 {
-    int qtVersion;
+   /* int qtVersion;
     in>>qtVersion;
-    in>>stationRule.wStationNo;
-    in>>stationRule.wRuleFileID;
+    in>>stationRule.m_wStationNo;
+    in>>stationRule.m_wRuleFileID;
     QString strTemp1,strTemp2;
     in>>strTemp1;
     in>>strTemp2;
@@ -390,13 +390,13 @@ QDataStream& operator>>(QDataStream& in,HStationRule& stationRule)
         HProtectRule* pProtRule = new HProtectRule;
         in>>(*pProtRule);
         stationRule.pProtRuleList.append(pProtRule);
-    }
+    }*/
     return in;
 }
 
 QDataStream& operator<<(QDataStream& out,const HStationRule& stationRule)
 {
-    out<<QDataStream::Qt_5_2;
+    /*out<<QDataStream::Qt_5_2;
     out<<stationRule.wStationNo;
     out<<stationRule.wRuleFileID;
     QString strTemp1 = QString("%1").arg(stationRule.szStationName);
@@ -408,16 +408,16 @@ QDataStream& operator<<(QDataStream& out,const HStationRule& stationRule)
     {
         HProtectRule* pProtRule = (HProtectRule*)stationRule.pProtRuleList[i];
         out<<(*pProtRule);
-    }
+    }*/
     return out;
 }
 
 HProtectRule* HStationRule::protectRule(quint16 wProtNo)
 {
     HProtectRule* pProtRule = NULL;
-    for(int i = 0; i < pProtRuleList.count();i++)
+    for(int i = 0; i < m_pProtRuleList.count();i++)
     {
-        pProtRule = (HProtectRule*)pProtRuleList[i];
+        pProtRule = (HProtectRule*)m_pProtRuleList[i];
         if(pProtRule->wProtectNo == wProtNo)
             return pProtRule;
     }
@@ -427,9 +427,9 @@ HProtectRule* HStationRule::protectRule(quint16 wProtNo)
 HRuleFile* HStationRule::ruleFile(quint16 wType,quint16 wPointNo,quint16 wRelayValue)
 {
     HRuleFile* pRuleFile = NULL;
-    for(int i = 0; i < pProtRuleList.count();i++)
+    for(int i = 0; i < m_pProtRuleList.count();i++)
     {
-        HProtectRule* pProtRule = (HProtectRule*)pProtRuleList[i];
+        HProtectRule* pProtRule = (HProtectRule*)m_pProtRuleList[i];
         if(pProtRule)
         {
             pRuleFile = pProtRule->ruleFile(wType,wPointNo,wRelayValue);
@@ -442,9 +442,9 @@ HRuleFile* HStationRule::ruleFile(quint16 wType,quint16 wPointNo,quint16 wRelayV
 
 bool HStationRule::delRuleFile(quint16 wType,quint16 wPointNo,quint16 wRelayValue)
 {
-    for(int i = 0; i < pProtRuleList.count();i++)
+    for(int i = 0; i < m_pProtRuleList.count();i++)
     {
-        HProtectRule* pProtRule = (HProtectRule*)pProtRuleList[i];
+        HProtectRule* pProtRule = (HProtectRule*)m_pProtRuleList[i];
         if(pProtRule)
         {
             if(pProtRule->delRuleFile(wType,wPointNo,wRelayValue))
@@ -456,9 +456,9 @@ bool HStationRule::delRuleFile(quint16 wType,quint16 wPointNo,quint16 wRelayValu
 
 bool HStationRule::delPointRule(quint16 wType,quint16 wPointNo)
 {
-    for(int i = 0; i < pProtRuleList.count();i++)
+    for(int i = 0; i < m_pProtRuleList.count();i++)
     {
-        HProtectRule* pProtRule = (HProtectRule*)pProtRuleList[i];
+        HProtectRule* pProtRule = (HProtectRule*)m_pProtRuleList[i];
         if(pProtRule)
         {
             if(pProtRule->delPointRuleByID(wType,wPointNo))
@@ -471,9 +471,9 @@ bool HStationRule::delPointRule(quint16 wType,quint16 wPointNo)
 bool HStationRule::changeStationNo(quint16 wNewStationNo)
 {
     wStationNo = wNewStationNo;
-    for(int i = 0; i < pProtRuleList.count();i++)
+    for(int i = 0; i < m_pProtRuleList.count();i++)
     {
-        HProtectRule* pProtRule = (HProtectRule*)pProtRuleList[i];
+        HProtectRule* pProtRule = (HProtectRule*)m_pProtRuleList[i];
         if(pProtRule)
         {
             pProtRule->wStationNo = wStationNo;
@@ -482,8 +482,6 @@ bool HStationRule::changeStationNo(quint16 wNewStationNo)
     }
     return false;
 }
-
-
 
 
 ///////////////////////////////遍历函数部分////////////////////////////////////////////////////
