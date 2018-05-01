@@ -23,7 +23,8 @@ SOURCES += main.cpp\
     hdigitalprop.cpp \
     hcompareprop.cpp \
     hrulehandle.cpp \
-    hrulewindow.cpp
+    hrulewindow.cpp \
+    hruledoc.cpp
 
 HEADERS  += drawtool.h \
     #mainwindow.h \
@@ -39,7 +40,8 @@ HEADERS  += drawtool.h \
     hdigitalprop.h \
     hcompareprop.h \
     hrulehandle.h \
-    hrulewindow.h
+    hrulewindow.h \
+    hruledoc.h
 
 RESOURCES += \
     ruleeditor.qrc

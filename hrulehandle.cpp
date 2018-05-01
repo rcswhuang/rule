@@ -3,7 +3,7 @@
 #include "rulefile.h"
 LPRULEDATACALLBACK m_lpRuleDataCallBack = NULL;
 quint8 m_btAppType = -1;
-QString strRuleFilePath = "";
+QString g_strRuleFilePath = "";
 HStationRuleList g_StationRuleList;
 
 HRuleHandle* HRuleHandle::m_pInstance = NULL;
@@ -36,7 +36,7 @@ HRuleHandle::~HRuleHandle()
 bool  HRuleHandle::initRuleFiles(quint8 btType,char* szFilePath,LPRULEDATACALLBACK lpDataCallBack)
 {
     m_btAppType = btType;
-    strRuleFilePath = QString(szFilePath);
+    g_strRuleFilePath = QString(szFilePath);
     m_lpRuleDataCallBack = lpDataCallBack;
     return true;
 }

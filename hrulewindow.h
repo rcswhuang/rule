@@ -25,7 +25,6 @@ public:
     void createDockWindows();
     void createActions();
     void createToolBar();
-    HRuleFile* getRuleFile(quint16 wStationNo,quint16 wPointType,quint16 wPointNo,quint8  btYKType,quint16 wRuleID, quint8 btRuleType, QString &strFormula);
 
 public slots:
     void onCreateDigitalInput();

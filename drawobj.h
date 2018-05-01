@@ -85,7 +85,7 @@ public:
     float m_fOutValue;//模拟量输出
 
     QRect m_rectCurPos; //当前点矩形位置
-    HRuleFile * m_pRuleFile; //规则文件
+    HRuleFile* m_pRuleFile; //规则文件
     QPoint* m_pointIn; //多点输入
     QPoint m_pointOut; //实际上对外的连接点位置 对外只有一个输出点
     int m_nInPointSum; //输入点个数

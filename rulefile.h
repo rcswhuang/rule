@@ -16,19 +16,19 @@ public:
     explicit HRuleFile(QObject *parent = 0);
 public:
     //序列化函数
-    friend QDataStream& operator>>(QDataStream &in,HRuleFile&);
-    friend QDataStream& operator<<(QDataStream &out,const HRuleFile&);
+    virtual void readData(int nVersion,QDataStream* ds);
+    virtual void writeData(int nVersion,QDataStream* ds);
 public:
 
     //对象操作函数
-    quint32 generateDrawObjID()
+    quint16 generateDrawObjID()
     {
-        return dwDrawObjID++;
+        return m_wDrawObjID++;
     }
 
     void refreshDrawObjID()
     {
-        dwDrawObjID = drawObjList.count()+1;
+        m_wDrawObjID = drawObjList.count()+1;
     }
 
     void add(HDrawObj* pObj);
@@ -59,10 +59,10 @@ signals:
 public slots:
 
 public:
-    int m_nRuleFileID;//规则文件的ID，每个遥信的每个规则都有ID
-    quint32 dwDrawObjID;//每个图元对象的ID,每增加一个图元ID+1
-    QString m_strRuleName;//规则名
-    QString strFormula;//公式名
+    quint16 m_wRuleFileID;//规则文件的ID，每个遥信的每个规则都有ID
+    quint16 m_wDrawObjID;//每个图元对象的ID,每增加一个图元ID+1
+    QString m_strRuleName;//某个测点规则的名称
+    QString m_strFormula;//某个测点的规则（所有图元规则总和,即测点公式）
 
     bool m_bGrid;//显示网格
     QString m_strBgClr;
@@ -95,13 +95,13 @@ public:
 
     //序列化操作
 public:
-    friend  QDataStream& operator>>(QDataStream& in,HPointRule&);
-    friend  QDataStream& operator<<(QDataStream& out,const HPointRule&);
+    virtual void readData(int nVersion,QDataStream* ds);
+    virtual void writeData(int nVersion,QDataStream* ds);
 public:
     quint16 m_wStationNo;
     quint16 m_wProtectNo;
     quint16 m_wPointNo;
-    quint16 m_wPointType;
+    quint8 m_wPointType;
     quint8  m_btInsideType;
     quint16 m_wOpenFormulaID;
     quint16 m_wCloseFormulaID;
@@ -123,8 +123,8 @@ public:
     HProtectRule();
     ~HProtectRule();
 public:
-    friend QDataStream& operator>>(QDataStream &in,HProtectRule&);
-    friend QDataStream& operator<<(QDataStream &out,const HProtectRule&);
+    virtual void readData(int nVersion,QDataStream* ds);
+    virtual void writeData(int nVersion,QDataStream* ds);
 public:
     quint16 m_wStationNo;
     quint16 m_wProtectNo;
@@ -149,6 +149,7 @@ public:
 
     //序列化操作
 
+    void refreshRuleFileID(HPointRule* ptRule);
     //相关刷新工作
 
 };
@@ -160,8 +161,8 @@ public:
     HStationRule();
     ~HStationRule();
 public:
-    friend QDataStream& operator>>(QDataStream& in,HStationRule&);
-    friend QDataStream& operator<<(QDataStream& out,const HStationRule&);
+    virtual void readData(int nVersion,QDataStream* ds);
+    virtual void writeData(int nVersion,QDataStream* ds);
 public:
     quint16 m_wStationNo;
     quint16 m_wRuleFileID;//规则文件的的ID
@@ -193,7 +194,8 @@ public:
     ~HStationRuleList();
 public:
     void addStationRule(HStationRule* stRule);
-    HStationRule* findStationRule(wStationID);
+    HStationRule* findStationRule(quint16 wStationID);
+
 protected:
     QList<HStationRule*> m_StationRuleList;
 };

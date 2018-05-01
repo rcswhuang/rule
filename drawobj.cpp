@@ -137,7 +137,6 @@ void HDrawObj::setVisiteFlag(bool visite)
     m_bVisit = visite;
 }
 
-
 void HDrawObj::draw(QPainter *painter)
 {
     adjustPosition();
