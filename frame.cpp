@@ -14,7 +14,6 @@ HFrame::HFrame(QScrollArea* scrollArea,QWidget * parent, Qt::WindowFlags f):
 {
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(true);
-    pRuleFile = new HRuleFile;
     factor = 1.0;
 }
 
@@ -77,17 +76,17 @@ void HFrame::paintEvent(QPaintEvent *event)
         drawGrid(painter);
 
 
-    for(int i = 0; i < pRuleFile->drawObjList.count();i++)
+    for(int i = 0; i < pRuleFile->m_drawObjList.count();i++)
     {
-        HDrawObj* pObj = (HDrawObj*)pRuleFile->drawObjList[i];
+        HDrawObj* pObj = (HDrawObj*)pRuleFile->m_drawObjList[i];
         pObj->draw(&painter);
         if(isSelect(pObj))//如果某个图元被选择上就画选择框
             pObj->drawSelect(&painter,HDrawObj::selected);
     }
 
-    for(int j = 0; j < pRuleFile->connectObjList.count();j++)
+    for(int j = 0; j < pRuleFile->m_connectObjList.count();j++)
     {
-        HConnect *pConnect = (HConnect*)pRuleFile->connectObjList[j];
+        HConnect *pConnect = (HConnect*)pRuleFile->m_connectObjList[j];
         pConnect->draw(&painter);
         if(isSelect(pConnect))
             pConnect->drawSelect(&painter);
@@ -255,16 +254,16 @@ bool HFrame::isLinkConnectObj(HDrawObj *pObj)
 {
     if(pObj == NULL) return false;
     QRect rectDrawObj(QPoint(pObj->m_pointOut.x()-7,pObj->m_pointOut.y() -7),QSize(15,15));
-    for(int i = 0; i < pRuleFile->connectObjList.count();i++)
+    for(int i = 0; i < pRuleFile->m_connectObjList.count();i++)
     {
-        HConnect *pConnect = (HConnect*)pRuleFile->connectObjList[i];
+        HConnect *pConnect = (HConnect*)pRuleFile->m_connectObjList[i];
         QRect rectConnectObj(QPoint(pConnect->m_pLinePoint[0].x()-3,pConnect->m_pLinePoint[0].y() -3),QSize(7,7));
-        if(rectDrawObj.intersects(rectConnectObj) || pConnect->dwInObjID == pObj->dwID)//在矩形框内(初始)连接或者连接线已经连接之后
+        if(rectDrawObj.intersects(rectConnectObj) || pConnect->dwInObjID == pObj->m_dwID)//在矩形框内(初始)连接或者连接线已经连接之后
         {
 
             pConnect->m_pointIn.setX(pObj->m_pointOut.x());
             pConnect->m_pLinePoint[0].setX(pObj->m_pointOut.x());
-            pConnect->dwInObjID = pObj->dwID;
+            pConnect->dwInObjID = pObj->m_dwID;
             if(!isSelect(pConnect))
                 pConnect->moveSelectPoint(1,this,pObj->m_pointOut);//移动连接线
         }
@@ -273,11 +272,11 @@ bool HFrame::isLinkConnectObj(HDrawObj *pObj)
         {
             for(int j =0; j < pObj->m_nInPointSum;j++)
             {
-                if(j == pConnect->btOutIndex && pConnect->dwOutObjID == pObj->dwID)
+                if(j == pConnect->btOutIndex && pConnect->dwOutObjID == pObj->m_dwID)
                 {
                     pConnect->m_pointOut.setX(pObj->m_pointIn[pConnect->btOutIndex].x());
                     pConnect->m_pLinePoint[3].setX(pObj->m_pointIn[pConnect->btOutIndex].x());
-                    pConnect->dwOutObjID = pObj->dwID;
+                    pConnect->dwOutObjID = pObj->m_dwID;
                     if(!isSelect(pConnect))
                          pConnect->moveSelectPoint(4,this,pObj->m_pointIn[j]);
                 }
@@ -286,13 +285,13 @@ bool HFrame::isLinkConnectObj(HDrawObj *pObj)
                 //必须要增加判断当前针脚点是否已经连接
               if(rect.intersects(rectConnect) )
                 {
-                    if(findConnectInRect(pObj,j,0)/* && pConnect->dwOutObjID == pObj->dwID*/)
+                    if(findConnectInRect(pObj,j,0)/* && pConnect->dwOutObjID == pObj->m_dwID*/)
                     {
                         continue;
                     }
                     pConnect->m_pointOut.setX(pObj->m_pointIn[pConnect->btOutIndex].x());
                     pConnect->m_pLinePoint[3].setX(pObj->m_pointIn[j].x());
-                    pConnect->dwOutObjID = pObj->dwID;
+                    pConnect->dwOutObjID = pObj->m_dwID;
                     pConnect->btOutIndex = j;
                     break;
                 }
@@ -305,10 +304,10 @@ bool HFrame::isLinkConnectObj(HDrawObj *pObj)
 bool HFrame::findConnectInRect(const HDrawObj*pObj,const quint16 wIndex,int nMoveDirect)
 {
     bool bfind = false;
-    for(int i = 0; i < pRuleFile->connectObjList.count();i++)
+    for(int i = 0; i < pRuleFile->m_connectObjList.count();i++)
     {
-        HConnect *pConnect = (HConnect*)pRuleFile->connectObjList[i];
-        if(pConnect->btOutIndex == wIndex && pConnect->dwOutObjID == pObj->dwID)//在矩形框内(初始)连接或者连接线已经连接之后
+        HConnect *pConnect = (HConnect*)pRuleFile->m_connectObjList[i];
+        if(pConnect->btOutIndex == wIndex && pConnect->dwOutObjID == pObj->m_dwID)//在矩形框内(初始)连接或者连接线已经连接之后
         {
             bfind = true;
             break;
@@ -321,10 +320,10 @@ bool HFrame::findConnectInRect(const HDrawObj*pObj,const quint16 wIndex,int nMov
 bool HFrame::objOutConnectLine(HDrawObj* pObj,const int &deltaX,const QPoint &localpoint)
 {
     bool bfind = false;
-    for(int i = 0; i < pRuleFile->connectObjList.count();i++)
+    for(int i = 0; i < pRuleFile->m_connectObjList.count();i++)
     {
-        HConnect *pConnect = (HConnect*)pRuleFile->connectObjList[i];
-        if(pConnect->dwInObjID == pObj->dwID)//在矩形框内(初始)连接或者连接线已经连接之后
+        HConnect *pConnect = (HConnect*)pRuleFile->m_connectObjList[i];
+        if(pConnect->dwInObjID == pObj->m_dwID)//在矩形框内(初始)连接或者连接线已经连接之后
         {
             //先要求出当前按下去的点 到 out点距离
            //int deltaX = pObj->m_rectCurPos.width();// - localpoint.x();
@@ -335,7 +334,7 @@ bool HFrame::objOutConnectLine(HDrawObj* pObj,const int &deltaX,const QPoint &lo
                break;
            }
         }
-        if(pConnect->dwOutObjID == pObj->dwID)
+        if(pConnect->dwOutObjID == pObj->m_dwID)
         {
             if(pObj->m_nInPointSum > 0)
             {
@@ -362,36 +361,36 @@ void HFrame::delObj()
          HDrawObj* drawObj = (HDrawObj*)*objIt;
          if(!drawObj) return;
 
-         HDrawObj* obj = pRuleFile->findDrawObj(drawObj->dwID);
+         HDrawObj* obj = pRuleFile->findDrawObj(drawObj->m_dwID);
          if(!obj) return;
 
          //删除连接线
-         QList<HConnect*>::iterator it = pRuleFile->connectObjList.begin();
-         for(;it != pRuleFile->connectObjList.end();++it)
+         QList<HConnect*>::iterator it = pRuleFile->m_connectObjList.begin();
+         for(;it != pRuleFile->m_connectObjList.end();++it)
          {
              HConnect* conn = (HConnect*)*it;
-             if(conn->dwInObjID == obj->dwID || conn->dwOutObjID == obj->dwID)
+             if(conn->dwInObjID == obj->m_dwID || conn->dwOutObjID == obj->m_dwID)
              {
                  pRuleFile->removeConnect(conn);
                  delete conn;
              }
          }
 
-         //将dwID>Obj的dwID重新-1编号
-         for(int i = 0; i < pRuleFile->drawObjList.count();i++)
+         //将m_dwID>Obj的m_dwID重新-1编号
+         for(int i = 0; i < pRuleFile->m_drawObjList.count();i++)
          {
-             HDrawObj* obj1 = (HDrawObj*)pRuleFile->drawObjList[i];
-             if(obj1->dwID < obj->dwID) continue;
-             quint32 bakID = obj->dwID;
-             obj1->dwID--;
+             HDrawObj* obj1 = (HDrawObj*)pRuleFile->m_drawObjList[i];
+             if(obj1->m_dwID < obj->m_dwID) continue;
+             quint32 bakID = obj->m_dwID;
+             obj1->m_dwID--;
              //在连接线里面找到连接到该对象的元素，然后ID也要-1
-             for(int k = 0; k < pRuleFile->connectObjList.count();k++)
+             for(int k = 0; k < pRuleFile->m_connectObjList.count();k++)
              {
-                 HConnect* conn1 = (HConnect*)pRuleFile->connectObjList[k];
+                 HConnect* conn1 = (HConnect*)pRuleFile->m_connectObjList[k];
                  if(conn1->dwInObjID == bakID)
-                     conn1->dwInObjID = obj1->dwID;
+                     conn1->dwInObjID = obj1->m_dwID;
                  else if(conn1->dwOutObjID == bakID)
-                     conn1->dwOutObjID = obj1->dwID;
+                     conn1->dwOutObjID = obj1->m_dwID;
              }
          }
 
@@ -548,12 +547,12 @@ void HFrame::updatePasteObj()
             HDrawObj* drawObj = (HDrawObj*)m_selectObjList[i];
             if(drawObj && conn->dwInObjID == drawObj->dwOldID && !bConnectIn)
             {
-                conn->dwInObjID = drawObj->dwID;
+                conn->dwInObjID = drawObj->m_dwID;
                 bConnectIn = true;
             }
             if(drawObj && conn->dwOutObjID == drawObj->dwOldID && !bConnectOut)
             {
-                conn->dwOutObjID = drawObj->dwID;
+                conn->dwOutObjID = drawObj->m_dwID;
                 bConnectOut = true;
             }
         }
@@ -566,10 +565,6 @@ void HFrame::updatePasteObj()
     update();
 }
 
-void HFrame::setStationData(quint16 wStationNo,quint16 wPointType,quint16 wPointNo,quint8  btRelayType,quint16 wRuleID, quint8 btType, QString &strFormula)
-{
-
-}
 
 
 

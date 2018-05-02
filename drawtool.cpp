@@ -166,16 +166,16 @@ void HSelectTool::onMouseRelease(HFrame* pFrame,const QPoint& point,QMouseEvent*
         {
             HDrawObj* pSelObj = (HDrawObj*)pFrame->m_selectObjList.first();
             //判断是否连接对象
-            for(int i =0; i < pFrame->pRuleFile->drawObjList.count();i++)
+            for(int i =0; i < pFrame->pRuleFile->m_drawObjList.count();i++)
             {
-                HDrawObj* pObj = pFrame->pRuleFile->drawObjList.at(i);
+                HDrawObj* pObj = pFrame->pRuleFile->m_drawObjList.at(i);
                 if(pSelObj == pObj || pObj->m_nOutPointSum == 0) continue;
 
                 //针对or and等有进又出的对象
                 for(int k = 0; k < pSelObj->m_nInPointSum;k++)
                 {
                     QPoint pt = pSelObj->m_pointIn[k];
-                    if(isHaveConnect(pFrame,pObj->dwID,pSelObj->dwID,k)) continue;
+                    if(isHaveConnect(pFrame,pObj->m_dwID,pSelObj->m_dwID,k)) continue;
                     QRect rect = QRect(pt,QSize(10,10));
                     if(rect.contains(pObj->m_pointOut))
                     {
@@ -187,9 +187,9 @@ void HSelectTool::onMouseRelease(HFrame* pFrame,const QPoint& point,QMouseEvent*
             }
 
             //判断是否连接到线
-           /* for(int i =0; i < pFrame->pRuleFile->connectObjList.count();i++)
+           /* for(int i =0; i < pFrame->pRuleFile->m_connectObjList.count();i++)
             {
-                HConnect* pObj = pFrame->pRuleFile->connectObjList.at(i);
+                HConnect* pObj = pFrame->pRuleFile->m_connectObjList.at(i);
                 if((quint16)-1 != pObj->dwInObjID && (quint16)-1 != pObj->dwOutObjID) continue;
                 if(pSelObj->m_nInPointSum == 0 && (quint16)-1 == pObj->dwInObjID)//遥测遥信对象
                 {
@@ -197,7 +197,7 @@ void HSelectTool::onMouseRelease(HFrame* pFrame,const QPoint& point,QMouseEvent*
                     QRect rect = QRect(QPoint(pt.x()-8,pt.y()-8),QSize(16,16));
                     if(rect.contains(pObj->m_pointIn))
                     {
-                        pObj->dwInObjID = pSelObj->dwID;
+                        pObj->dwInObjID = pSelObj->m_dwID;
                         pObj->m_pointIn = pSelObj->m_pointOut;
                         //pSelObj->m_rectCurPos.normalized();
                         //pSelObj->m_rectCurPos.setLeft(pSelObj->m_rectCurPos.left()-10);
@@ -290,12 +290,12 @@ void HSelectTool::onMouseMove(HFrame* pFrame,const QPoint& point,QMouseEvent* e)
             if(pObj)
             {
                 //如果connect线左边对象选择同时右边有对象的时候但没有选择
-                if(pConnect->dwInObjID == pObj->dwID && pFrame->isSelect(pObj) && pObj1 != NULL && !pFrame->isSelect(pObj1) && pConnect->dwOutObjID == pObj1->dwID)
+                if(pConnect->dwInObjID == pObj->m_dwID && pFrame->isSelect(pObj) && pObj1 != NULL && !pFrame->isSelect(pObj1) && pConnect->dwOutObjID == pObj1->m_dwID)
                 {
                     //pConnect->moveTo(delta.x(),delta.y());
                     pConnect->moveSelectPoint(1,pFrame,pObj->m_pointOut);
                 }
-                else if(pConnect->dwInObjID == pObj->dwID && pFrame->isSelect(pObj) && pObj1 == NULL)
+                else if(pConnect->dwInObjID == pObj->m_dwID && pFrame->isSelect(pObj) && pObj1 == NULL)
                 {
                      pConnect->moveTo(delta.x(),delta.y());
                 }
@@ -303,7 +303,7 @@ void HSelectTool::onMouseMove(HFrame* pFrame,const QPoint& point,QMouseEvent* e)
 
             if(pObj1)
             {
-                if(pConnect->dwOutObjID == pObj1->dwID && pFrame->isSelect(pObj1) &&pObj != NULL && !pFrame->isSelect(pObj) && pConnect->dwInObjID == pObj->dwID)
+                if(pConnect->dwOutObjID == pObj1->m_dwID && pFrame->isSelect(pObj1) &&pObj != NULL && !pFrame->isSelect(pObj) && pConnect->dwInObjID == pObj->m_dwID)
                 {
                     pConnect->moveSelectPoint(4,pFrame,pObj1->m_pointIn[pConnect->btOutIndex]);
                 }
@@ -315,7 +315,7 @@ void HSelectTool::onMouseMove(HFrame* pFrame,const QPoint& point,QMouseEvent* e)
 
             if(pObj && pObj1)
             {
-                if(pConnect->dwInObjID == pObj->dwID && pFrame->isSelect(pObj)  && pConnect->dwOutObjID == pObj1->dwID && pFrame->isSelect(pObj1) )
+                if(pConnect->dwInObjID == pObj->m_dwID && pFrame->isSelect(pObj)  && pConnect->dwOutObjID == pObj1->m_dwID && pFrame->isSelect(pObj1) )
                 {
                     pConnect->moveTo(delta.x(),delta.y());
                 }
@@ -372,7 +372,7 @@ void HSelectTool::addNewConnect(HFrame *pFrame, HDrawObj *pInObj, HDrawObj *pOut
     pOutObj->m_rectCurPos.setLeft(pOutObj->m_rectCurPos.left()+50);
     pOutObj->m_rectCurPos.setRight(pOutObj->m_rectCurPos.right()+50);
 
-    HConnect* newConnect = new HConnect(pInObj->dwID,pOutObj->dwID,pFrame->pRuleFile,btIndex);
+    HConnect* newConnect = new HConnect(pInObj->m_dwID,pOutObj->m_dwID,pFrame->pRuleFile,btIndex);
     pFrame->pRuleFile->addConnect(newConnect);
 
     pOutObj->calOutPoint();
@@ -383,9 +383,9 @@ bool HSelectTool::isHaveConnect(HFrame *pFrame,quint16 wIn, quint16 wOut, quint8
 {
     if(!pFrame->pRuleFile)
         return false;
-    for(int i = 0; i < pFrame->pRuleFile->connectObjList.count();i++)
+    for(int i = 0; i < pFrame->pRuleFile->m_connectObjList.count();i++)
     {
-        HConnect* connect = pFrame->pRuleFile->connectObjList.at(i);
+        HConnect* connect = pFrame->pRuleFile->m_connectObjList.at(i);
         if(connect)
         {
             if(connect->dwOutObjID == wOut && connect->btOutIndex == btOutInIndex)
@@ -400,15 +400,15 @@ void HSelectTool::reCalConnect(HFrame *pFrame, HDrawObj *pObj)
     if(!pFrame || !pObj)
          return;
     if(!pFrame->pRuleFile) return;
-    for(int i = 0;i < pFrame->pRuleFile->connectObjList.count();i++)
+    for(int i = 0;i < pFrame->pRuleFile->m_connectObjList.count();i++)
     {
-        HConnect* conn = pFrame->pRuleFile->connectObjList[i];
-        if(conn->dwInObjID == pObj->dwID && pObj->m_nOutPointSum > 0)//遥信遥测等对象
+        HConnect* conn = pFrame->pRuleFile->m_connectObjList[i];
+        if(conn->dwInObjID == pObj->m_dwID && pObj->m_nOutPointSum > 0)//遥信遥测等对象
         {
             conn->m_pointIn = pObj->m_pointOut;
             conn->calLine();
         }
-        else if(conn->dwOutObjID == pObj->dwID && pObj->m_nInPointSum > 0) //或 与之类的对象
+        else if(conn->dwOutObjID == pObj->m_dwID && pObj->m_nInPointSum > 0) //或 与之类的对象
         {
             conn->m_pointOut = pObj->m_pointIn[conn->btOutIndex];
             conn->calLine();

@@ -183,36 +183,40 @@ void RULE_EXPORT openRuleWindow(quint16 wStationNo, //厂站ID
                                 quint8 btType, //规则类型
                                 QString &strFormula //公式字符串
                                 );
-/*
-int  RULE_EXPORT openRuleFrame(
-                    QWidget* pWidget, //父窗口
-                    quint16 wStationNo, //厂站ID
+
+
+//导出规则 wStationNo = -1,所有规则，否则某个厂站规则
+//组态工具
+void RULE_EXPORT exportAllRule(quint16 wStationNo = (quint16)-1);
+
+//规则是否存在
+bool RULE_EXPORT isRuleFileExist(quint16 wStationNo, //厂站ID
+                     quint16 wPointType, //测点类型 （如果有装置就是装置的地址)
+                     quint16 wPointNo,  //测点ID
+                     quint8  btYKType //控制类型:分，合，检修分，检修合
+                     );
+//导入规则（待定）
+//拷贝规则（待定）
+//删除规则
+bool RULE_EXPORT delRuleFile(quint16 wStationNo, //厂站ID
                     quint16 wPointType, //测点类型 （如果有装置就是装置的地址)
                     quint16 wPointNo,  //测点ID
-                    quint8  btRelayType, //分，合，检修分，检修合
-                    quint16 wRuleID, //规则ID
-                    quint8 btType, //规则类型
-                    QString &strFormula //公式字符串
+                    quint8  btYKType //控制类型:分，合，检修分，检修合
                     );
+//保存厂站规则（待定）
 
-//判断当前测点的某种类型规则是否存在
-bool RULE_EXPORT isRuleFileExist(quint16 wStationNo,quint16 wPointType,quint16 wPointNo,quint8 btRelayType);
+//改变厂站ID
+void RULE_EXPORT changeStationID(quint16 wStNo,quint16 wNewStNo);
 
-//保存某个厂站下的所有规则
-bool RULE_EXPORT saveStationRuleFile(quint16 wStationNo);
+//改变装置ID（待定，如果是后台规则对象就是装置，但对五防，规则对象就是测点）
 
-//保存所有规则
-bool RULE_EXPORT saveAllRuleFile();
+//设置规则修改标志
+void RULE_EXPORT setRuleModify(bool modify);
 
-//导出规则，根据弹出的对话框进行选择
-void RULE_EXPORT exportRuleFiles();
+//规则查看  wStationNo和wPointNo都是-1,查看所有规则，wPointNo=-1,查看某个厂站规则，否则查看某个点规则
+//online上查看
+void RULE_EXPORT lookRuleReport(quint16 wStationNo = (quint16)-1,quint16 wPointNo = (quint16)-1);
 
-//删除某个测点的某个类型规则
-void RULE_EXPORT deleteRuleFile(quint16 wStationNo,quint16 wPointType,quint16 wPointNo,quint8 btRelayType);
-
-//更改了规则厂站号
-bool RULE_EXPORT changeStationNo(quint16 wOldStationNo,quint16 wNewStationNo);
-*/
 #ifdef __cplusplus
 }
 #endif

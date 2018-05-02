@@ -24,7 +24,8 @@ SOURCES += main.cpp\
     hcompareprop.cpp \
     hrulehandle.cpp \
     hrulewindow.cpp \
-    hruledoc.cpp
+    hruledoc.cpp \
+    hlookrulereport.cpp
 
 HEADERS  += drawtool.h \
     #mainwindow.h \
@@ -41,7 +42,8 @@ HEADERS  += drawtool.h \
     hcompareprop.h \
     hrulehandle.h \
     hrulewindow.h \
-    hruledoc.h
+    hruledoc.h \
+    hlookrulereport.h
 
 RESOURCES += \
     ruleeditor.qrc
@@ -53,4 +55,5 @@ FORMS += \
     simulateprop.ui \
     digitalprop.ui \
     compareprop.ui \
-    rulewindow.ui
+    rulewindow.ui \
+    lookrulereport.ui

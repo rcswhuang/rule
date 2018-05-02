@@ -28,7 +28,7 @@ public:
 
     void refreshDrawObjID()
     {
-        m_wDrawObjID = drawObjList.count()+1;
+        m_wDrawObjID = m_drawObjList.count()+1;
     }
 
     void add(HDrawObj* pObj);
@@ -81,8 +81,8 @@ public:
     bool bFormulaRight;//公式是否正确
     RULEFILEDATA m_ruleFileData;
 
-    QList<HConnect*> connectObjList;
-    QList<HDrawObj*> drawObjList;
+    QList<HConnect*> m_connectObjList;
+    QList<HDrawObj*> m_drawObjList;
 
 };
 
@@ -140,17 +140,16 @@ public:
     bool delPointRuleByID(quint8 btType,int wPointID);
 
     bool addRuleFile(HRuleFile* pRuleFile);
-    HRuleFile* ruleFile(int wType,int wPointNo,int wRelayValue);
+    HRuleFile* ruleFile(int wType,int wPointNo,quint8 btYKType);
     HRuleFile* findRuleFile(int nIndex);
     HRuleFile* getRuleFileByID(quint16 wRuleFileID);
     int ruleFileCount(){return m_pRuleFileList.count();}
     bool delRuleFileByID(int wRuleFileID);
-    bool delRuleFile(int wType,int wPointNo,int wReleayNo);
+    bool delRuleFile(int wType,int wPointNo,quint8 btYKType);
 
-    //序列化操作
 
-    void refreshRuleFileID(HPointRule* ptRule);
     //相关刷新工作
+    void refreshRuleFileID(HPointRule* ptRule);
 
 };
 
@@ -168,7 +167,7 @@ public:
     quint16 m_wRuleFileID;//规则文件的的ID
     QList<HProtectRule*> m_pProtRuleList;
     QString m_strStationName;
-    QString m_strRuleFileName;
+    QString m_strRuleFileName;//厂站规则文件名称，测试厂站_0.fma
 
 public:
     QString stationName(){return m_strStationName;}
@@ -177,12 +176,12 @@ public:
     void maxRuleFileID();
     bool addProtectRule(HProtectRule* pProtRule);
     HProtectRule* protectRule(quint16 wProtNo);
-    HRuleFile* ruleFile(quint16 wType,quint16 wPointNo,quint16 wRelayValue);
-    bool delRuleFile(quint16 wType,quint16 wPointNo,quint16 wRelayValue);
+    HRuleFile* ruleFile(quint16 wType,quint16 wPointNo,quint8 btYKType);
+    bool delRuleFile(quint16 wType,quint16 wPointNo,quint8 btYKType);
     bool delPointRule(quint16 wType,quint16 wPointNo);
 
     bool changeStationNo(quint16 wNewStationNo);
-
+    HPointRule* getFirstPointRule();
     //导出及序列化操作
 };
 
@@ -193,8 +192,14 @@ public:
     HStationRuleList();
     ~HStationRuleList();
 public:
+    int count(){return m_StationRuleList.count();}
     void addStationRule(HStationRule* stRule);
     HStationRule* findStationRule(quint16 wStationID);
+    HStationRule* at(int index)
+    {
+        return m_StationRuleList.at(index);
+    }
+    void reloadStationRule();
 
 protected:
     QList<HStationRule*> m_StationRuleList;

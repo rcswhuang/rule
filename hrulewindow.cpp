@@ -15,6 +15,7 @@
 #include "hviewprop.h"
 #include "hsimulateprop.h"
 #include "rulefile.h"
+#include "hruledoc.h"
 extern LPRULEDATACALLBACK m_lpRuleDataCallBack;
 extern quint8 m_btAppType;
 extern QString g_strRuleFilePath;
@@ -39,6 +40,28 @@ HRuleWindow::HRuleWindow(QWidget *parent) :
     ui->verticalLayout_2->addWidget(m_pScrollArea);
     resize(800,600);
 }
+
+HRuleWindow::HRuleWindow(HRuleFile* rf,QWidget *parent)
+    :m_pRuleFile(rf),QDialog(parent),
+      ui(new Ui::HRuleWindow)
+{
+      ui->setupUi(this);
+      createActions();
+      createToolBar();
+      //createDockWindows();
+
+      m_pScrollArea = new QScrollArea(this);
+      m_pFrame = new HFrame(m_pScrollArea);
+      m_pFrame->setRuleFile(m_pRuleFile);
+      m_pScrollArea->setWidget(m_pFrame);
+      if(m_pFrame || m_pFrame->pRuleFile)
+          m_pScrollArea->widget()->resize(m_pFrame->pRuleFile->m_Size.width(),m_pFrame->pRuleFile->m_Size.height());
+      else
+          m_pScrollArea->widget()->resize(1200,1000);
+      ui->verticalLayout_2->addWidget(m_pScrollArea);
+      resize(800,600);
+}
+
 
 HRuleWindow::~HRuleWindow()
 {

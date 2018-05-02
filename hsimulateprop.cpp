@@ -32,23 +32,23 @@ void HSimulateProp::initSimulateProp()
 
     //获取遥测遥信对象的个数
     int nRowCount = 0;
-    for(int i = 0; i < m_pRuleFile->drawObjList.count();i++)
+    for(int i = 0; i < m_pRuleFile->m_drawObjList.count();i++)
     {
-        HDrawObj* obj = (HDrawObj*)m_pRuleFile->drawObjList[i];
+        HDrawObj* obj = (HDrawObj*)m_pRuleFile->m_drawObjList[i];
         if(TYPE_INPUT == obj->getObjType())
             nRowCount++;
     }
 
     ui->simTable->setRowCount(nRowCount);
-    for(int i = 0; i < m_pRuleFile->drawObjList.count();i++)
+    for(int i = 0; i < m_pRuleFile->m_drawObjList.count();i++)
     {
-        HDrawObj* obj = (HDrawObj*)m_pRuleFile->drawObjList[i];
+        HDrawObj* obj = (HDrawObj*)m_pRuleFile->m_drawObjList[i];
         if(TYPE_INPUT == obj->getObjType())
         {
             QTableWidgetItem* item1 = new QTableWidgetItem();
             item1->setFlags(item1->flags() & (~Qt::ItemIsEditable));
             item1->setText(obj->m_strName);
-            item1->setData(Qt::UserRole,obj->dwID);
+            item1->setData(Qt::UserRole,obj->m_dwID);
             ui->simTable->setItem(i,0,item1);
 
 
@@ -63,9 +63,9 @@ void HSimulateProp::initSimulateProp()
 
 void HSimulateProp::okBtn_clicked()
 {
-    for(int i = 0; i < m_pRuleFile->drawObjList.count();i++)
+    for(int i = 0; i < m_pRuleFile->m_drawObjList.count();i++)
     {
-        HDrawObj* obj = (HDrawObj*)m_pRuleFile->drawObjList[i];
+        HDrawObj* obj = (HDrawObj*)m_pRuleFile->m_drawObjList[i];
         if(TYPE_INPUT == obj->getObjType())
         {
             QComboBox *box = ( QComboBox*)ui->simTable->cellWidget(i,1);

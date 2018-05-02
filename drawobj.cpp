@@ -32,8 +32,8 @@ HDrawObj::HDrawObj(const QRect &rect, HRuleFile *pRuleFile)
     m_bFill = true; //是否填充
     if(m_pRuleFile)
     {
-        dwID = m_pRuleFile->generateDrawObjID();
-        qDebug()<<"dwID = "<<dwID;
+        m_dwID = m_pRuleFile->generateDrawObjID();
+        qDebug()<<"dwID = "<<m_dwID;
     }
 }
 
@@ -43,7 +43,7 @@ void HDrawObj::readData(int nVersion,QDataStream* ds)
 
     quint32 n32;
     *ds >> n32; //图符ID
-    dwID = n32;
+    m_dwID = n32;
     quint8  n8;
     *ds >> n8;
     m_btObjType = n8; //图符类型 输入 逻辑等类型
@@ -87,7 +87,7 @@ void HDrawObj::writeData(int nVersion,QDataStream* ds)
 {
     if(!ds)
         return ;
-    *ds<<(quint32)dwID; //图符ID
+    *ds<<(quint32)m_dwID; //图符ID
     *ds<<(quint8)m_btObjType; //图符类型 输入 逻辑等类型
     *ds<<(QString)m_strName; //图元名称
     *ds<<(QString)m_strRuleName; //规则文件名称
@@ -107,14 +107,14 @@ void HDrawObj::generateID()
     if(m_pRuleFile)
     {
 
-        dwID = m_pRuleFile->generateDrawObjID();
-        qDebug()<<"dwID = "<<dwID;
+        m_dwID = m_pRuleFile->generateDrawObjID();
+        qDebug()<<"m_dwID = "<<m_dwID;
     }
 }
 
 void HDrawObj::saveOldID()
 {
-    dwOldID = dwID;
+    dwOldID = m_dwID;
 }
 
 void HDrawObj::setOffset()
@@ -1003,7 +1003,7 @@ void HInputObj::draw(QPainter *painter)
     //显示ID
     if(m_pRuleFile->bDisplayID)
     {
-        QString strID = QString("U%1").arg(dwID);
+        QString strID = QString("U%1").arg(m_dwID);
         painter->drawText(QRect(QPoint(nLeftX0,nTopY0),QPoint(nRightX0-10,nTopY1)),Qt::AlignCenter,strID);
     }
     //显示仿真数据
@@ -1179,7 +1179,7 @@ void HResultObj::draw(QPainter *painter)
     //显示ID
     if(m_pRuleFile->bDisplayID)
     {
-        QString strID = QString("U%1").arg(dwID);
+        QString strID = QString("U%1").arg(m_dwID);
         painter->drawText(QRect(QPoint(nLeftX0,nTopY0),QPoint(nRightX0-10,nTopY1)),Qt::AlignCenter,strID);
     }
     //显示仿真数据
@@ -1305,7 +1305,7 @@ void HOrObj::draw(QPainter *painter)
 
     if(m_pRuleFile->bDisplayID)
     {
-        QString strID = QString("U%1").arg(dwID);
+        QString strID = QString("U%1").arg(m_dwID);
         painter->drawText(QRect(QPoint(nLeftX0,nTopY0),QPoint(nRightX0-10,nTopY1)),Qt::AlignCenter,strID);
     }
 
@@ -1437,7 +1437,7 @@ void HAndObj::draw(QPainter *painter)
 
     if(m_pRuleFile->bDisplayID)
     {
-        QString strID = QString("U%1").arg(dwID);
+        QString strID = QString("U%1").arg(m_dwID);
         painter->drawText(QRect(QPoint(nLeftX0,nTopY0),QPoint(nRightX0-10,nTopY1)),Qt::AlignCenter,strID);
     }
 

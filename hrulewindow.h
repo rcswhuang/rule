@@ -13,12 +13,14 @@ namespace Ui {
 class HRuleWindow;
 }
 class HRuleFile;
+class HRuleDoc;
 class HRuleWindow : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit HRuleWindow(QWidget *parent = 0);
+    HRuleWindow(QWidget *parent = 0);
+    HRuleWindow(HRuleFile* rf,QWidget *parent = 0);
     ~HRuleWindow();
 
 public:
@@ -51,6 +53,7 @@ public slots:
 private:
     QScrollArea * m_pScrollArea;
     HFrame* m_pFrame;
+    HRuleFile* m_pRuleFile;
 
     //confirm
     QAction* okAct;

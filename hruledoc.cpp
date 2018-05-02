@@ -1,3 +1,6 @@
+﻿#if defined(_MSC_VER) &&(_MSC_VER >= 1600)
+#pragma execution_character_set("utf-8")
+#endif
 #include "hruledoc.h"
 #include <QDir>
 #include <QProcessEnvironment>
@@ -6,7 +9,7 @@ extern quint8 m_btAppType;
 
 HRuleDoc::HRuleDoc()
 {
-
+    m_bModify = false;
 }
 
 HRuleDoc::~HRuleDoc()
@@ -17,26 +20,26 @@ HRuleDoc::~HRuleDoc()
 //加载所有规则
 bool HRuleDoc::loadRuleFiles()
 {
-    //QString strRuleFile = g_strRuleFilePath + "*.FRO";
+    //QString strRuleFile = g_strRuleFilePath + "*.fma";
     //xxx/rule/station_0.PRO
     QDir dirRulePath(m_strRuleFilePath);
     if(!dirRulePath.exists())
-        return;
+        return false;
     QStringList filters;
-    filters<<"*.FRO";
+    filters<<"*.fma";
     dirRulePath.setNameFilters(filters);
     QFileInfoList iconsFileInfoList = dirRulePath.entryInfoList(QDir::Files  | QDir::NoDotAndDotDot);
     foreach(QFileInfo info,iconsFileInfoList)
     {
-        if(info.isFile())continue;
-        QString strRuleFile = dirRulePath + "/" + info.fileName();
+        if(!info.isFile())continue;
+        QString strRuleFile = m_strRuleFilePath + "/" + info.fileName();
         QFile file(strRuleFile);
         if(!file.exists() || !file.open(QIODevice::ReadOnly))
             continue;
         QDataStream stream(&file);
         HStationRule* pStationRule = new HStationRule;
         if(pStationRule)
-            pStationRule->readData(QDataStream::Qt_5_10,&stream);
+            pStationRule->readData(QDataStream::Qt_5_7,&stream);
 
         //要进行厂站ID的判断
         if(m_StationRuleList.findStationRule(pStationRule->m_wStationNo))
@@ -56,12 +59,59 @@ bool HRuleDoc::loadRuleFiles()
 void HRuleDoc::saveRuleFiles()
 {
     //d:/wfPath/rule = g_strRuleFilePath
+    //保存之前厂站要刷一下地址和站名，发生发生变化导致错误
+    m_StationRuleList.reloadStationRule();
     QString wfPath = QProcessEnvironment::systemEnvironment().value("wfsystem_dir");
     wfPath.append("/rule");
     QDir wfDir(wfPath);
     if(!wfDir.exists())
         wfDir.mkdir(wfPath);
-    //for(int i = 0; i < g_StationRuleList)
+    for(int i = 0; i < m_StationRuleList.count();i++)
+    {
+        HStationRule* pStRule = (HStationRule*)m_StationRuleList.at(i);
+        if(pStRule)
+        {
+            //qt下面必须要先删除，然后才能重新写入
+            delRuleProFile(pStRule->m_wStationNo);
+            QByteArray bytes;
+            QDataStream stream(&bytes,QIODevice::WriteOnly);
+            pStRule->writeData(QDataStream::Qt_5_7,&stream);
+            QString strRuleFile = wfPath + "/" + pStRule->m_strRuleFileName;
+            QFile file(strRuleFile);
+            if(file.open(QIODevice::WriteOnly))
+            {
+                QDataStream cbStream(&file);
+                cbStream.writeBytes(bytes.data(),bytes.length());
+                file.close();
+            }
+        }
+    }
+}
+
+bool HRuleDoc::delRuleProFile(quint16 wStationNo)
+{
+    //先删除之前的规则文件
+    HStationRule* pStRule = m_StationRuleList.findStationRule(wStationNo);
+    if(!pStRule)
+        return false;
+    QDir dirRulePath(m_strRuleFilePath);
+    if(!dirRulePath.exists())
+        return false;
+    QStringList filters;
+    filters<<"*.fma";
+    dirRulePath.setNameFilters(filters);
+    QFileInfoList iconsFileInfoList = dirRulePath.entryInfoList(QDir::Files  | QDir::NoDotAndDotDot);
+    foreach(QFileInfo info,iconsFileInfoList)
+    {
+        if(!info.isFile())continue;
+        QString fileName = info.fileName();
+        if(pStRule->m_strRuleFileName.compare(fileName))
+        {
+            QString strProFilePath = m_strRuleFilePath + "/" + fileName;
+            return QFile::remove(strProFilePath);
+        }
+    }
+    return true;
 }
 
 //获取一个HRuleFile对象，传递给m_pFrame
@@ -93,12 +143,12 @@ HRuleFile* HRuleDoc::getRuleFile(quint16 wStationNo,quint16 wPointType,quint16 w
         if(m_btAppType == TYPE_APP_JK || m_btAppType == TYPE_APP_WF)
         {
             ruleParam->wPointType = wPointType;
-            m_lpRuleDataCallBack(m_btAppType,ruleParam);
+            m_lpRuleDataCallBack(WM_ID_GETDBINFO,ruleParam);
         }
         else if(m_btAppType == TYPE_APP_LOCK)
         {
             ruleParam->wProtectNo = wPointType;
-            m_lpRuleDataCallBack(m_btAppType,ruleParam);
+            m_lpRuleDataCallBack(WM_GIN_GETDBINFO,ruleParam);
         }
     }
 
@@ -128,7 +178,7 @@ HRuleFile* HRuleDoc::getRuleFile(quint16 wStationNo,quint16 wPointType,quint16 w
         stationRule = new HStationRule;
         stationRule->m_wStationNo = wStID;
         stationRule->m_strStationName = strStationName;
-        QString strRuleName = QString("%1_%2.FOR").arg(strStationName).arg(wStationNo);
+        QString strRuleName = QString("%1_%2.fma").arg(strStationName).arg(wStationNo);
         stationRule->m_strRuleFileName = strRuleName;
         m_StationRuleList.addStationRule(stationRule);
     }
@@ -162,7 +212,10 @@ HRuleFile* HRuleDoc::getRuleFile(quint16 wStationNo,quint16 wPointType,quint16 w
     pointRule->m_wJXOpenFormulaID = wOpenJXFormulaID;
     pointRule->m_wJXCloseRuleFileID = wCloseJXFormulaID;
 
-    //---huangw
+    /*
+     * 删除某个测点规则时，只删除规则文件，并未删除测点。所以此处需要调整
+     * 如果删除规则文件同时删除测点，此处不需要调整
+    */
     protectRule->refreshRuleFileID(pointRule);
     //规则文件ID
     quint16 wRuleFileID;
@@ -172,14 +225,14 @@ HRuleFile* HRuleDoc::getRuleFile(quint16 wStationNo,quint16 wPointType,quint16 w
         wRuleFileID = pointRule->m_wCloseRuleFileID;
     else if(CTRL_JXOPEN == btYKType)
         wRuleFileID = pointRule->m_wJXOpenRuleFileID;
-    else if(CTRL_JXCLOSE == btYkTYpe)
+    else if(CTRL_JXCLOSE == btYKType)
         wRuleFileID = pointRule->m_wJXCloseRuleFileID;
 
     HRuleFile* pRuleFile = (HRuleFile*)protectRule->getRuleFileByID(wRuleFileID);
     if(!pRuleFile)
     {
         pRuleFile = new HRuleFile;
-        pRuleFile->m_nRuleFileID = stationRule->generateID();
+        pRuleFile->m_wRuleFileID = stationRule->generateID();
         protectRule->addRuleFile(pRuleFile);
     }
 
@@ -197,30 +250,81 @@ HRuleFile* HRuleDoc::getRuleFile(quint16 wStationNo,quint16 wPointType,quint16 w
     {
         strYKRule = "分规则";
         pRuleFile->m_ruleFileData.wFormulaID = pointRule->m_wOpenFormulaID;
-        pointRule->m_wOpenRuleFileID = pRuleFile->m_nRuleFileID;
+        pointRule->m_wOpenRuleFileID = pRuleFile->m_wRuleFileID;
     }
     else if(CTRL_CLOSE == btYKType)
     {
         strYKRule = "合规则";
         pRuleFile->m_ruleFileData.wFormulaID = pointRule->m_wCloseFormulaID;
-        pointRule->m_wCloseRuleFileID = pRuleFile->m_nRuleFileID;
+        pointRule->m_wCloseRuleFileID = pRuleFile->m_wRuleFileID;
     }
     else if(CTRL_JXOPEN == btYKType)
     {
         strYKRule = "检修分规则";
         pRuleFile->m_ruleFileData.wFormulaID = pointRule->m_wJXOpenFormulaID;
-        pointRule->m_wJXOpenRuleFileID = pRuleFile->m_nRuleFileID;
+        pointRule->m_wJXOpenRuleFileID = pRuleFile->m_wRuleFileID;
     }
-    else if(CTRL_JXCLOSE == btYkTYpe)
+    else if(CTRL_JXCLOSE == btYKType)
     {
         strYKRule = "检修合规则";
         pRuleFile->m_ruleFileData.wFormulaID = pointRule->m_wJXCloseFormulaID;
-        pointRule->m_wJXCloseRuleFileID = pRuleFile->m_nRuleFileID;
+        pointRule->m_wJXCloseRuleFileID = pRuleFile->m_wRuleFileID;
     }
 
     pRuleFile->m_strRuleName = QString("%1%2%3").arg(strStationName).arg(strPointName).arg(strYKRule);
 
+    //读取完还要刷新一下所有测点规则，防止站名，站地址发生改变后无法显示正确规则
     delete ruleParam;
     return pRuleFile;
     //获取了规则文件 后续就是应该在界面上显示规则文件所有图符
+}
+
+void HRuleDoc::exportAllRule(quint16 wStationNo)
+{
+
+}
+
+bool HRuleDoc::isRuleFileExist(quint16 wStationNo,quint16 wPointType,quint16 wPointNo,quint8  btYKType)
+{
+    HStationRule* pStRule = m_StationRuleList.findStationRule(wStationNo);
+    if(!pStRule)
+        return false;
+    HRuleFile* rf = (HRuleFile*)pStRule->ruleFile(wPointType,wPointNo,btYKType);
+    if(!rf)
+        return false;
+    return true;
+}
+
+bool HRuleDoc::delRuleFile(quint16 wStationNo,quint16 wPointType,quint16 wPointNo,quint8 btYKType)
+{
+    HStationRule* pStRule = m_StationRuleList.findStationRule(wStationNo);
+    if(!pStRule)
+        return false;
+    return pStRule->delRuleFile(wPointType,wPointNo,btYKType);
+}
+
+void HRuleDoc::changeStationID(quint16 wStNo,quint16 wNewStNo)
+{
+    HStationRule* pStRule = m_StationRuleList.findStationRule(wStNo);
+    if(!pStRule)
+        return;
+
+    //先删除之前的规则
+    if(!delRuleProFile(pStRule->m_wStationNo))
+        return;
+    //再修改ID
+    pStRule->changeStationNo(wNewStNo);
+
+    //必须要重新保存一下新规则文件
+    saveRuleFiles();
+}
+
+void HRuleDoc::setRuleModify(bool modify)
+{
+    m_bModify = modify;
+}
+
+void HRuleDoc::lookRuleReport(quint16 wStation,quint16 wPointNo)
+{
+
 }

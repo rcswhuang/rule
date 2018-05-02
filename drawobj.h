@@ -77,7 +77,7 @@ public:
 public:
     //属性
     quint32 dwOldID;//复制粘贴的时候
-    quint32 dwID; //图符ID
+    quint32 m_dwID; //图符ID
     quint8 m_btObjType; //图符类型 输入 逻辑等类型
     QString m_strName; //图元名称
     QString m_strRuleName; //规则名称(遥信: ~[xxx站.xx间隔.xx点.工程值])
