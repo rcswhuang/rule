@@ -8,6 +8,7 @@
 #include <QTableWidget>
 #include <QTextBrowser>
 #include <QDockWidget>
+#include <QCloseEvent>
 #include "frame.h"
 namespace Ui {
 class HRuleWindow;
@@ -27,6 +28,7 @@ public:
     void createDockWindows();
     void createActions();
     void createToolBar();
+    bool maybeSave();
 
 public slots:
     void onCreateDigitalInput();
@@ -50,6 +52,9 @@ public slots:
     void sizeset_clicked();
     void zoomin_clicked();
     void zoomout_clicked();
+
+protected:
+    void closeEvent(QCloseEvent *e);
 private:
     QScrollArea * m_pScrollArea;
     HFrame* m_pFrame;

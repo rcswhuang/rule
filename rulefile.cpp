@@ -20,6 +20,21 @@ HRuleFile::HRuleFile(QObject *parent) : QObject(parent)
     m_Size = QSize(1200,1000);
 }
 
+HRuleFile::~HRuleFile()
+{
+    clear();
+}
+
+void HRuleFile::clear()
+{
+    while(!m_drawObjList.isEmpty())
+        delete (HDrawObj*)m_drawObjList.takeFirst();
+    m_drawObjList.clear();
+
+    while(!m_connectObjList.isEmpty())
+        delete (HConnect*)m_connectObjList.takeFirst();
+    m_connectObjList.clear();
+}
 
 void HRuleFile::readData(int nVersion,QDataStream* ds)
 {
@@ -336,11 +351,27 @@ void HPointRule::writeData(int nVersion,QDataStream* ds)
 ////////////////////////////////////////////////////////////////HProtectRule///////////////////////////////////////////////////
 HProtectRule::HProtectRule()
 {
-
+    m_wStationNo = (quint16)-1;
+    m_wProtectNo = (quint16)-1;
+    m_pPointRuleList.clear();
+    m_pRuleFileList.clear();
 }
 
 HProtectRule::~HProtectRule()
 {
+    clear();
+}
+
+void HProtectRule::clear()
+{
+    while(!m_pPointRuleList.isEmpty())
+        delete (HPointRule*)m_pPointRuleList.takeFirst();
+    m_pPointRuleList.clear();
+
+    while(!m_pRuleFileList)
+        delete (HRuleFile*)m_pRuleFileList.takeFirst();
+    m_pRuleFileList.clear();
+    //QList<HRuleFile*> m_pRuleFileList; //每个点都有一个规则，多少个点就有多少个规则
 
 }
 
@@ -550,12 +581,21 @@ void HProtectRule::refreshRuleFileID(HPointRule *ptRule)
 //////////////////////////////////////////////HStationRule////////////////////////////////
 HStationRule::HStationRule()
 {
-
+    m_wStationNo = (qint16)-1;
+    m_wRuleFileID = (quint16)-1;//规则文件的的ID
+    m_pProtRuleList.clear();
 }
 
 HStationRule::~HStationRule()
 {
+    clear();
+}
 
+void HStationRule::clear()
+{
+    while(!m_pProtRuleList.isEmpty())
+        delete (HProtectRule*)m_pProtRuleList.takeFirst();
+    m_pProtRuleList.clear();
 }
 
 void HStationRule::maxRuleFileID()
@@ -720,25 +760,32 @@ bool HStationRule::changeStationNo(quint16 wNewStationNo)
 //////////////////////////////////////////////////HStationRuleList//////////////////////////////////////////////////////////////////////////////////
 HStationRuleList::HStationRuleList()
 {
-
+    clear();
 }
 
 HStationRuleList::~HStationRuleList()
 {
-
+    clear();
 }
 
+void HStationRuleList::clear()
+{
+    while (!m_pStationRuleList.isEmpty()) {
+        delete (HStationRule*)m_pStationRuleList.takeFirst();
+    }
+    m_pStationRuleList.clear();
+}
 
 void HStationRuleList::addStationRule(HStationRule* stRule)
 {
     if(!stRule) return;
-    m_StationRuleList.append(stRule);
+    m_pStationRuleList.append(stRule);
 }
 
 HStationRule* HStationRuleList::findStationRule(quint16 wStationID)
 {
-    QList<HStationRule*>::iterator it = m_StationRuleList.begin();
-    for(;it != m_StationRuleList.end();++it)
+    QList<HStationRule*>::iterator it = m_pStationRuleList.begin();
+    for(;it != m_pStationRuleList.end();++it)
     {
         HStationRule* pStRule = (HStationRule*)*it;
         if(pStRule && pStRule->m_wStationNo == wStationID)
@@ -749,9 +796,9 @@ HStationRule* HStationRuleList::findStationRule(quint16 wStationID)
 
 void HStationRuleList::reloadStationRule()
 {
-    for(int i = 0; i < m_StationRuleList.count();i++)
+    for(int i = 0; i < m_pStationRuleList.count();i++)
     {
-        HStationRule* pStRule = (HStationRule*)m_StationRuleList[i];
+        HStationRule* pStRule = (HStationRule*)m_pStationRuleList[i];
         if(pStRule)
         {
             HPointRule* ptRule = pStRule->getFirstPointRule();

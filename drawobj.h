@@ -22,7 +22,7 @@ class HDrawObj : public QObject
 public:
     //HDrawObj(QObject* object = 0);
     HDrawObj(const QRect& rect,HRuleFile* pRuleFile);
-
+    virtual ~HDrawObj();
 
 public:
     //序列化操作部分
@@ -124,7 +124,7 @@ public:
     HConnect(HRuleFile* pRuleFile);
     //每一条线都有一个输入端和输出端
     HConnect(quint16 dwInObjID,quint16 dwOutObjID,HRuleFile* pRuleFile,quint8 btInIndex);
-
+    ~HConnect();
 public:
     //序列化操作
     virtual void readData(int nVersion,QDataStream* ds);
@@ -170,7 +170,7 @@ class  HInputObj:public HDrawObj
     Q_OBJECT
 public:
     HInputObj(const QRect& rect,HRuleFile* pRuleFile = NULL);
-
+    //virtual ~HInputObj();
 public:
     //序列化操作部分
     virtual void readData(int nVersion,QDataStream* ds);
@@ -227,6 +227,9 @@ class HResultObj: public HDrawObj
 public:
     //HResultObj(QObject* parent = 0);
     HResultObj(const QRect& rect,HRuleFile *pRuleFile);
+    //virtual ~HResultObj();
+
+public:
     virtual void readData(int nVersion,QDataStream* ds);
     virtual void writeData(int nVerion,QDataStream* ds);
 public:
@@ -251,6 +254,8 @@ class HOrObj: public HDrawObj
 public:
     //HOrObj(QObject* parent = 0);
     HOrObj(const QRect& rect,HRuleFile *pRuleFile);
+    //virtual ~HOrObj();
+public:
     virtual void readData(int nVersion,QDataStream* ds);
     virtual void writeData(int nVerion,QDataStream* ds);
 public:
@@ -281,6 +286,8 @@ class HAndObj: public HDrawObj
 public:
     //HAndObj(QObject* parent = 0);
     HAndObj(const QRect& rect,HRuleFile *pRuleFile);
+    //virtual ~HAndObj();
+public:
     virtual void readData(int nVersion,QDataStream* ds);
     virtual void writeData(int nVerion,QDataStream* ds);
 public:

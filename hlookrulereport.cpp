@@ -18,7 +18,7 @@ HLookRuleReport::initLookRuleReport()
     //分，合，检修分，检修合
     ui->textBrowser->clear();
     HRuleDoc *doc;
-    HStationRule* stRule = doc->m_StationRuleList.findStationRule(m_wStationNo);
+    HStationRule* stRule = doc->m_pStationRuleList.findStationRule(m_wStationNo);
     if(!stRule) return;
     for(int i = 0;i < stRule->m_pProtRuleList.count();i++)
     {

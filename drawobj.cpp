@@ -37,6 +37,15 @@ HDrawObj::HDrawObj(const QRect &rect, HRuleFile *pRuleFile)
     }
 }
 
+HDrawObj::~HDrawObj()
+{
+    if(m_pointIn) //多点输入
+    {
+        delete[] m_pointIn[];
+        m_pointIn = NULL;
+    }
+}
+
 void HDrawObj::readData(int nVersion,QDataStream* ds)
 {
     if(!ds) return;
@@ -526,6 +535,14 @@ HConnect::HConnect(quint16 dwInObjID, quint16 dwOutObjID, HRuleFile *pRuleFile, 
     calLine();
 }
 
+HConnect::~HConnect()
+{
+    if(m_pLinePoint){
+        delete[] m_pLinePoint;
+        m_pLinePoint = NULL;
+    }
+}
+
 void HConnect::readData(int nVersion,QDataStream* ds)
 {
     if(!ds) return;
@@ -835,6 +852,12 @@ HInputObj::HInputObj(const QRect &rect, HRuleFile *pRuleFile)
     calOutPoint();
 }
 
+/*
+HInputObj::~HInputObj()
+{
+
+}*/
+
 void HInputObj::readData(int nVersion,QDataStream* ds)
 {
     if(!ds) return;
@@ -1074,6 +1097,12 @@ HResultObj::HResultObj(const QRect &rect, HRuleFile *pRuleFile):HDrawObj(rect,pR
     m_btObjType = TYPE_RESULT;
 }
 
+/*
+HResultObj::~HResultObj()
+{
+
+}*/
+
 void HResultObj::readData(int nVersion,QDataStream* ds)
 {
     if(!ds) return;
@@ -1219,6 +1248,12 @@ HOrObj::HOrObj(const QRect &rect, HRuleFile *pRuleFile):HDrawObj(rect,pRuleFile)
     m_btObjType = TYPE_LOGICOR;
 }
 
+/*
+HOrObj::~HOrObj()
+{
+
+}*/
+
 void HOrObj::readData(int nVersion,QDataStream* ds)
 {
     if(!ds) return;
@@ -1353,6 +1388,12 @@ HAndObj::HAndObj(const QRect &rect, HRuleFile *pRuleFile):HDrawObj(rect,pRuleFil
     calOutPoint();
     m_btObjType = TYPE_LOGICAND;
 }
+
+/*
+HAndObj::~HAndObj()
+{
+
+}*/
 
 void HAndObj::readData(int nVersion,QDataStream* ds)
 {

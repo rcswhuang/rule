@@ -11,6 +11,7 @@
 #include <QDir>
 #include <QFile>
 #include <QProcessEnvironment>
+#include <QMessageBox>
 #include "hbgprop.h"
 #include "hviewprop.h"
 #include "hsimulateprop.h"
@@ -253,6 +254,35 @@ void HRuleWindow::onCreateLogicAnd()
     HDrawTool::drawShape = enumLogicAND;
 }
 
+bool HRuleWindow::maybeSave()
+{
+  //if (!textEdit->document()->isModified())
+   //   return true;
+  const QMessageBox::StandardButton ret
+      = QMessageBox::warning(this, tr("警告"),
+                             tr("规则文件已经修改，需要保存吗?"),
+                             QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+  switch (ret) {
+  case QMessageBox::Save:
+      return true;
+  case QMessageBox::Cancel:
+      return false;
+  default:
+      break;
+  }
+  return true;
+}
+
+void HRuleWindow::closeEvent(QCloseEvent *e)
+{
+  if (maybeSave()) {
+      //保存
+      e->accept();
+  } else {
+      e->ignore();
+  }
+
+}
 /*
 void MainWindow::onDrawGrid()
 {

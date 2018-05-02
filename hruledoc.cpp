@@ -10,11 +10,15 @@ extern quint8 m_btAppType;
 HRuleDoc::HRuleDoc()
 {
     m_bModify = false;
+    m_pStationRuleList = new HStationRuleList;
 }
 
 HRuleDoc::~HRuleDoc()
 {
-
+    if(m_pStationRuleList){
+        delete m_pStationRuleList;
+        m_pStationRuleList = NULL;
+    }
 }
 
 //加载所有规则
@@ -42,7 +46,7 @@ bool HRuleDoc::loadRuleFiles()
             pStationRule->readData(QDataStream::Qt_5_7,&stream);
 
         //要进行厂站ID的判断
-        if(m_StationRuleList.findStationRule(pStationRule->m_wStationNo))
+        if(m_pStationRuleList.findStationRule(pStationRule->m_wStationNo))
         {
             QString strErrMsg = QString("厂站地址=%1的规则已经存在，导入失败！").arg(pStationRule->m_wStationNo);
             //弹出对话框
@@ -50,7 +54,7 @@ bool HRuleDoc::loadRuleFiles()
             pStationRule = NULL;
             return false;
         }
-        m_StationRuleList.addStationRule(pStationRule);
+        m_pStationRuleList.addStationRule(pStationRule);
     }
 
     return true;
@@ -60,15 +64,15 @@ void HRuleDoc::saveRuleFiles()
 {
     //d:/wfPath/rule = g_strRuleFilePath
     //保存之前厂站要刷一下地址和站名，发生发生变化导致错误
-    m_StationRuleList.reloadStationRule();
+    m_pStationRuleList.reloadStationRule();
     QString wfPath = QProcessEnvironment::systemEnvironment().value("wfsystem_dir");
     wfPath.append("/rule");
     QDir wfDir(wfPath);
     if(!wfDir.exists())
         wfDir.mkdir(wfPath);
-    for(int i = 0; i < m_StationRuleList.count();i++)
+    for(int i = 0; i < m_pStationRuleList.count();i++)
     {
-        HStationRule* pStRule = (HStationRule*)m_StationRuleList.at(i);
+        HStationRule* pStRule = (HStationRule*)m_pStationRuleList.at(i);
         if(pStRule)
         {
             //qt下面必须要先删除，然后才能重新写入
@@ -91,7 +95,7 @@ void HRuleDoc::saveRuleFiles()
 bool HRuleDoc::delRuleProFile(quint16 wStationNo)
 {
     //先删除之前的规则文件
-    HStationRule* pStRule = m_StationRuleList.findStationRule(wStationNo);
+    HStationRule* pStRule = m_pStationRuleList.findStationRule(wStationNo);
     if(!pStRule)
         return false;
     QDir dirRulePath(m_strRuleFilePath);
@@ -172,7 +176,7 @@ HRuleFile* HRuleDoc::getRuleFile(quint16 wStationNo,quint16 wPointType,quint16 w
 
 
     //对应厂站/间隔/测点来获取具体的规则信息
-    HStationRule* stationRule = (HStationRule*)m_StationRuleList.findStationRule(wStID);
+    HStationRule* stationRule = (HStationRule*)m_pStationRuleList.findStationRule(wStID);
     if(!stationRule)
     {
         stationRule = new HStationRule;
@@ -180,7 +184,7 @@ HRuleFile* HRuleDoc::getRuleFile(quint16 wStationNo,quint16 wPointType,quint16 w
         stationRule->m_strStationName = strStationName;
         QString strRuleName = QString("%1_%2.fma").arg(strStationName).arg(wStationNo);
         stationRule->m_strRuleFileName = strRuleName;
-        m_StationRuleList.addStationRule(stationRule);
+        m_pStationRuleList.addStationRule(stationRule);
     }
 
     HProtectRule* protectRule = stationRule->protectRule(wProtID);//间隔，装置
@@ -286,7 +290,7 @@ void HRuleDoc::exportAllRule(quint16 wStationNo)
 
 bool HRuleDoc::isRuleFileExist(quint16 wStationNo,quint16 wPointType,quint16 wPointNo,quint8  btYKType)
 {
-    HStationRule* pStRule = m_StationRuleList.findStationRule(wStationNo);
+    HStationRule* pStRule = m_pStationRuleList.findStationRule(wStationNo);
     if(!pStRule)
         return false;
     HRuleFile* rf = (HRuleFile*)pStRule->ruleFile(wPointType,wPointNo,btYKType);
@@ -297,7 +301,7 @@ bool HRuleDoc::isRuleFileExist(quint16 wStationNo,quint16 wPointType,quint16 wPo
 
 bool HRuleDoc::delRuleFile(quint16 wStationNo,quint16 wPointType,quint16 wPointNo,quint8 btYKType)
 {
-    HStationRule* pStRule = m_StationRuleList.findStationRule(wStationNo);
+    HStationRule* pStRule = m_pStationRuleList.findStationRule(wStationNo);
     if(!pStRule)
         return false;
     return pStRule->delRuleFile(wPointType,wPointNo,btYKType);
@@ -305,7 +309,7 @@ bool HRuleDoc::delRuleFile(quint16 wStationNo,quint16 wPointType,quint16 wPointN
 
 void HRuleDoc::changeStationID(quint16 wStNo,quint16 wNewStNo)
 {
-    HStationRule* pStRule = m_StationRuleList.findStationRule(wStNo);
+    HStationRule* pStRule = m_pStationRuleList.findStationRule(wStNo);
     if(!pStRule)
         return;
 

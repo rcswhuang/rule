@@ -14,12 +14,13 @@ class HRuleFile:public QObject
     Q_OBJECT
 public:
     explicit HRuleFile(QObject *parent = 0);
+    ~HRuleFile();
 public:
     //序列化函数
     virtual void readData(int nVersion,QDataStream* ds);
     virtual void writeData(int nVersion,QDataStream* ds);
 public:
-
+    void clear();
     //对象操作函数
     quint16 generateDrawObjID()
     {
@@ -133,6 +134,7 @@ public:
     QString m_strDeviceName;
 
 public:
+    void clear();
     bool addPointRule(HPointRule* pPointRule);//增加点规则
     HPointRule* pointRule(quint8 btType,quint16 wPointID);//获取规则
     HPointRule* findPointRule(int nIndex);
@@ -170,6 +172,7 @@ public:
     QString m_strRuleFileName;//厂站规则文件名称，测试厂站_0.fma
 
 public:
+    void clear();
     QString stationName(){return m_strStationName;}
     QString ruleFileName() {return m_strRuleFileName;}
     quint16 generateID(){return m_wRuleFileID++;}
@@ -192,17 +195,23 @@ public:
     HStationRuleList();
     ~HStationRuleList();
 public:
-    int count(){return m_StationRuleList.count();}
+    void clear();
+    bool isEmpty(){return m_pStationRuleList.isEmpty();}
+    HStationRule* takeFirst()
+    {
+        return m_pStationRuleList.takeFirst();
+    }
+    int count(){return m_pStationRuleList.count();}
     void addStationRule(HStationRule* stRule);
     HStationRule* findStationRule(quint16 wStationID);
     HStationRule* at(int index)
     {
-        return m_StationRuleList.at(index);
+        return m_pStationRuleList.at(index);
     }
     void reloadStationRule();
 
 protected:
-    QList<HStationRule*> m_StationRuleList;
+    QList<HStationRule*> m_pStationRuleList;
 };
 
 

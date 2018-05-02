@@ -66,11 +66,7 @@ void  HRuleHandle::openRuleWindow(quint16 wStationNo, //厂站ID
     HRuleFile* pRuleFile = doc->getRuleFile(wStationNo,wPointType,wPointNo,btYKType,wRuleID,btRuleType,strFormula);
     if(!pRuleFile) return;
     HRuleWindow w(pRuleFile);
-    if(QDialog::Accepted == w.exec())
-    {
-        doc->saveRuleFiles();
-    }
-
+    w.exec();
 }
 
 void HRuleHandle::exportAllRule(quint16 wStationNo)

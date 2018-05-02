@@ -27,7 +27,7 @@ public:
     //extern quint8 m_btAppType;
     bool m_bModify;
     QString m_strRuleFilePath;
-    HStationRuleList m_StationRuleList;
+    HStationRuleList* m_pStationRuleList;
 
 };
 
