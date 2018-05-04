@@ -15,6 +15,7 @@ HFrame::HFrame(QScrollArea* scrollArea,QWidget * parent, Qt::WindowFlags f):
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(true);
     factor = 1.0;
+    pRuleFile = NULL;
 }
 
 void HFrame::keyPressEvent(QKeyEvent *event)

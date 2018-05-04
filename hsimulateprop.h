@@ -19,7 +19,7 @@ public:
 
 public slots:
     void okBtn_clicked();
-    void cancleBtn_clicked();
+    void cancelBtn_clicked();
 
 private:
     Ui::HSimulateProp *ui;

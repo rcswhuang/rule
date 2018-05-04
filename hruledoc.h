@@ -20,8 +20,6 @@ public:
     bool isRuleFileExist(quint16 wStationNo,quint16 wPointType,quint16 wPointNo,quint8  btYKType);
     bool delRuleFile(quint16 wStationNo,quint16 wPointType,quint16 wPointNo,quint8  btYKType);
     void changeStationID(quint16 wStID,quint16 wNewStID);
-    void setRuleModify(bool modify);
-    void lookRuleReport(quint16 wStation,quint16 wPointNo);
 public:
     //extern LPRULEDATACALLBACK m_lpRuleDataCallBack;
     //extern quint8 m_btAppType;

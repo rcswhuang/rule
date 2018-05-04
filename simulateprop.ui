@@ -68,7 +68,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="cancleBtn">
+      <widget class="QPushButton" name="cancelBtn">
        <property name="text">
         <string>取消</string>
        </property>

@@ -19,6 +19,8 @@ HDigitalProp::~HDigitalProp()
 
 void HDigitalProp::initDlg()
 {
+    connect(ui->okBtn,SIGNAL(clicked(bool)),this,SLOT(okBtn_clicked()));
+    connect(ui->cancelBtn,SIGNAL(clicked(bool)),this,SLOT(cancelBtn_clicked()));
     ui->frNameLineEdit->setReadOnly(true);
     ui->stNameLineEdit->setReadOnly(true);
     ui->jgNameLineEdit->setReadOnly(true);
@@ -42,7 +44,7 @@ void HDigitalProp::initDlg()
     memset(ruleParam,0,sizeof(RULEPARAM));
     ruleParam->wStationNo = m_wStationNo;
     ruleParam->wPointNo = m_wPointNo;
-    ruleParam->wPointType = m_wPointType;
+    ruleParam->btPointType = m_wPointType;
 
     ruleParam->btInsideType = TYPE_INSIDE_DIGITAL;
     if(m_lpRuleDataCallBack)
@@ -80,7 +82,7 @@ void HDigitalProp::ptSelBtn_clicked()
     memset(ruleParam,0,sizeof(RULEPARAM));
     ruleParam->wStationNo = m_wStationNo;
     ruleParam->wPointNo = m_wPointNo;
-    ruleParam->wPointType = m_wPointType;
+    ruleParam->btPointType = m_wPointType;
     ruleParam->wAttr = m_wAttr;
     ruleParam->btInsideType = TYPE_INSIDE_DIGITAL;
 
@@ -91,7 +93,7 @@ void HDigitalProp::ptSelBtn_clicked()
         m_wStationNo = ruleParam->wStationNo;
         m_wProtectNo = ruleParam->wProtectNo;
         m_wPointNo = ruleParam->wPointNo;
-        m_wPointType = ruleParam->wPointType;
+        m_wPointType = ruleParam->btPointType;
         m_wAttr = ruleParam->wAttr;
         m_strAttr = ruleParam->strAttr;
     }
@@ -154,7 +156,7 @@ void HDigitalProp::okBtn_clicked()
     QDialog::accept();
 }
 
-void HDigitalProp::cancleBtn_clicked()
+void HDigitalProp::cancelBtn_clicked()
 {
     QDialog::reject();
 }

@@ -22,7 +22,7 @@ HSimulateProp::~HSimulateProp()
 void HSimulateProp::initSimulateProp()
 {
     connect(ui->okBtn,SIGNAL(clicked(bool)),this,SLOT(okBtn_clicked()));
-    connect(ui->cancleBtn,SIGNAL(clicked(bool)),this,SLOT(cancleBtn_clicked()));
+    connect(ui->cancelBtn,SIGNAL(clicked(bool)),this,SLOT(cancleBtn_clicked()));
     ui->simTable->setColumnCount(2);
     ui->simTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     QStringList headerList;
@@ -76,7 +76,7 @@ void HSimulateProp::okBtn_clicked()
     QDialog::accept();
 }
 
-void HSimulateProp::cancleBtn_clicked()
+void HSimulateProp::cancelBtn_clicked()
 {
     QDialog::reject();
 }

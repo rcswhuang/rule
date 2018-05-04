@@ -142,7 +142,7 @@ typedef struct _tagRULEPARAM
     //
     quint16 wStationNo;//站号
     quint16 wProtectNo; //装置ID 联锁组态用
-    quint16 wPointType; //测点类型 五防用
+    quint8  btPointType; //测点类型 五防用
     quint16 wPointNo;//当联锁组态时为GIN号，当是测点类型时为点号
     quint16 wAttr;
 

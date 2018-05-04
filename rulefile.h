@@ -43,7 +43,7 @@ public:
     bool isObjConnect(HDrawObj* pDrawObj);//判断当前对象是否连接
     HResultObj* getResultObj();
     HDrawObj* getConnectObj(HDrawObj* target,int nConnNo);
-
+    void refreshDrawObj();
     //遍历函数
     bool buildGeneralFormula();
 	bool visitGeneralBuildObj(HDrawObj* pObj);
@@ -53,11 +53,10 @@ public:
     void visitSimulateBuildObj(HDrawObj* obj);
 
     //报告遍历
-    bool buildReportFormula();
-    bool visitReportBuildObj(HDrawObj* obj,QList<QStringList*> &reportList);
-    //bool buildEspecialFormula();//遍历规则
-   // bool visitEspecialBuildObj(HDrawObj* pDrawObj);//遍历访问某一个图元的所有信息
-    //bool visitEspecialReportObj(HDrawObj* pDrawObj,QList<QObject*> pObjList);
+    void getRuleReport(QString& strRuleReport);
+    bool buildReportFormula(QList<QStringList*> *reportList);
+    bool visitReportBuildObj(HDrawObj* obj,QList<QStringList*> *reportList);
+    void getOrBeforeAnd(QList<QStringList*> *pSrcList,QList<QStringList*> *pDscList,QStringList* pTempList,int i,int total);
 signals:
 
 public slots:
@@ -82,7 +81,7 @@ public:
     bool bSimulateFirst;
     bool bSimuState;
     QSize m_Size;
-    bool bFormulaRight;//公式是否正确
+    bool m_bFormulaRight;//公式是否正确
     RULEFILEDATA m_ruleFileData;
 
     QList<HConnect*> m_connectObjList;

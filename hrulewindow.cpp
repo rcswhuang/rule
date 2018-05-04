@@ -3,7 +3,6 @@
 #endif
 #include "hrulewindow.h"
 #include "ui_rulewindow.h"
-#include "drawtool.h"
 #include <QVBoxLayout>
 #include <QHeaderView>
 #include <QScrollBar>
@@ -12,6 +11,7 @@
 #include <QFile>
 #include <QProcessEnvironment>
 #include <QMessageBox>
+#include "drawtool.h"
 #include "hbgprop.h"
 #include "hviewprop.h"
 #include "hsimulateprop.h"
@@ -19,8 +19,6 @@
 #include "hruledoc.h"
 extern LPRULEDATACALLBACK m_lpRuleDataCallBack;
 extern quint8 m_btAppType;
-extern QString g_strRuleFilePath;
-extern HStationRuleList g_StationRuleList;
 
 HRuleWindow::HRuleWindow(QWidget *parent) :
     QDialog(parent),
@@ -34,7 +32,7 @@ HRuleWindow::HRuleWindow(QWidget *parent) :
     m_pScrollArea = new QScrollArea(this);
     m_pFrame = new HFrame(m_pScrollArea);
     m_pScrollArea->setWidget(m_pFrame);
-    if(m_pFrame || m_pFrame->pRuleFile)
+    if(m_pFrame && m_pFrame->pRuleFile)
         m_pScrollArea->widget()->resize(m_pFrame->pRuleFile->m_Size.width(),m_pFrame->pRuleFile->m_Size.height());
     else
         m_pScrollArea->widget()->resize(1200,1000);
@@ -49,13 +47,13 @@ HRuleWindow::HRuleWindow(HRuleFile* rf,QWidget *parent)
       ui->setupUi(this);
       createActions();
       createToolBar();
-      //createDockWindows();
 
+      m_pRuleDoc = NULL;
       m_pScrollArea = new QScrollArea(this);
       m_pFrame = new HFrame(m_pScrollArea);
       m_pFrame->setRuleFile(m_pRuleFile);
       m_pScrollArea->setWidget(m_pFrame);
-      if(m_pFrame || m_pFrame->pRuleFile)
+      if(m_pFrame && m_pFrame->pRuleFile)
           m_pScrollArea->widget()->resize(m_pFrame->pRuleFile->m_Size.width(),m_pFrame->pRuleFile->m_Size.height());
       else
           m_pScrollArea->widget()->resize(1200,1000);
@@ -69,12 +67,18 @@ HRuleWindow::~HRuleWindow()
     delete ui;
 }
 
+void HRuleWindow::setRuleDoc(HRuleDoc *doc)
+{
+    m_pRuleDoc = doc;
+}
+
 void HRuleWindow::createActions()
 {
     //setIconSize(QSize(16,16));
     okAct = new QAction(QIcon(":image/ok.png"),tr("Ok"),this);
+    connect(okAct,SIGNAL(triggered(bool)),this,SLOT(close()));
     cancelAct = new QAction(QIcon(":image/cancel.png"),tr("Cancel"),this);
-
+    connect(cancelAct,SIGNAL(triggered(bool)),this,SLOT(close()));
     delAct = new QAction(QIcon(":image/edit_del.png"),tr("&Delete"),this);
     connect(delAct,SIGNAL(triggered(bool)),this,SLOT(del_clicked()));
     cutAct = new QAction(QIcon(":image/edit_cut.png"),tr("&Cut"),this);
@@ -254,17 +258,31 @@ void HRuleWindow::onCreateLogicAnd()
     HDrawTool::drawShape = enumLogicAND;
 }
 
+bool HRuleWindow::save()
+{
+    if(!m_pRuleFile->buildGeneralFormula() && !m_pRuleFile->m_drawObjList.isEmpty())
+    {
+        if(QMessageBox::Yes == QMessageBox::warning(this, QStringLiteral("警告"),QStringLiteral("规则中存在错误，需要继续编辑吗?"),QMessageBox::Yes | QMessageBox::No))
+        {
+            return false;
+        }
+        m_pRuleFile->m_strFormula = "";
+        return true;
+    }
+    return false;
+}
+
 bool HRuleWindow::maybeSave()
 {
-  //if (!textEdit->document()->isModified())
-   //   return true;
+  if (!m_pRuleDoc->m_bModify) //没有修改
+      return true;
   const QMessageBox::StandardButton ret
-      = QMessageBox::warning(this, tr("警告"),
-                             tr("规则文件已经修改，需要保存吗?"),
+      = QMessageBox::warning(this, QStringLiteral("警告"),
+                             QStringLiteral("规则文件已经修改，需要保存吗?"),
                              QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
   switch (ret) {
   case QMessageBox::Save:
-      return true;
+      return save();
   case QMessageBox::Cancel:
       return false;
   default:
@@ -276,7 +294,6 @@ bool HRuleWindow::maybeSave()
 void HRuleWindow::closeEvent(QCloseEvent *e)
 {
   if (maybeSave()) {
-      //保存
       e->accept();
   } else {
       e->ignore();
@@ -319,7 +336,6 @@ void HRuleWindow::sizeset_clicked()
     HViewProp viewProp(m_pFrame->pRuleFile);
     viewProp.exec();
     m_pFrame->resize(m_pFrame->pRuleFile->m_Size.width(),m_pFrame->pRuleFile->m_Size.height());
-    //m_pFrame->update();
 }
 
 void HRuleWindow::zoomin_clicked()
@@ -384,4 +400,3 @@ void HRuleWindow::simulate_clicked()
     m_pFrame->pRuleFile->bSimuState = !m_pFrame->pRuleFile->bSimuState;
     m_pFrame->update();
 }
-

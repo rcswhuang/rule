@@ -279,6 +279,164 @@ void HRuleFile::removeConnect(HConnect* connectObj)
     m_connectObjList.removeOne(connectObj);
 }
 
+void HRuleFile::refreshDrawObj()
+{
+    for(int i = 0; i < m_drawObjList.count();i++)
+    {
+        HDrawObj* drawObj = (HDrawObj*)m_drawObjList[i];
+        if(drawObj && TYPE_INPUT == drawObj->getObjType())
+        {
+            //可以作为函数剥离出来，此处放在一处
+            if(TYPE_APP_JK == m_btAppType || TYPE_APP_WF == m_btAppType)
+            {
+                HInputObj* inputDrawObj = (HInputObj*)drawObj;
+                if(TYPE_INPUT_DIGITAL == inputDrawObj->btInputType)
+                {
+                    QString strStName,strProtName,strPtName,strAttr,strCond,strFormula,strContent;
+                    RULEPARAM *ruleParam = new RULEPARAM;
+                    memset(ruleParam,0,sizeof(RULEPARAM));
+                    ruleParam->wStationNo = inputDrawObj->m_wStationID1;
+                    ruleParam->wPointNo = inputDrawObj->m_wPointID1;
+                    ruleParam->btPointType = inputDrawObj->m_btType1;
+
+                    if(m_lpRuleDataCallBack)
+                    {
+                        m_lpRuleDataCallBack(WM_ID_GETDBINFO,ruleParam);
+                        strStName = ruleParam->strStationName;
+                        strProtName = ruleParam->strProtectName;
+                        strPtName = ruleParam->strPointName;
+                        strAttr = ruleParam->strAttr;
+                    }
+                    else
+                    {
+                        strStName = "";
+                        strProtName = "";
+                        strPtName = "";
+                        strAttr = "";
+                    }
+                    if(COND_CLOSE ==inputDrawObj->m_btCondition)
+                    {
+                        strCond = "合位置";
+                        strFormula = "["+strStName+"."+strPtName+"."+strAttr+"]";
+                        strContent = strPtName + "=" +strCond;
+                    }
+                    else
+                    {
+                        strCond = "分位置";
+                        strFormula = "~["+strStName+"."+strPtName+"."+strAttr+"]";
+                        strContent = strPtName + "=" +strCond;
+                    }
+                    inputDrawObj->m_strName = strContent;
+                    inputDrawObj->m_strRuleName = strFormula;
+                    if(ruleParam)
+                    {
+                        delete ruleParam;
+                        ruleParam = NULL;
+                    }
+                }
+                else if(TYPE_INPUT_COMP == inputDrawObj->btInputType)
+                {
+                    QString strStName1,strProtName1,strPtName1,strAttr1;
+                    QString strStName2,strProtName2,strPtName2,strAttr2;
+                    QString strFormula,strContent;
+                    RULEPARAM *ruleParam = new RULEPARAM;
+
+                    //测点1
+                    memset(ruleParam,0,sizeof(RULEPARAM));
+                    ruleParam->wStationNo = inputDrawObj->m_wStationID1;
+                    ruleParam->wPointNo = inputDrawObj->m_wPointID1;
+                    ruleParam->btPointType = inputDrawObj->m_btType1;
+
+                    if(m_lpRuleDataCallBack)
+                    {
+                        m_lpRuleDataCallBack(WM_ID_GETDBINFO,ruleParam);
+                        strStName1 = ruleParam->strStationName;
+                        strProtName1 = ruleParam->strProtectName;
+                        strPtName1 = ruleParam->strPointName;
+                        strAttr1 = ruleParam->strAttr;
+                    }
+                    else
+                    {
+                        strStName1 = "";
+                        strProtName1 = "";
+                        strPtName1 = "";
+                        strAttr1 = "";
+                    }
+
+                    //测点2
+                    memset(ruleParam,0,sizeof(RULEPARAM));
+                    ruleParam->wStationNo = inputDrawObj->m_wStationID2;
+                    ruleParam->wPointNo = inputDrawObj->m_wPointID2;
+                    ruleParam->btPointType = inputDrawObj->m_btType2;
+
+                    if(m_lpRuleDataCallBack)
+                    {
+                        m_lpRuleDataCallBack(WM_ID_GETDBINFO,ruleParam);
+                        strStName2 = ruleParam->strStationName;
+                        strProtName2 = ruleParam->strProtectName;
+                        strPtName2 = ruleParam->strPointName;
+                        strAttr2 = ruleParam->strAttr;
+                    }
+                    else
+                    {
+                        strStName2 = "";
+                        strProtName2 = "";
+                        strPtName2 = "";
+                        strAttr2 = "";
+                    }
+
+                    QString strComp1;
+                    QString strComp2;
+                    quint8 nComp2 = inputDrawObj->m_btCompType;
+
+                    strComp1 = "["+strStName1+"."+strPtName1+"."+ strAttr1+"]";
+                    if(TYPE_COMPARE_CONST == nComp2)
+                    {
+                        strComp2 = QString("%1").arg(inputDrawObj->m_fCompValue);
+                    }
+                    else
+                    {
+                        strComp2 = "["+strStName2+"."+strPtName2+"."+ strAttr2+"]";
+                    }
+
+                    QString strCond;//条件表达式
+                    quint8 nCond = inputDrawObj->m_btCondition;
+                    switch(nCond)
+                    {
+                    case OP_GREATER:  //>
+                        strCond = ">";
+                        break;
+                    case OP_LOWER:  // <
+                        strCond = "<";
+                        break;
+                    case OP_EQUAL: // =
+                        strCond = "=";
+                        break;
+                    case OP_GEQUAL: //>=
+                        strCond = ">=";
+                        break;
+                    case OP_LEQUAL: //<=
+                        strCond = "<=";
+                        break;
+                    case OP_NEQUAL:
+                        strCond = "!=";
+                        break;
+                    }
+                    strFormula = "("+strComp1+strCond+strComp2+")";
+                    strContent = strComp1 + strCond + strComp2;
+                    inputDrawObj->m_strName = strContent;
+                    inputDrawObj->m_strRuleName = strFormula;
+                    if(ruleParam)
+                    {
+                        delete ruleParam;
+                        ruleParam = NULL;
+                    }
+                }
+            }
+        }
+    }
+}
+
 //////////////////////////////////////////////////////////////////HPointRule////////////////////////////////////////////////////
 HPointRule::HPointRule()
 {
@@ -369,7 +527,7 @@ void HProtectRule::clear()
         delete (HPointRule*)m_pPointRuleList.takeFirst();
     m_pPointRuleList.clear();
 
-    while(!m_pRuleFileList)
+    while(!m_pRuleFileList.isEmpty())
         delete (HRuleFile*)m_pRuleFileList.takeFirst();
     m_pRuleFileList.clear();
     //QList<HRuleFile*> m_pRuleFileList; //每个点都有一个规则，多少个点就有多少个规则
@@ -804,7 +962,7 @@ void HStationRuleList::reloadStationRule()
             RULEPARAM* ruleParam = new RULEPARAM;
             memset(ruleParam,0,sizeof(RULEPARAM));
             ruleParam->wStationNo = ptRule->m_wStationNo;
-            ruleParam->wPointType = ptRule->m_wPointType;
+            ruleParam->btPointType = ptRule->m_wPointType;
             ruleParam->wPointNo = ptRule->m_wPointNo;
 
             if(m_lpRuleDataCallBack)
@@ -826,10 +984,10 @@ void HStationRuleList::reloadStationRule()
 }
 
 ///////////////////////////////////////////////////////////遍历函数部分////////////////////////////////////////////////////
-//遍历主要是从结果往前推，而不是从前往后推
+//遍历:从后到前
 bool HRuleFile::buildGeneralFormula()
 {
-    bFormulaRight = true;
+    m_bFormulaRight = true;
     m_strFormula = "";
     //遍历所有对象，是否存在未连接对象，同时设置遍历标记
     for(int i = 0; i < m_drawObjList.count();i++)
@@ -868,15 +1026,27 @@ bool HRuleFile::buildGeneralFormula()
         pResultObj->setWrongFlag(true);
         if(!visitGeneralBuildObj(pFirstObj))
         {
-            bFormulaRight = false;
+            m_bFormulaRight = false;
         }
     }
 	else
 	{
         pResultObj->setWrongFlag(false);
-        bFormulaRight = false;
+        m_bFormulaRight = false;
 	}
-    if (!bFormulaRight)
+
+    //检查所有元素是否访问
+    for(int i = 0; i < m_drawObjList.count();i++)
+    {
+        HDrawObj* pObj = (HDrawObj*)m_drawObjList[i];
+        if(pObj && !pObj->m_bVisit)
+        {
+            pObj->setWrongFlag(true);
+            m_bFormulaRight = false;
+        }
+    }
+
+    if (!m_bFormulaRight)
 		return false;
     if (m_strFormula.isEmpty())
 		return false;
@@ -908,8 +1078,9 @@ bool HRuleFile::visitGeneralBuildObj(HDrawObj* pObj)
 			}
 			else
 			{
+                bErrorFlag = false;
 				pObj->setWrongFlag(true);
-                bFormulaRight = false;
+                m_bFormulaRight = false;
 			}
 		}
         m_strFormula += pObj->getOperatorLast();
@@ -982,10 +1153,42 @@ void HRuleFile::visitSimulateBuildObj(HDrawObj* drawObj)
 }
 
 /////////////////////////////////////////////////////////规则报告遍历///////////////////////////////////////////////////////////////////////////
-bool HRuleFile::buildReportFormula()
+
+void HRuleFile::getRuleReport(QString& strRuleReport)
 {
     QList<QStringList*> reportList;
+    buildReportFormula(&reportList);
 
+    /*
+     * 每组之间用@分隔符，组内每条规则用#分割，便于后面解析
+    */
+    QString strRuleText;
+    for(int i = 0;i < reportList.count();i++)
+    {
+        QStringList* plist = (QStringList*)reportList.at(i);
+        if(plist)
+        {
+            strRuleText = QString("条件%1").arg(i+1);
+            if(i > 0)
+                strRuleText = QString("或条件%1").arg(i+1);
+            //strRuleReport
+            strRuleText += "#";
+            for(int t = 0; t < plist->count();t++)
+            {
+                QString strRule = QString("%1.").arg(t+1) + plist->at(t); //1.xxxx = 合位置
+                strRuleText += strRule;
+                if(t < plist->count() - 1) //除最后一个外，其他都要加#分割
+                    strRuleText += "#";
+            }
+            strRuleReport += strRuleText;
+        }
+        strRuleReport+="@";
+    }
+}
+
+bool HRuleFile::buildReportFormula(QList<QStringList*> *reportList)
+{
+    //QList<QStringList*> reportList;
     //先找到最后一个输出
     HResultObj* pResultObj = getResultObj();
     if(!pResultObj) return false;
@@ -996,45 +1199,53 @@ bool HRuleFile::buildReportFormula()
     {
         QStringList* pStrList = new QStringList;
         pStrList->append(pFirstObj->m_strName);
-        reportList.append(pStrList);
+        reportList->append(pStrList);
     }
 
-    return visitReportBuildObj(pFirstObj,repor);
+    return visitReportBuildObj(pFirstObj,reportList);
 }
 
-bool HRuleFile::visitReportBuildObj(HDrawObj* firstObj,QList<QStringList*> &reportList)
+bool HRuleFile::visitReportBuildObj(HDrawObj* firstObj,QList<QStringList*> *reportList)
 {
     if(TYPE_LOGICOR == firstObj->getObjType())
     {
-        QList<QStringList*> orStrList;
+        QList<QStringList*> orStrList[MAXCOUNT_INPUT];
         for(int orInNo = 0; orInNo < firstObj->m_nInPointSum;orInNo++)
         {
             HDrawObj* connObj = getConnectObj(firstObj,orInNo);
             if(!connObj) continue;
             if(connObj->getObjType() == TYPE_LOGICAND)
             {
-                visitReportBuildObj(connObj,orStrList[orInNo]);
+                visitReportBuildObj(connObj,&orStrList[orInNo]);
             }
             else if(connObj->getObjType() == TYPE_LOGICOR)
             {
-                visitReportBuildObj(connObj,orStrList[orInNo]);
+                visitReportBuildObj(connObj,&orStrList[orInNo]);
             }
             else if(connObj->getObjType() == TYPE_INPUT)
             {
                 QStringList* pStrList = new QStringList;
                 pStrList->append(connObj->m_strName);
-                orStrList[orInNo]->append(pStrList);
+                orStrList[orInNo].append(pStrList);
             }
             else
                 return false;
         }
 
-        QList<QStringList*>::iterator it = orStrList.begin();
-        for(; it < orStrList.end();it++)
+        for(int i = 0; i < MAXCOUNT_INPUT;i++)
         {
-            QStringList* strList = (QStringList*)orStrList.takeFirst();
-            reportList.append(strList);
-            delete strList;
+            QList<QStringList*>::iterator it = orStrList[i].begin();
+            for(; it < orStrList[i].end();it++)
+            {
+                QStringList* strList = (QStringList*)*it;
+                reportList->append(strList);
+            }
+        }
+
+        for(int i = 0; i < MAXCOUNT_INPUT;i++)
+        {
+            while(!orStrList[i].isEmpty())
+                delete (QStringList*)orStrList[i].takeFirst();
         }
     }
     else if(TYPE_LOGICAND == firstObj->getObjType())
@@ -1049,48 +1260,79 @@ bool HRuleFile::visitReportBuildObj(HDrawObj* firstObj,QList<QStringList*> &repo
          * D---
          *
         */
-        QList<QStringList*> andStrList;
+        //初步设置为MAXCOUNT_INPUT,也可以用firstObj->m_nInPointSum来代替
+        QList<QStringList*> andStrList[MAXCOUNT_INPUT];
         for(int andInNo = 0; andInNo < firstObj->m_nInPointSum;andInNo++)
         {
             HDrawObj* connObj = getConnectObj(firstObj,andInNo);
             if(!connObj) continue;
             if(connObj->getObjType() == TYPE_LOGICAND)
             {
-                visitReportBuildObj(connObj,andStrList[orInNo]);
+                visitReportBuildObj(connObj,&andStrList[andInNo]);
             }
             else if(connObj->getObjType() == TYPE_LOGICOR)
             {
-                visitReportBuildObj(connObj,andStrList[orInNo]);
+                visitReportBuildObj(connObj,&andStrList[andInNo]);
             }
             else if(connObj->getObjType() == TYPE_INPUT)
             {
                 QStringList* pStrList = new QStringList;
                 pStrList->append(connObj->m_strName);
-                andStrList[andInNo]->append(pStrList);
+                andStrList[andInNo].append(pStrList);
             }
             else
                 return false;
         }
 
         //and前面如果有or的话 or的每项都要和其他的交互
-        for(int i = 0;i < andStrList.count();i++)
+        QStringList mStrList;
+        getOrBeforeAnd(andStrList,reportList,&mStrList,0,firstObj->m_nInPointSum);
+
+        for(int i = 0; i < MAXCOUNT_INPUT;i++)
         {
-            QStringList* pStrList = andStrList[i]; //A
-            reportList[i]->append(pStrList);
-            for(int j = i+1; j < andStrList.count();i++)
+            while(!andStrList[i].isEmpty())
+                delete (QStringList*)andStrList[i].takeFirst();
         }
 
     }
 }
 
-void getOrItem()
+void HRuleFile::getOrBeforeAnd(QList<QStringList*> *pSrcList,QList<QStringList*> *pDscList,QStringList* pTempList,int i,int total)
 {
-    QList<QStringList*> andStrList;
-    QList<QStringList*> reportList;
-    for(int i = 0;i < andStrList.count();i++)
+    int order = i;
+    for(int p = 0; p < pSrcList[order].count();p++)
     {
-        QStringList* pStrList = andStrList[i]; //A
-        reportList[i]->append(pStrList);
+        QStringList* pList = pSrcList[order].at(p);
+        if(pList && order < total)
+        {
+            QStringList strList;
+            for(int t = 0; t < pTempList->count();t++)
+            {
+                strList.append(pTempList->at(t));
+            }
 
+            for(int t = 0; t< pList->count();t++)
+            {
+                QString str = pList->at(t);
+                strList.append(str);
+            }
+
+            if(order == total - 1)
+            {
+                QStringList* newList = new QStringList;
+                for(int t =0; t < strList.count();t++)
+                {
+                    newList->append(strList[t]);
+                }
+                pDscList->append(newList);
+                strList.clear();
+            }
+
+            i = order+1;
+            if(i < total)
+            {
+                getOrBeforeAnd(pSrcList,pDscList,&strList,i,total);
+            }
+        }
     }
 }

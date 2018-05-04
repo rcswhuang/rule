@@ -19,6 +19,8 @@ public:
     void initCompareProp();
     void refreshCompareProp();
 public slots:
+    void okBtn_clicked();
+    void cancel_clicked();
     void comp1SelBtn_clicked();
     void comp2SelBtn_clicked();
     void comp2TypeComboBox_clicked();

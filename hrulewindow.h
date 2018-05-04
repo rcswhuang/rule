@@ -23,12 +23,14 @@ public:
     HRuleWindow(QWidget *parent = 0);
     HRuleWindow(HRuleFile* rf,QWidget *parent = 0);
     ~HRuleWindow();
-
+public:
+    void setRuleDoc(HRuleDoc* doc);
 public:
     void createDockWindows();
     void createActions();
     void createToolBar();
     bool maybeSave();
+    bool save();
 
 public slots:
     void onCreateDigitalInput();
@@ -59,6 +61,7 @@ private:
     QScrollArea * m_pScrollArea;
     HFrame* m_pFrame;
     HRuleFile* m_pRuleFile;
+    HRuleDoc* m_pRuleDoc;
 
     //confirm
     QAction* okAct;

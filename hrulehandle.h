@@ -53,9 +53,6 @@ public:
 
     //改变装置ID（待定，如果是后台规则对象就是装置，但对五防，规则对象就是测点）
 
-    //设置规则修改标志
-    void setRuleModify(bool modify);
-
     //规则查看
     void lookRuleReport(quint16 wStation = (quint16)-1,quint16 wPointNo = (quint16)-1);
 private:

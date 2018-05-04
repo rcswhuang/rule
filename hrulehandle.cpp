@@ -3,10 +3,9 @@
 #include "hruledoc.h"
 #include "rulefile.h"
 #include "hruledoc.h"
+#include "hlookrulereport.h"
 LPRULEDATACALLBACK m_lpRuleDataCallBack = NULL;
 quint8 m_btAppType = -1;
-QString g_strRuleFilePath = "";
-HStationRuleList g_StationRuleList;
 
 HRuleHandle* HRuleHandle::m_pInstance = NULL;
 HRuleHandle* HRuleHandle::Initstance()
@@ -42,8 +41,10 @@ HRuleHandle::~HRuleHandle()
 
 bool  HRuleHandle::initRuleFiles(quint8 btType,char* szFilePath,LPRULEDATACALLBACK lpDataCallBack)
 {
+    if(!m_pRuleDoc)
+        return false;
+    m_pRuleDoc->m_strRuleFilePath = QString(szFilePath);
     m_btAppType = btType;
-    g_strRuleFilePath = QString(szFilePath);
     m_lpRuleDataCallBack = lpDataCallBack;
     return true;
 }
@@ -62,8 +63,10 @@ void  HRuleHandle::openRuleWindow(quint16 wStationNo, //厂站ID
                                   QString &strFormula //公式字符串
                                   )
 {
+    if(!m_pRuleDoc)
+        return;
     m_pRuleDoc->loadRuleFiles();
-    HRuleFile* pRuleFile = doc->getRuleFile(wStationNo,wPointType,wPointNo,btYKType,wRuleID,btRuleType,strFormula);
+    HRuleFile* pRuleFile = m_pRuleDoc->getRuleFile(wStationNo,wPointType,wPointNo,btYKType,wRuleID,btRuleType,strFormula);
     if(!pRuleFile) return;
     HRuleWindow w(pRuleFile);
     w.exec();
@@ -71,32 +74,39 @@ void  HRuleHandle::openRuleWindow(quint16 wStationNo, //厂站ID
 
 void HRuleHandle::exportAllRule(quint16 wStationNo)
 {
+    if(!m_pRuleDoc)
+        return;
     m_pRuleDoc->exportAllRule(wStationNo);
 }
 
 bool HRuleHandle::isRuleFileExist(quint16 wStationNo,quint16 wPointType,quint16 wPointNo,quint8  btYKType)
 {
+    if(!m_pRuleDoc)
+        return false;
     return m_pRuleDoc->isRuleFileExist(wStationNo,wPointType,wPointNo,btYKType);
 }
 
 bool HRuleHandle::delRuleFile(quint16 wStationNo,quint16 wPointType,quint16 wPointNo,quint8  btYKType)
 {
+    if(!m_pRuleDoc)
+        return false;
     return m_pRuleDoc->delRuleFile(wStationNo,wPointType,wPointNo,btYKType);
 }
 
 void HRuleHandle::changeStationID(quint16 wStNo,quint16 wNewStNo)
 {
+    if(!m_pRuleDoc)
+        return;
     m_pRuleDoc->changeStationID(wStNo,wNewStNo);
-}
-
-void HRuleHandle::setRuleModify(bool modify)
-{
-    m_pRuleDoc->setRuleModify(modify);
 }
 
 void HRuleHandle::lookRuleReport(quint16 wStationNo,quint16 wPointNo)
 {
-    m_pRuleDoc->lookRuleReport(wStationNo,wPointNo);
+    if(!m_pRuleDoc)
+        return;
+    HLookRuleReport look(m_pRuleDoc);
+    look.setPoint(wStationNo,wPointNo);
+    look.exec();
 }
 
 
@@ -143,11 +153,6 @@ bool RULE_EXPORT delRuleFile(quint16 wStationNo,quint16 wPointType,quint16 wPoin
 void RULE_EXPORT changeStationID(quint16 wStNo,quint16 wNewStNo)
 {
     HRuleHandle::Initstance()->changeStationID(wStNo,wNewStNo);
-}
-
-void RULE_EXPORT setRuleModify(bool modify)
-{
-    HRuleHandle::Initstance()->setRuleModify(modify);
 }
 
 void RULE_EXPORT lookRuleReport(quint16 wStationNo,quint16 wPointNo)

@@ -15,7 +15,7 @@ HBgProp::HBgProp(HFrame* frame,QWidget *parent) :
     connect(ui->downedgeBtn,SIGNAL(clicked(bool)),this,SLOT(downedgeBtn_clicked()));
     connect(ui->shadowBtn,SIGNAL(clicked(bool)),this,SLOT(shadowBtn_clicked()));
     connect(ui->setBtn,SIGNAL(clicked(bool)),this,SLOT(set_clicked()));
-    connect(ui->cancleBtn,SIGNAL(clicked(bool)),this,SLOT(cancle_clicked()));
+    connect(ui->cancelBtn,SIGNAL(clicked(bool)),this,SLOT(cancle_clicked()));
     connect(ui->defaultBtn,SIGNAL(clicked(bool)),this,SLOT(default_clicked()));
     initBgProp();
 }
@@ -131,7 +131,7 @@ void HBgProp::set_clicked()
     QDialog::accept();
 }
 
-void HBgProp::cancle_clicked()
+void HBgProp::cancel_clicked()
 {
     QDialog::reject();
 }

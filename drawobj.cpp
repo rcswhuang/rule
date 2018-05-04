@@ -41,7 +41,7 @@ HDrawObj::~HDrawObj()
 {
     if(m_pointIn) //多点输入
     {
-        delete[] m_pointIn[];
+        delete[] m_pointIn;
         m_pointIn = NULL;
     }
 }

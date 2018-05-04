@@ -25,7 +25,7 @@ public slots:
     void downedgeBtn_clicked();
     void shadowBtn_clicked();
     void set_clicked();
-    void cancle_clicked();
+    void cancel_clicked();
     void default_clicked();
 public:
     HFrame* m_pFrame;

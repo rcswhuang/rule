@@ -26,6 +26,8 @@ HCompareProp::~HCompareProp()
 
 void HCompareProp::initCompareProp()
 {
+    connect(ui->okBtn,SIGNAL(clicked(bool)),this,SLOT(okBtn_clicked()));
+    connect(ui->cancelBtn,SIGNAL(clicked(bool)),this,SLOT(cancel_clicked()));
     connect(ui->comp1SelBtn,SIGNAL(clicked(bool)),this,SLOT(comp1SelBtn_clicked()));
     connect(ui->comp2SelBtn,SIGNAL(clicked(bool)),this,SLOT(comp2SelBtn_clicked()));
     connect(ui->comp2TypeComboBox,SIGNAL(currentIndexChanged(int)),SLOT(comp2TypeComboBox_clicked()));
@@ -70,7 +72,7 @@ void HCompareProp::initCompareProp()
     memset(ruleParam,0,sizeof(RULEPARAM));
     ruleParam->wStationNo = m_wStationNo1;
     ruleParam->wPointNo = m_wPointNo1;
-    ruleParam->wPointType = m_wPointType1;
+    ruleParam->btPointType = m_wPointType1;
     if(m_lpRuleDataCallBack)
     {
         if(TYPE_APP_JK == m_btAppType || TYPE_APP_WF == m_btAppType)
@@ -109,7 +111,7 @@ void HCompareProp::initCompareProp()
     memset(ruleParam,0,sizeof(RULEPARAM));
     ruleParam->wStationNo = m_wStationNo2;
     ruleParam->wPointNo = m_wPointNo2;
-    ruleParam->wPointType = m_wPointType2;
+    ruleParam->btPointType = m_wPointType2;
     if(m_lpRuleDataCallBack)
     {
         if(TYPE_APP_JK == m_btAppType || TYPE_APP_WF == m_btAppType)
@@ -143,7 +145,7 @@ void HCompareProp::comp1SelBtn_clicked()
     memset(ruleParam,0,sizeof(RULEPARAM));
     ruleParam->wStationNo = m_wStationNo1;
     ruleParam->wPointNo = m_wPointNo1;
-    ruleParam->wPointType = m_wPointType1;
+    ruleParam->btPointType = m_wPointType1;
     ruleParam->wAttr = m_wAttr1;
     ruleParam->btInsideType = TYPE_INSIDE_ANALOGUE;
 
@@ -166,7 +168,7 @@ void HCompareProp::comp1SelBtn_clicked()
             m_lpRuleDataCallBack(WM_SEL_POINT,ruleParam);
             m_wStationNo1 = ruleParam->wStationNo;
             m_wPointNo1 = ruleParam->wPointNo;
-            m_wPointType1 = ruleParam->wPointType;
+            m_wPointType1 = ruleParam->btPointType;
             m_wAttr1 = ruleParam->wAttr;
             m_strAttr1 = ruleParam->strAttr;
         }
@@ -189,7 +191,7 @@ void HCompareProp::comp2SelBtn_clicked()
     memset(ruleParam,0,sizeof(RULEPARAM));
     ruleParam->wStationNo = m_wStationNo2;
     ruleParam->wPointNo = m_wPointNo2;
-    ruleParam->wPointType = m_wPointType2;
+    ruleParam->btPointType = m_wPointType2;
     ruleParam->wAttr = m_wAttr2;
     ruleParam->btInsideType = TYPE_INSIDE_ANALOGUE;
 
@@ -210,7 +212,7 @@ void HCompareProp::comp2SelBtn_clicked()
             m_lpRuleDataCallBack(WM_SEL_POINT,ruleParam);
             m_wStationNo2 = ruleParam->wStationNo;
             m_wPointNo2 = ruleParam->wPointNo;
-            m_wPointType2 = ruleParam->wPointType;
+            m_wPointType2 = ruleParam->btPointType;
             m_wAttr2 = ruleParam->wAttr;
             m_strAttr2 = ruleParam->strAttr;
         }
@@ -260,7 +262,7 @@ void HCompareProp::refreshCompareProp()
     //QString strTextBrowser = "(" + ")";
     QString strComp1;
     QString strComp2;
-    quint8 nComp2 = ui->comp2TypeComboBox->currentData().toUInt();
+    quint8 nComp2 = m_btCompType;//ui->comp2TypeComboBox->currentData().toUInt();
     if(m_btAppType == TYPE_APP_JK || m_btAppType == TYPE_APP_WF)
     {
         strComp1 = "["+m_strStationName1+"."+m_strPointName1+"."+m_strAttr1+"]";
@@ -309,4 +311,33 @@ void HCompareProp::refreshCompareProp()
     ui->textBrowser->setText(m_strContent);
 }
 
+void HCompareProp::okBtn_clicked()
+{
 
+    ((HInputObj*)m_pDrawObj)->m_wMode1 = m_wMode1;
+    ((HInputObj*)m_pDrawObj)->m_wStationID1 = m_wStationNo1;
+    ((HInputObj*)m_pDrawObj)->m_btType1 = m_wPointType1; //类型
+    ((HInputObj*)m_pDrawObj)->m_btInType1 = m_btInsideType1;
+    ((HInputObj*)m_pDrawObj)->m_wPointID1 = m_wPointNo1;      //点号
+    ((HInputObj*)m_pDrawObj)->m_wAttr1 = m_wAttr1;         //点属性
+
+    ((HInputObj*)m_pDrawObj)->m_wMode2 = m_wMode2;
+    ((HInputObj*)m_pDrawObj)->m_wStationID2 = m_wStationNo2;
+    ((HInputObj*)m_pDrawObj)->m_btType2 = m_wPointType2; //类型
+    ((HInputObj*)m_pDrawObj)->m_btInType2 = m_btInsideType2;
+    ((HInputObj*)m_pDrawObj)->m_wPointID2 = m_wPointNo2;      //点号
+    ((HInputObj*)m_pDrawObj)->m_wAttr2 = m_wAttr2;         //点属性
+
+    ((HInputObj*)m_pDrawObj)->m_btCondition = ui->compComboBox->currentData().toUInt();
+    ((HInputObj*)m_pDrawObj)->m_btCompType = m_btCompType;
+    ((HInputObj*)m_pDrawObj)->m_fCompValue = m_fConstValue;
+
+    ((HInputObj*)m_pDrawObj)->m_strRuleName = m_strFormula;
+    ((HInputObj*)m_pDrawObj)->m_strName = m_strContent;
+    QDialog::accept();
+}
+
+void HCompareProp::cancel_clicked()
+{
+    QDialog::reject();
+}

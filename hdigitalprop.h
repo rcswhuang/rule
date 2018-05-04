@@ -21,7 +21,7 @@ public:
 public slots:
     void ptSelBtn_clicked();
     void okBtn_clicked();
-    void cancleBtn_clicked();
+    void cancelBtn_clicked();
 private:
     Ui::digitalPropDlg *ui;
     HDrawObj* m_pDrawObj;
