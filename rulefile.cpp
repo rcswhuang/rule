@@ -1,5 +1,6 @@
 ﻿#include "rulefile.h"
 #include "ruleeditapi.h"
+#include <QList>
 extern LPRULEDATACALLBACK m_lpRuleDataCallBack;
 extern quint8 m_btAppType;
 HRuleFile::HRuleFile(QObject *parent) : QObject(parent)
@@ -750,10 +751,7 @@ bool HStationRule::changeStationNo(quint16 wNewStationNo)
         }
     }
 
-    //需要修正一下规则名称和规则名
-
-
-
+    //需要修正一下规则名称和规则名 在HRuledoc.cpp里面完成
     return false;
 }
 
@@ -827,7 +825,7 @@ void HStationRuleList::reloadStationRule()
     }
 }
 
-///////////////////////////////遍历函数部分////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////遍历函数部分////////////////////////////////////////////////////
 //遍历主要是从结果往前推，而不是从前往后推
 bool HRuleFile::buildGeneralFormula()
 {
@@ -980,5 +978,119 @@ void HRuleFile::visitSimulateBuildObj(HDrawObj* drawObj)
         }
         //最后输出值
         drawObj->outValue();
+    }
+}
+
+/////////////////////////////////////////////////////////规则报告遍历///////////////////////////////////////////////////////////////////////////
+bool HRuleFile::buildReportFormula()
+{
+    QList<QStringList*> reportList;
+
+    //先找到最后一个输出
+    HResultObj* pResultObj = getResultObj();
+    if(!pResultObj) return false;
+
+    //从输出对象开始找到第一个连接对象
+    HDrawObj* pFirstObj = getConnectObj(pResultObj, 0);
+    if(TYPE_INPUT == pFirstObj->getObjType())
+    {
+        QStringList* pStrList = new QStringList;
+        pStrList->append(pFirstObj->m_strName);
+        reportList.append(pStrList);
+    }
+
+    return visitReportBuildObj(pFirstObj,repor);
+}
+
+bool HRuleFile::visitReportBuildObj(HDrawObj* firstObj,QList<QStringList*> &reportList)
+{
+    if(TYPE_LOGICOR == firstObj->getObjType())
+    {
+        QList<QStringList*> orStrList;
+        for(int orInNo = 0; orInNo < firstObj->m_nInPointSum;orInNo++)
+        {
+            HDrawObj* connObj = getConnectObj(firstObj,orInNo);
+            if(!connObj) continue;
+            if(connObj->getObjType() == TYPE_LOGICAND)
+            {
+                visitReportBuildObj(connObj,orStrList[orInNo]);
+            }
+            else if(connObj->getObjType() == TYPE_LOGICOR)
+            {
+                visitReportBuildObj(connObj,orStrList[orInNo]);
+            }
+            else if(connObj->getObjType() == TYPE_INPUT)
+            {
+                QStringList* pStrList = new QStringList;
+                pStrList->append(connObj->m_strName);
+                orStrList[orInNo]->append(pStrList);
+            }
+            else
+                return false;
+        }
+
+        QList<QStringList*>::iterator it = orStrList.begin();
+        for(; it < orStrList.end();it++)
+        {
+            QStringList* strList = (QStringList*)orStrList.takeFirst();
+            reportList.append(strList);
+            delete strList;
+        }
+    }
+    else if(TYPE_LOGICAND == firstObj->getObjType())
+    {
+        /* 类似以下结构
+         * A---
+         *     |或 ----|
+         * B---        |
+         *             | 与 ---->
+         * C---        |
+         *     |或-----|
+         * D---
+         *
+        */
+        QList<QStringList*> andStrList;
+        for(int andInNo = 0; andInNo < firstObj->m_nInPointSum;andInNo++)
+        {
+            HDrawObj* connObj = getConnectObj(firstObj,andInNo);
+            if(!connObj) continue;
+            if(connObj->getObjType() == TYPE_LOGICAND)
+            {
+                visitReportBuildObj(connObj,andStrList[orInNo]);
+            }
+            else if(connObj->getObjType() == TYPE_LOGICOR)
+            {
+                visitReportBuildObj(connObj,andStrList[orInNo]);
+            }
+            else if(connObj->getObjType() == TYPE_INPUT)
+            {
+                QStringList* pStrList = new QStringList;
+                pStrList->append(connObj->m_strName);
+                andStrList[andInNo]->append(pStrList);
+            }
+            else
+                return false;
+        }
+
+        //and前面如果有or的话 or的每项都要和其他的交互
+        for(int i = 0;i < andStrList.count();i++)
+        {
+            QStringList* pStrList = andStrList[i]; //A
+            reportList[i]->append(pStrList);
+            for(int j = i+1; j < andStrList.count();i++)
+        }
+
+    }
+}
+
+void getOrItem()
+{
+    QList<QStringList*> andStrList;
+    QList<QStringList*> reportList;
+    for(int i = 0;i < andStrList.count();i++)
+    {
+        QStringList* pStrList = andStrList[i]; //A
+        reportList[i]->append(pStrList);
+
     }
 }

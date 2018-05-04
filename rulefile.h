@@ -52,6 +52,9 @@ public:
     void buildSimulateFormula();
     void visitSimulateBuildObj(HDrawObj* obj);
 
+    //报告遍历
+    bool buildReportFormula();
+    bool visitReportBuildObj(HDrawObj* obj,QList<QStringList*> &reportList);
     //bool buildEspecialFormula();//遍历规则
    // bool visitEspecialBuildObj(HDrawObj* pDrawObj);//遍历访问某一个图元的所有信息
     //bool visitEspecialReportObj(HDrawObj* pDrawObj,QList<QObject*> pObjList);
