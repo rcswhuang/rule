@@ -1,6 +1,8 @@
 ﻿#include "rulefile.h"
 #include "ruleeditapi.h"
 #include <QList>
+#include <QProcessEnvironment>
+#include <QDir>
 extern LPRULEDATACALLBACK m_lpRuleDataCallBack;
 extern quint8 m_btAppType;
 HRuleFile::HRuleFile(QObject *parent) : QObject(parent)
@@ -35,6 +37,35 @@ void HRuleFile::clear()
     while(!m_connectObjList.isEmpty())
         delete (HConnect*)m_connectObjList.takeFirst();
     m_connectObjList.clear();
+}
+
+HRuleFile* HRuleFile::clone()
+{
+    QString clonePath = QProcessEnvironment::systemEnvironment().value("wfsystem_dir");
+    clonePath.append("/temp/rule");
+    QDir dir(clonePath);
+    if(!dir.exists())
+        dir.mkdir(clonePath);
+    clonePath.append("/clone.tmp");
+
+    QByteArray bytes;
+    QDataStream stream(&bytes,QIODevice::WriteOnly);
+    writeData(QDataStream::Qt_5_7,stream);
+    QFile file(clonePath);
+    if(file.open(QIODevice::WriteOnly))
+    {
+        QDataStream cbStream(&file);
+        cbStream.writeBytes(bytes.data(),bytes.length());
+        file.close();
+    }
+
+    HRuleFile* ruleFile = new HRuleFile;
+    QFile file1(clonePath);
+    if(!file1.exists() || !file1.open(QIODevice::ReadOnly))
+        return;
+    QDataStream stream1(&file1);
+    ruleFile->readData(QDataStream::Qt_5_7,&stream1);
+    file1.close();
 }
 
 void HRuleFile::readData(int nVersion,QDataStream* ds)
@@ -207,7 +238,7 @@ bool HRuleFile::isObjConnect(HDrawObj *pDrawObj)
 		{
             HConnect* pConnect = (HConnect*)m_connectObjList[i];
 			if (!pConnect) continue;
-			if (pConnect->dwInObjID == dwObjID || pConnect->dwOutObjID == dwObjID)
+            if (pConnect->m_dwInObjID == dwObjID || pConnect->m_dwOutObjID == dwObjID)
 				return true;
 		}
 		return false;
@@ -239,9 +270,9 @@ HDrawObj* HRuleFile::getConnectObj(HDrawObj* target, int nConnNo)
     for (int i = m_connectObjList.count(); i > 0; i--)
 	{
         HConnect* conn = m_connectObjList[i];
-		if (conn && conn->dwOutObjID == dwTargetObjID && conn->btOutIndex == nConnNo)
+        if (conn && conn->m_dwOutObjID == dwTargetObjID && conn->m_btOutIndex == nConnNo)
 		{
-			dwConnectedID = conn->dwInObjID;
+            dwConnectedID = conn->m_dwInObjID;
 			HDrawObj* pConnObj = findDrawObj(dwConnectedID);
 			if (!pConnObj) return NULL;
 			if (target->getObjType() == TYPE_RESULT)
@@ -1102,9 +1133,9 @@ void HRuleFile::buildSimulateFormula()
     for(;it != m_connectObjList.end();++it)
     {
        HConnect *conn = (HConnect*)(*it);
-       if(conn->dwOutObjID == nResultObjID)
+       if(conn->m_dwOutObjID == nResultObjID)
        {
-           nConnObjID = conn->dwInObjID;
+           nConnObjID = conn->m_dwInObjID;
            HDrawObj* drawObj = (HDrawObj*)findDrawObj(nConnObjID);
            if(drawObj)
            {

@@ -129,6 +129,7 @@ public:
     //序列化操作
     virtual void readData(int nVersion,QDataStream* ds);
     virtual void writeData(int nVerion,QDataStream* ds);
+
     void setOffSet();
     //绘制操作
     void draw(QPainter* painter);
@@ -147,12 +148,12 @@ public:
 public:
 
     QRect rectAB,rectBC,rectCD;//鼠标移动到这三个区域就可以被选中该选择对象
-    quint16 dwInObjID; //输入元件对象ID
-    quint16 dwOutObjID;//输出元件对象ID
-    quint8 btInIndex; //输入元件对象索引
-    quint8 btOutIndex; //输出元件对象索引
+    quint16 m_dwInObjID; //输入元件对象ID
+    quint16 m_dwOutObjID;//输出元件对象ID
+    quint8 m_btInIndex; //输入元件对象索引
+    quint8 m_btOutIndex; //输出元件对象索引
     HRuleFile* m_pRuleFile; //规则文件
-    bool bConnect;
+    bool m_bConnect;
     QPoint m_pointIn; //输入元件位置
     QPoint m_pointOut; //输出元件位置
     int m_nPageNo; //页面
@@ -175,7 +176,6 @@ public:
     //序列化操作部分
     virtual void readData(int nVersion,QDataStream* ds);
     virtual void writeData(int nVerion,QDataStream* ds);
-
     //绘制操作部分
     virtual void draw(QPainter* painter);
     virtual void calOutPoint();//计算对外输出点的位置
@@ -290,6 +290,7 @@ public:
 public:
     virtual void readData(int nVersion,QDataStream* ds);
     virtual void writeData(int nVerion,QDataStream* ds);
+
 public:
     //绘制操作部分
     virtual void draw(QPainter* painter);
@@ -309,9 +310,4 @@ public:
     //virtual void adjustPosition();
     virtual void calOutPoint();//计算对外输出点的位置
 };
-
-
-
-
-
 #endif // HDRAWOBJ_H

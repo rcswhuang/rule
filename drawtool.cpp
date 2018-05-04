@@ -388,7 +388,7 @@ bool HSelectTool::isHaveConnect(HFrame *pFrame,quint16 wIn, quint16 wOut, quint8
         HConnect* connect = pFrame->pRuleFile->m_connectObjList.at(i);
         if(connect)
         {
-            if(connect->dwOutObjID == wOut && connect->btOutIndex == btOutInIndex)
+            if(connect->m_dwOutObjID == wOut && connect->m_btOutIndex == btOutInIndex)
                 return true;
         }
     }
@@ -403,14 +403,14 @@ void HSelectTool::reCalConnect(HFrame *pFrame, HDrawObj *pObj)
     for(int i = 0;i < pFrame->pRuleFile->m_connectObjList.count();i++)
     {
         HConnect* conn = pFrame->pRuleFile->m_connectObjList[i];
-        if(conn->dwInObjID == pObj->m_dwID && pObj->m_nOutPointSum > 0)//遥信遥测等对象
+        if(conn->m_dwInObjID == pObj->m_dwID && pObj->m_nOutPointSum > 0)//遥信遥测等对象
         {
             conn->m_pointIn = pObj->m_pointOut;
             conn->calLine();
         }
-        else if(conn->dwOutObjID == pObj->m_dwID && pObj->m_nInPointSum > 0) //或 与之类的对象
+        else if(conn->m_dwOutObjID == pObj->m_dwID && pObj->m_nInPointSum > 0) //或 与之类的对象
         {
-            conn->m_pointOut = pObj->m_pointIn[conn->btOutIndex];
+            conn->m_pointOut = pObj->m_pointIn[conn->m_btOutIndex];
             conn->calLine();
         }
     }

@@ -89,7 +89,6 @@ void HDrawObj::readData(int nVersion,QDataStream* ds)
     m_nOutPointSum = n; //输出点个数
     *ds >> pt;
     m_pointOut = pt;
-
 }
 
 void HDrawObj::writeData(int nVersion,QDataStream* ds)
@@ -502,10 +501,10 @@ HConnect::HConnect()
 {
     m_pLinePoint = NULL;
     m_pRuleFile = NULL;
-    btOutIndex = (quint8)-1;
-    btInIndex = (quint8)-1;
-    dwInObjID = (quint16)-1;
-    dwOutObjID =(quint16)-1;
+    m_btOutIndex = (quint8)-1;
+    m_btInIndex = (quint8)-1;
+    m_dwInObjID = (quint16)-1;
+    m_dwOutObjID =(quint16)-1;
 }
 
 HConnect::HConnect(HRuleFile *pRuleFile)
@@ -513,22 +512,22 @@ HConnect::HConnect(HRuleFile *pRuleFile)
     m_pRuleFile = pRuleFile;
     m_pLinePoint = NULL;
     m_btSelLine = 0;
-    btOutIndex = (quint8)-1;
-    btInIndex = (quint8)-1;
-    dwInObjID = (quint16)-1;
-    dwOutObjID =(quint16)-1;
+    m_btOutIndex = (quint8)-1;
+    m_btInIndex = (quint8)-1;
+    m_dwInObjID = (quint16)-1;
+    m_dwOutObjID =(quint16)-1;
 }
 
 HConnect::HConnect(quint16 dwInObjID, quint16 dwOutObjID, HRuleFile *pRuleFile, quint8 btInIndex)
 {
-    this->dwInObjID = dwInObjID;
-    this->dwOutObjID = dwOutObjID;
+    this->m_dwInObjID = dwInObjID;
+    this->m_dwOutObjID = dwOutObjID;
     this->m_pRuleFile = pRuleFile;
     HDrawObj* pObjIn = pRuleFile->findDrawObj(dwInObjID);
     HDrawObj* pObjOut = pRuleFile->findDrawObj(dwOutObjID);
     m_pointIn = pObjIn->m_pointOut;
     m_pointOut = pObjOut->m_pointIn[btInIndex];
-    btOutIndex = btInIndex;
+    m_btOutIndex = btInIndex;
     m_btSelLine = 0;
     m_pLinePoint = NULL;
 
@@ -548,14 +547,14 @@ void HConnect::readData(int nVersion,QDataStream* ds)
     if(!ds) return;
     quint16 n16;
     *ds>>n16;
-    dwInObjID = n16;
+    m_dwInObjID = n16;
     *ds>>n16;
-    dwOutObjID = n16;
+    m_dwOutObjID = n16;
     quint8 n8;
     *ds>>n8;
-    btInIndex = n8;
+    m_btInIndex = n8;
     *ds>>n8;
-    btOutIndex = n8;
+    m_btOutIndex = n8;
     QPoint pt;
     *ds>>pt;
     m_pointIn = pt;
@@ -580,10 +579,10 @@ void HConnect::readData(int nVersion,QDataStream* ds)
 void HConnect::writeData(int nVerion,QDataStream* ds)
 {
     if(!ds) return;
-    *ds<<(quint16) dwInObjID; //输入元件对象ID
-    *ds<<(quint16) dwOutObjID;//输出元件对象ID
-    *ds<<(quint8) btInIndex; //输入元件对象索引
-    *ds<<(quint8) btOutIndex; //输出元件对象索引
+    *ds<<(quint16) m_dwInObjID; //输入元件对象ID
+    *ds<<(quint16) m_dwOutObjID;//输出元件对象ID
+    *ds<<(quint8) m_btInIndex; //输入元件对象索引
+    *ds<<(quint8) m_btOutIndex; //输出元件对象索引
     *ds<<(QPoint) m_pointIn; //输入元件位置
     *ds<<(QPoint) m_pointOut; //输出元件位置
     *ds<<(quint8) m_btPointSum; //点数目
@@ -939,7 +938,6 @@ void HInputObj::writeData(int nVersion,QDataStream* ds)
 
     *ds<<(quint8) m_btCompType;//0:测点比较常数 1:测点比较测点
     *ds<<(quint8) m_btCondition;//条件 大于 小于 等于
-
 }
 
 void HInputObj::draw(QPainter *painter)

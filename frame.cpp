@@ -501,7 +501,7 @@ void HFrame::pasteObj()
         conn->readData(QDataStream::Qt_5_7,&stream);
         pRuleFile->addConnect(conn);
     }
-
+    file.close();
     //更新一下拷贝之后的信息
     updatePasteObj();
 }
@@ -509,11 +509,11 @@ void HFrame::pasteObj()
 QString HFrame::getClipboardFile()
 {
     QString clipboardPath = QProcessEnvironment::systemEnvironment().value("wfsystem_dir");
-    clipboardPath.append("/data/rule");
+    clipboardPath.append("/temp/rule");
     QDir dir(clipboardPath);
     if(!dir.exists())
         dir.mkdir(clipboardPath);
-    clipboardPath.append("/ruleclipboard.data");
+    clipboardPath.append("/ruleclipboard.tmp");
     return clipboardPath;
 }
 

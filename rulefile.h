@@ -19,6 +19,7 @@ public:
     //序列化函数
     virtual void readData(int nVersion,QDataStream* ds);
     virtual void writeData(int nVersion,QDataStream* ds);
+    HRuleFile* clone();
 public:
     void clear();
     //对象操作函数
