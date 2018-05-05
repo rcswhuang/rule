@@ -11,6 +11,7 @@ HExportRule::HExportRule(HRuleDoc *doc,QWidget *parent) :
     ui(new Ui::exportRule)
 {
     ui->setupUi(this);
+    init();
 }
 
 HExportRule::~HExportRule()

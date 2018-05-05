@@ -29,7 +29,7 @@ public:
                          );
 
     //导出规则
-    void exportAllRule(quint16 wStationNo);
+    void exportAllRule();
 
     //规则是否存在
     bool isRuleFileExist(quint16 wStationNo, //厂站ID

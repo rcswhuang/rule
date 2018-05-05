@@ -4,6 +4,7 @@
 #include "rulefile.h"
 #include "hruledoc.h"
 #include "hlookrulereport.h"
+#include "hexportrule.h"
 LPRULEDATACALLBACK m_lpRuleDataCallBack = NULL;
 quint8 m_btAppType = -1;
 
@@ -79,7 +80,9 @@ void HRuleHandle::exportAllRule(quint16 wStationNo)
 {
     if(!m_pRuleDoc)
         return;
-    m_pRuleDoc->exportAllRule(wStationNo);
+    HExportRule exRule(m_pRuleDoc);
+    exRule.exec();
+
 }
 
 bool HRuleHandle::isRuleFileExist(quint16 wStationNo,quint16 wPointType,quint16 wPointNo,quint8  btYKType)
@@ -122,7 +125,7 @@ bool RULE_EXPORT initRuleFiles(quint8 btType,char* szFilePath,LPRULEDATACALLBACK
 
 void RULE_EXPORT exitRuleFiles()
 {
-    HRuleHandle::Initstance()->exitRuleFiles();
+    HRuleHandle::Initstance()->Exitstance();
 }
 
 void RULE_EXPORT openRuleWindow(quint16 wStationNo, //厂站ID

@@ -187,7 +187,7 @@ void RULE_EXPORT openRuleWindow(quint16 wStationNo, //厂站ID
 
 //导出规则 wStationNo = -1,所有规则，否则某个厂站规则
 //组态工具
-void RULE_EXPORT exportAllRule(quint16 wStationNo = (quint16)-1);
+void RULE_EXPORT exportAllRule();
 
 //规则是否存在
 bool RULE_EXPORT isRuleFileExist(quint16 wStationNo, //厂站ID
