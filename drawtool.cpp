@@ -150,16 +150,24 @@ void HSelectTool::onMousePress(HFrame* pFrame,const QPoint& point,QMouseEvent* e
     {
         if(!b_shiftKey)
             pFrame->select(NULL);
+        selectMode = enumRectSelect;
     }
 
     m_pointDown = point;
+    m_ptDown = point;
     HDrawTool::onMousePress(pFrame,point,e);
 }
 
 void HSelectTool::onMouseRelease(HFrame* pFrame,const QPoint& point,QMouseEvent* e)
 {
     //2018-4-19
-    if(selectMode != enumNone)
+    if(selectMode == enumRectSelect)
+    {
+        pFrame->selectObjInRect();
+        pFrame->m_selectRect = QRect(0,0,0,0);
+        pFrame->update();
+    }
+    else if(selectMode != enumNone)
     {
         //移动且对象唯一
         if(selectMode == enumMove && pFrame->m_selectObjList.count() == 1)
@@ -185,28 +193,6 @@ void HSelectTool::onMouseRelease(HFrame* pFrame,const QPoint& point,QMouseEvent*
 
                 }
             }
-
-            //判断是否连接到线
-           /* for(int i =0; i < pFrame->pRuleFile->m_connectObjList.count();i++)
-            {
-                HConnect* pObj = pFrame->pRuleFile->m_connectObjList.at(i);
-                if((quint16)-1 != pObj->dwInObjID && (quint16)-1 != pObj->dwOutObjID) continue;
-                if(pSelObj->m_nInPointSum == 0 && (quint16)-1 == pObj->dwInObjID)//遥测遥信对象
-                {
-                    QPoint pt = pSelObj->m_pointOut;
-                    QRect rect = QRect(QPoint(pt.x()-8,pt.y()-8),QSize(16,16));
-                    if(rect.contains(pObj->m_pointIn))
-                    {
-                        pObj->dwInObjID = pSelObj->m_dwID;
-                        pObj->m_pointIn = pSelObj->m_pointOut;
-                        //pSelObj->m_rectCurPos.normalized();
-                        //pSelObj->m_rectCurPos.setLeft(pSelObj->m_rectCurPos.left()-10);
-                        //pSelObj->m_rectCurPos.setRight(pSelObj->m_rectCurPos.right()-10);
-                        //pSelObj->calOutPoint();
-                    }
-                }
-            }*/
-
         }
     }
     pFrame->update();
@@ -216,7 +202,6 @@ void HSelectTool::onMouseRelease(HFrame* pFrame,const QPoint& point,QMouseEvent*
 
 void HSelectTool::onMouseMove(HFrame* pFrame,const QPoint& point,QMouseEvent* e)
 {
-
     //主要要判左键没有按下去的情况 主要是移动到选择的小区域的时候，改变鼠标的状态
     if(!b_mouseLeftKey)
     {
@@ -253,6 +238,8 @@ void HSelectTool::onMouseMove(HFrame* pFrame,const QPoint& point,QMouseEvent* e)
     //以下是左键按下去的时候
     QPoint localPoint = point;
     QPoint delta = (QPoint)(localPoint - m_pointDown);
+    if(selectMode == enumRectSelect)
+        pFrame->m_selectRect = QRect(m_ptDown,point);
 
     for(int i = 0; i < pFrame->m_selectObjList.count(); i++)
     {
@@ -271,68 +258,8 @@ void HSelectTool::onMouseMove(HFrame* pFrame,const QPoint& point,QMouseEvent* e)
             pObj->moveSelectPoint(g_nSelectPoint,pFrame,localPoint);
             pObj->calOutPoint();
         }
-        pFrame->update();
     }
-
-    /*
-    for(int i = 0; i < pFrame->m_selectConnectObjList.count(); i++)
-    {
-        HConnect* pConnect = (HConnect*)pFrame->m_selectConnectObjList[i];
-        //qDebug()<<"selectConnect:selectMode = "<<selectMode;
-        if(selectMode == enumMove) //移动的时候绘制
-        {
-            if((pConnect->dwOutObjID == (quint16)-1 && pConnect->dwInObjID == (quint16)-1))
-            {
-                pConnect->moveTo(delta.x(),delta.y());
-            }
-            HDrawObj* pObj = pFrame->pRuleFile->findDrawObj(pConnect->dwInObjID);
-            HDrawObj* pObj1 = pFrame->pRuleFile->findDrawObj(pConnect->dwOutObjID);
-            if(pObj)
-            {
-                //如果connect线左边对象选择同时右边有对象的时候但没有选择
-                if(pConnect->dwInObjID == pObj->m_dwID && pFrame->isSelect(pObj) && pObj1 != NULL && !pFrame->isSelect(pObj1) && pConnect->dwOutObjID == pObj1->m_dwID)
-                {
-                    //pConnect->moveTo(delta.x(),delta.y());
-                    pConnect->moveSelectPoint(1,pFrame,pObj->m_pointOut);
-                }
-                else if(pConnect->dwInObjID == pObj->m_dwID && pFrame->isSelect(pObj) && pObj1 == NULL)
-                {
-                     pConnect->moveTo(delta.x(),delta.y());
-                }
-            }
-
-            if(pObj1)
-            {
-                if(pConnect->dwOutObjID == pObj1->m_dwID && pFrame->isSelect(pObj1) &&pObj != NULL && !pFrame->isSelect(pObj) && pConnect->dwInObjID == pObj->m_dwID)
-                {
-                    pConnect->moveSelectPoint(4,pFrame,pObj1->m_pointIn[pConnect->btOutIndex]);
-                }
-                else if(pConnect->dwOutObjID == pObj1->dwID && pFrame->isSelect(pObj1) && pObj == NULL)
-                {
-                     pConnect->moveTo(delta.x(),delta.y());
-                }
-            }
-
-            if(pObj && pObj1)
-            {
-                if(pConnect->dwInObjID == pObj->m_dwID && pFrame->isSelect(pObj)  && pConnect->dwOutObjID == pObj1->m_dwID && pFrame->isSelect(pObj1) )
-                {
-                    pConnect->moveTo(delta.x(),delta.y());
-                }
-            }
-
-
-            //判断是否移动进当前连接对象的范围，如果进入则自动连接
-            //判断线是否移动出当前连接对象的范围，如果移除则删除连接点
-
-        }
-        else if(selectMode == enumSize && g_nSelectPoint != 0) //改变大小的时候绘制
-        {
-            pConnect->moveSelectPoint(g_nSelectPoint,pFrame,localPoint);
-        }
-        pFrame->update();
-    }*/
-
+    pFrame->update();
     m_pointDown = localPoint;//左键按得地方发生了改变
 
 }

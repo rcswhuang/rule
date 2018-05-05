@@ -68,7 +68,7 @@ void HExportRule::oneexBtn_clicked()
 {
     if(ui->srcListWidget->count()>0)
     {
-        QListWidgetItem* item = (QListWidgetItem*)ui->srcListWidget->takeItem(ui->srcListWidget->currentIndex());
+        QListWidgetItem* item = (QListWidgetItem*)ui->srcListWidget->takeItem(ui->srcListWidget->currentRow());
         ui->desListWidget->addItem(item);
     }
 }
@@ -86,7 +86,7 @@ void HExportRule::oneimBtn_clicked()
 {
     if(ui->desListWidget->count()>0)
     {
-        QListWidgetItem* item = (QListWidgetItem*)ui->desListWidget->takeItem(ui->desListWidget->currentIndex());
+        QListWidgetItem* item = (QListWidgetItem*)ui->desListWidget->takeItem(ui->desListWidget->currentRow());
         ui->srcListWidget->addItem(item);
     }
 }

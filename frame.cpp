@@ -17,6 +17,7 @@ HFrame::HFrame(QScrollArea* scrollArea,QWidget * parent, Qt::WindowFlags f):
     setMouseTracking(true);
     factor = 1.0;
     pRuleFile = NULL;
+    m_selectRect = QRect(0,0,0,0);
 }
 
 void HFrame::keyPressEvent(QKeyEvent *event)
@@ -94,6 +95,16 @@ void HFrame::paintEvent(QPaintEvent *event)
             pConnect->drawSelect(&painter);
     }
     painter.restore();
+
+    if(m_selectRect.width() > 0 && m_selectRect.height() > 0)
+    {
+        painter.save();
+        QPen pen(Qt::green);
+        pen.setStyle(Qt::DotLine);
+        painter.setPen(pen);
+        painter.drawRect(m_selectRect);
+        painter.restore();
+    }
 }
 
 void HFrame::resizeEvent(QResizeEvent * event)
@@ -142,7 +153,6 @@ void HFrame::setConnectSelectCursor(int nSelectPoint)
 
 bool HFrame::select(HDrawObj *pObj,bool bAdd)
 {
-
     if(!bAdd)
     {
         m_selectObjList.clear();
@@ -182,6 +192,30 @@ bool HFrame::isSelect(const QObject *pObj)
        return m_selectConnectObjList.contains((HConnect*)pObj);
 
     return false;
+}
+
+void HFrame::selectObjInRect()
+{
+    //可以放到selectTool里面
+    for(int i = 0; i < pRuleFile->m_drawObjList.count();i++)
+    {
+        HDrawObj* drawObj = (HDrawObj*)pRuleFile->m_drawObjList[i];
+        if(drawObj)
+        {
+            if(m_selectRect.contains(drawObj->m_rectCurPos))
+                select(drawObj,true);
+        }
+    }
+
+    for(int i = 0; i < pRuleFile->m_connectObjList.count();i++)
+    {
+        HConnect* conn = (HConnect*)pRuleFile->m_connectObjList[i];
+        if(conn)
+        {
+            if(m_selectRect.contains(conn->m_pointIn) || m_selectRect.contains(conn->m_pointOut))
+                selectConnect(conn,true);
+        }
+    }
 }
 
 void HFrame::drawGrid(QPainter &painter)
@@ -357,6 +391,17 @@ void HFrame::delObj()
     if(!pRuleFile) return;
 
     //还要判断是否是连接线
+    if(m_selectObjList.count() == 0 && m_selectConnectObjList.count() == 1)
+    {
+        HConnect *conn = m_selectConnectObjList.takeFirst();
+        if(conn)
+        {
+            pRuleFile->removeConnect(conn);
+            delete conn;
+            conn = NULL;
+        }
+    }
+
     QList<HDrawObj*>::iterator objIt = m_selectObjList.begin();
     for(;objIt != m_selectObjList.end();objIt++)
     {
@@ -374,6 +419,7 @@ void HFrame::delObj()
              if(conn->m_dwInObjID == obj->m_dwID || conn->m_dwOutObjID == obj->m_dwID)
              {
                  pRuleFile->removeConnect(conn);
+                 m_selectConnectObjList.removeOne(conn);
                  delete conn;
              }
          }

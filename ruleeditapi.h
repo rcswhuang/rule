@@ -53,7 +53,7 @@ enum DRAWSHAPE
 enum SELECTMODE
 {
     enumNone, //空
-    enumNetSelect,//这个是矩形框选择
+    enumRectSelect,//这个是矩形框选择
     enumMove,//选择  移动
     enumSize //选择 改变大小
 };

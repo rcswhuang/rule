@@ -76,7 +76,7 @@ void  HRuleHandle::openRuleWindow(quint16 wStationNo, //厂站ID
     w.exec();
 }
 
-void HRuleHandle::exportAllRule(quint16 wStationNo)
+void HRuleHandle::exportAllRule()
 {
     if(!m_pRuleDoc)
         return;
@@ -141,9 +141,9 @@ void RULE_EXPORT openRuleWindow(quint16 wStationNo, //厂站ID
 }
 
 
-void RULE_EXPORT exportAllRule(quint16 wStationNo)
+void RULE_EXPORT exportAllRule()
 {
-    HRuleHandle::Initstance()->exportAllRule(wStationNo);
+    HRuleHandle::Initstance()->exportAllRule();
 }
 
 bool RULE_EXPORT isRuleFileExist(quint16 wStationNo,quint16 wPointType,quint16 wPointNo,quint8  btYKType)

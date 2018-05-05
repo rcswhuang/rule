@@ -47,8 +47,7 @@ public:
     void setSelectCursor(int nSelectPoint);
     void setConnectSelectCursor(int nSelectPoint);
     void drawGrid(QPainter &painter);
-
-
+    void selectObjInRect();
     //判断当前对象是否已经连接到连接线,同时要获取连接所在点的编号（对或与等图元来说，是必要的）
     bool isLinkConnectObj(HDrawObj* pObj);
     bool isLinkDrawObj(HConnect* Obj);
@@ -66,6 +65,7 @@ public:
     QScrollArea* m_pScrollArea;
 public:
     float factor;
+    QRect m_selectRect;
 private:
     DRAWSHAPE m_drawShape;
 };

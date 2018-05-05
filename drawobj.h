@@ -144,7 +144,7 @@ public:
     void calLine();
     void calLine(const QPoint& point);
     void setRectABC();
-    bool intersects(const QRect &rect);
+    bool intersects(const QPoint& point);
 public:
 
     QRect rectAB,rectBC,rectCD;//鼠标移动到这三个区域就可以被选中该选择对象

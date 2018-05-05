@@ -10,6 +10,7 @@
 #include "rulefile.h"
 #include <math.h>
 #include <QDebug>
+#include <QPainterPath>
 /*
 HDrawObj::HDrawObj(QObject *parent) : QObject(parent)
 {
@@ -705,12 +706,20 @@ void HConnect::setRectABC()
     rectCD.setRect(m_pLinePoint[2].x() - 5,m_pLinePoint[2].y()- 5,m_pLinePoint[3].x() - m_pLinePoint[2].x(),55);
 }
 
-bool HConnect::intersects(const QRect &rect)
+bool HConnect::intersects(const QPoint& point)
 {
     if(m_pLinePoint == NULL) return false;
-    if(rectAB.intersects(rect) || rectBC.intersects(rect) || rectCD.intersects(rect))
-        return true;
-    return false;
+    QPolygon polygon;
+    for(int i = 0; i < m_btPointSum;i++)
+        polygon<<m_pLinePoint[i];
+    QPainterPath path;
+    path.addPolygon(polygon);
+    QPainterPathStroker ps;
+    ps.setWidth(3);
+    QPainterPath p;
+    p = ps.createStroke(path);
+
+    return p.contains(point);
 }
 
 /*
@@ -736,15 +745,22 @@ void HConnect::drawSelect(QPainter *painter)
     painter->save();
     QBrush brush(QColor(0,0,0));
     painter->setBrush(brush);
-    QRect rectA(m_pLinePoint[0].x()-1,m_pLinePoint[0].y()-1,3,3);
-    QRect rectB(m_pLinePoint[1].x()-1,m_pLinePoint[1].y()-1,3,3);
-    QRect rectC(m_pLinePoint[2].x()-1,m_pLinePoint[2].y()-1,3,3);
-    QRect rectD(m_pLinePoint[3].x()-1,m_pLinePoint[3].y()-1,3,3);
-
-    painter->drawRect(rectA);
-    painter->drawRect(rectB);
-    painter->drawRect(rectC);
-    painter->drawRect(rectD);
+    qreal halfpw = 4.00;
+    QPolygon polygon;
+    for(int i = 0; i < m_btPointSum;i++)
+        polygon<<m_pLinePoint[i];
+    QRectF *pRect = new QRectF[m_btPointSum];
+    for(int i = 0 ; i < m_btPointSum; i++)
+    {
+        pRect[i].setSize(QSizeF(halfpw,halfpw));
+        pRect[i].moveCenter(polygon.at(i));
+        painter->drawRect(pRect[i]);
+    }
+    if(pRect)
+    {
+        delete[] pRect;
+        pRect = NULL;
+    }
     painter->restore();
 }
 

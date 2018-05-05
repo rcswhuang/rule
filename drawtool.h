@@ -29,6 +29,7 @@ public:
 
 public:
     QPoint m_pointDown;//press的点位置，也是移动的点位置开始，随着移动的改变而改变
+    QPoint m_ptDown;
     //注意还有区域选择的时候点，和上面的点区别
     //QPoint m_pointDown;
     //QPoint m_pointMove;

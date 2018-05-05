@@ -291,11 +291,11 @@ HDrawObj* HRuleFile::objectAt(const QPoint &point)
 
 HConnect* HRuleFile::connectAt(const QPoint& point)
 {
-    QRect rect(point, QSize(2, 2));
+    //QRect rect(point, QSize(2, 2));
     for (int i = 0; i < m_connectObjList.count(); i++)
 	{
         HConnect* pObj = (HConnect*)m_connectObjList[i];
-		if (pObj->intersects(rect))
+        if (pObj->intersects(point))
 			return pObj;
 	}
 	return NULL;
