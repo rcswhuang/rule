@@ -4,6 +4,7 @@
 #include "hlookrulereport.h"
 #include "ui_lookrulereport.h"
 #include "hruledoc.h"
+#include "rulefile.h"
 HLookRuleReport::HLookRuleReport(HRuleDoc* doc,QWidget *parent) :m_pRuleDoc(doc),
     QDialog(parent),
     ui(new Ui::LookRuleReport)
@@ -21,6 +22,7 @@ void HLookRuleReport::setPoint(quint16 wStationNo, quint16 wPointNo)
 {
     m_wStationNo = wStationNo;
     m_wPointNo = wPointNo;
+    initLookRuleReport();
 }
 
 void HLookRuleReport::initLookRuleReport()

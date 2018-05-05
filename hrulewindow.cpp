@@ -260,6 +260,8 @@ void HRuleWindow::onCreateLogicAnd()
 
 bool HRuleWindow::save()
 {
+    if(!m_pRuleDoc || !m_pRuleDoc->m_pRuleFile)
+        return false;
     if(!m_pRuleFile->buildGeneralFormula() && !m_pRuleFile->m_drawObjList.isEmpty())
     {
         if(QMessageBox::Yes == QMessageBox::warning(this, QStringLiteral("警告"),QStringLiteral("规则中存在错误，需要继续编辑吗?"),QMessageBox::Yes | QMessageBox::No))
@@ -269,7 +271,9 @@ bool HRuleWindow::save()
         m_pRuleFile->m_strFormula = "";
         return true;
     }
-    return false;
+    //m_pRuleFile指向的是m_pTempRuleFile
+    m_pRuleFile->copyTo(m_pRuleDoc->m_pRuleFile);
+    return true;
 }
 
 bool HRuleWindow::maybeSave()

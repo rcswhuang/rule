@@ -25,7 +25,8 @@ SOURCES += main.cpp\
     hrulehandle.cpp \
     hrulewindow.cpp \
     hruledoc.cpp \
-    hlookrulereport.cpp
+    hlookrulereport.cpp \
+    hexportrule.cpp
 
 HEADERS  += drawtool.h \
     #mainwindow.h \
@@ -43,7 +44,8 @@ HEADERS  += drawtool.h \
     hrulehandle.h \
     hrulewindow.h \
     hruledoc.h \
-    hlookrulereport.h
+    hlookrulereport.h \
+    hexportrule.h
 
 RESOURCES += \
     ruleeditor.qrc
@@ -56,4 +58,5 @@ FORMS += \
     digitalprop.ui \
     compareprop.ui \
     rulewindow.ui \
-    lookrulereport.ui
+    lookrulereport.ui \
+    exportrule.ui

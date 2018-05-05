@@ -20,8 +20,10 @@ public:
     virtual void readData(int nVersion,QDataStream* ds);
     virtual void writeData(int nVersion,QDataStream* ds);
     HRuleFile* clone();
+    void copyTo(HRuleFile* file);
 public:
     void clear();
+
     //对象操作函数
     quint16 generateDrawObjID()
     {
@@ -188,6 +190,8 @@ public:
 
     bool changeStationNo(quint16 wNewStationNo);
     HPointRule* getFirstPointRule();
+    QString getRuleFileText();//获取规则文件文本内容
+    QString splitRuleText(QString& strRuleText);
     //导出及序列化操作
 };
 

@@ -3,8 +3,30 @@
 #include <QList>
 #include <QProcessEnvironment>
 #include <QDir>
+#include <QCoreApplication>
+#include <QElapsedTimer>
+#ifdef Q_OS_WIN
+ #include <Windows.h>
+#else
+ #include<time.h>
+#endif
+
 extern LPRULEDATACALLBACK m_lpRuleDataCallBack;
 extern quint8 m_btAppType;
+/*
+ * 定义一个sleep的全局函数
+*/
+void qSleep(int ms)
+{
+#ifdef Q_OS_WIN
+    Sleep(uint(ms));
+#else
+    struct timespec ts = { ms / 1000, (ms % 1000) * 1000 * 1000 };
+    nanosleep(&ts, NULL);
+#endif
+}
+
+
 HRuleFile::HRuleFile(QObject *parent) : QObject(parent)
 {
     m_wDrawObjID = 1;
@@ -50,7 +72,7 @@ HRuleFile* HRuleFile::clone()
 
     QByteArray bytes;
     QDataStream stream(&bytes,QIODevice::WriteOnly);
-    writeData(QDataStream::Qt_5_7,stream);
+    writeData(QDataStream::Qt_5_7,&stream);
     QFile file(clonePath);
     if(file.open(QIODevice::WriteOnly))
     {
@@ -59,14 +81,56 @@ HRuleFile* HRuleFile::clone()
         file.close();
     }
 
+    qSleep(5000);
+
     HRuleFile* ruleFile = new HRuleFile;
     QFile file1(clonePath);
     if(!file1.exists() || !file1.open(QIODevice::ReadOnly))
-        return;
+        return NULL;
     QDataStream stream1(&file1);
     ruleFile->readData(QDataStream::Qt_5_7,&stream1);
     file1.close();
+    QFile::remove(clonePath);
+    return ruleFile;
 }
+
+void HRuleFile::copyTo(HRuleFile *rf)
+{
+    if(!rf) return;
+    //rf读
+    rf->clear();
+    QString copyPath = QProcessEnvironment::systemEnvironment().value("wfsystem_dir");
+    copyPath.append("/temp/rule");
+    QDir dir(copyPath);
+    if(!dir.exists())
+        dir.mkdir(copyPath);
+    copyPath.append("/copy.tmp");
+
+    QByteArray bytes;
+    QDataStream stream(&bytes,QIODevice::WriteOnly);
+    writeData(QDataStream::Qt_5_7,&stream);
+    QFile file(copyPath);
+    if(file.open(QIODevice::WriteOnly))
+    {
+        QDataStream cbStream(&file);
+        cbStream.writeBytes(bytes.data(),bytes.length());
+        file.close();
+    }
+
+    qSleep(5000);
+
+    QFile file1(copyPath);
+    if(!file1.exists() || !file1.open(QIODevice::ReadOnly))
+        return;
+    QDataStream stream1(&file1);
+    rf->readData(QDataStream::Qt_5_7,&stream1);
+    file1.close();
+    QFile::remove(copyPath);
+
+    memcpy(&rf->m_ruleFileData,&m_ruleFileData,sizeof(RULEFILEDATA));
+
+}
+
 
 void HRuleFile::readData(int nVersion,QDataStream* ds)
 {
@@ -102,10 +166,12 @@ void HRuleFile::readData(int nVersion,QDataStream* ds)
     nConnectObjCount = n;
     for(int i = 0; i < nConnectObjCount;i++)
     {
-        HConnect* conn = (HConnect*)m_connectObjList[i];
+        HConnect* conn = new HConnect;
         if(conn)
         {
             conn->readData(nVersion,ds);
+            conn->m_pRuleFile = this;
+            m_connectObjList.append(conn);
         }
     }
     int nDrawObjCount;
@@ -113,12 +179,36 @@ void HRuleFile::readData(int nVersion,QDataStream* ds)
     nDrawObjCount = n;
     for(int i = 0; i < nDrawObjCount;i++)
     {
-        HDrawObj* drawObj = (HDrawObj*)m_drawObjList[i];
-        if(drawObj)
+        quint8 btObjType;
+        *ds>>btObjType;
+        HDrawObj* pObj = NULL;
+        QPoint point = QPoint(0,0);
+        if(TYPE_INPUT == btObjType)
         {
-            drawObj->readData(nVersion,ds);
+            pObj = new HInputObj(QRect(point,QSize(100,40)),this);
         }
-    }
+        else if(TYPE_LOGICAND == btObjType)
+        {
+            pObj = new HAndObj(QRect(point,QSize(80,84)),this);
+        }
+        else if(TYPE_LOGICOR == btObjType)
+        {
+            pObj = new HOrObj(QRect(point,QSize(80,84)),this);
+        }
+        else if(TYPE_RESULT == btObjType)
+        {
+            pObj = new HResultObj(QRect(point,QSize(100,40)),this);
+        }
+        else
+            return;
+        pObj->readData(nVersion,ds);
+        pObj->m_pRuleFile = this;
+        m_drawObjList.append(pObj);
+     }
+
+    //需要重新刷新一个ID
+    refreshDrawObjID();
+
 }
 
 void HRuleFile::writeData(int nVersion,QDataStream* ds)
@@ -150,7 +240,10 @@ void HRuleFile::writeData(int nVersion,QDataStream* ds)
     {
         HDrawObj* drawObj = (HDrawObj*)m_drawObjList[i];
         if(drawObj)
+        {
+            *ds<<drawObj->getObjType();
             drawObj->writeData(nVersion,ds);
+        }
     }
 }
 
@@ -939,11 +1032,111 @@ bool HStationRule::changeStationNo(quint16 wNewStationNo)
 
         }
     }
-
-    //需要修正一下规则名称和规则名 在HRuledoc.cpp里面完成
     return false;
 }
 
+QString HStationRule::getRuleFileText()
+{
+    QString strStRuleTxt;
+    QString strPointTxt;
+    QString strOpenRule,strCloseRule,strJXOpenRule,strJXCloseRule;
+    strStRuleTxt += "************************************************** \n";
+    strStRuleTxt += m_strStationName;
+    strStRuleTxt += "\n";
+    for(int i = 0;i < m_pProtRuleList.count();i++)
+    {
+        HProtectRule* protRule = (HProtectRule*)m_pProtRuleList[i];
+        if(!protRule) continue;
+        for(int k = 0; k < protRule->m_pPointRuleList.count();k++)
+        {
+            HPointRule* ptRule = (HPointRule*)protRule->m_pPointRuleList[i];
+            HRuleFile* pOpenRule = (HRuleFile*)protRule->getRuleFileByID(ptRule->m_wOpenRuleFileID);
+            if(pOpenRule)
+            {
+                pOpenRule->getRuleReport(strOpenRule);
+            }
+            else
+                strOpenRule = "";
+
+            HRuleFile* pCloseRule = (HRuleFile*)protRule->getRuleFileByID(ptRule->m_wCloseRuleFileID);
+            if(pCloseRule)
+            {
+                pCloseRule->getRuleReport(strCloseRule);
+            }
+            else
+                strCloseRule = "";
+
+            HRuleFile* pJXOpenRule = (HRuleFile*)protRule->getRuleFileByID(ptRule->m_wJXOpenRuleFileID);
+            if(pJXOpenRule)
+            {
+                pJXOpenRule->getRuleReport(strJXOpenRule);
+            }
+            else
+                strJXOpenRule = "";
+
+            HRuleFile* pJXCloseRule = (HRuleFile*)protRule->getRuleFileByID(ptRule->m_wJXCloseRuleFileID);
+            if(pJXCloseRule)
+            {
+                pJXCloseRule->getRuleReport(strJXCloseRule);
+            }
+            else
+                strJXCloseRule = "";
+
+            strPointTxt += "======================================= \n";
+            strPointTxt += ptRule->m_strPointName;
+            strPointTxt += "\n ----------------------------------------\n";
+            strPointTxt += "分规则: \n";
+            if(strOpenRule.isEmpty())
+                strPointTxt += "\n";
+            else
+                strPointTxt += splitRuleText(strOpenRule);
+            strPointTxt += "--------------------------------------- \n";
+
+            strPointTxt += "合规则: \n";
+            if(strOpenRule.isEmpty())
+                strPointTxt += "\n";
+            else
+                strPointTxt += splitRuleText(strCloseRule);
+            strPointTxt += "--------------------------------------- \n";
+
+            strPointTxt += "备用分规则: \n";
+            if(strOpenRule.isEmpty())
+                strPointTxt += "\n";
+            else
+                strPointTxt += splitRuleText(strJXOpenRule);
+            strPointTxt += "--------------------------------------- \n";
+
+            strPointTxt += "备用合规则: \n";
+            if(strOpenRule.isEmpty())
+                strPointTxt += "\n";
+            else
+                strPointTxt += splitRuleText(strJXCloseRule);
+            strPointTxt += "--------------------------------------- \n";
+
+            strStRuleTxt += strPointTxt;
+
+        }
+    }
+    strStRuleTxt += "************************************************** \n";
+    return strStRuleTxt;
+}
+
+QString HStationRule::splitRuleText(QString& strRuleText)
+{
+    QString strRuleItem="";
+    QStringList strRuleList = strRuleText.split('@');
+    for(int i = 0; i < strRuleList.count();i++)
+    {
+        QString strRule = strRuleList.at(i);
+        QStringList strGroupRuleList = strRule.split('#');
+        for(int j = 0; j < strGroupRuleList.count();j++)
+        {
+            strRuleItem += strGroupRuleList.at(i);
+            strRuleItem = "\n";
+        }
+    }
+    return strRuleItem;
+}
 //////////////////////////////////////////////////HStationRuleList//////////////////////////////////////////////////////////////////////////////////
 HStationRuleList::HStationRuleList()
 {
@@ -1324,8 +1517,8 @@ bool HRuleFile::visitReportBuildObj(HDrawObj* firstObj,QList<QStringList*> *repo
             while(!andStrList[i].isEmpty())
                 delete (QStringList*)andStrList[i].takeFirst();
         }
-
     }
+    return true;
 }
 
 void HRuleFile::getOrBeforeAnd(QList<QStringList*> *pSrcList,QList<QStringList*> *pDscList,QStringList* pTempList,int i,int total)

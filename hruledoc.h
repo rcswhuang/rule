@@ -5,7 +5,8 @@
 /*
  * 所有文件操作都存放如此
 */
-#include "rulefile.h"
+class HRuleFile;
+class HStationRuleList;
 class HRuleDoc
 {
 public:
@@ -23,6 +24,8 @@ public:
 public:
     //extern LPRULEDATACALLBACK m_lpRuleDataCallBack;
     //extern quint8 m_btAppType;
+    HRuleFile* m_pRuleFile;//实际规则文件
+    HRuleFile* m_pTempRuleFile;//临时规则文件
     bool m_bModify;
     QString m_strRuleFilePath;
     HStationRuleList* m_pStationRuleList;

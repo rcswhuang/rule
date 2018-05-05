@@ -12,6 +12,7 @@ HRuleDoc::HRuleDoc()
 {
     m_bModify = false;
     m_pStationRuleList = new HStationRuleList;
+    m_pRuleFile = NULL;
 }
 
 HRuleDoc::~HRuleDoc()
@@ -26,7 +27,7 @@ HRuleDoc::~HRuleDoc()
 bool HRuleDoc::loadRuleFiles()
 {
     //QString strRuleFile = g_strRuleFilePath + "*.fma";
-    //xxx/rule/station_0.PRO
+    //xxx/rule/station_0.fma
     if(m_pStationRuleList)
         m_pStationRuleList->clear();
     QDir dirRulePath(m_strRuleFilePath);
@@ -120,9 +121,26 @@ bool HRuleDoc::delRuleProFile(quint16 wStationNo)
     return true;
 }
 
-//获取一个HRuleFile对象，传递给m_pFrame
+/*
+ * 函数说明:根据参数获取对应的规则文件
+ * 备注:获取存储文件里面的规则文件，应该拷贝给临时文件，后续所有操作都在临时文件内。
+ * 确定保存后，将临时文件再次拷贝到实际规则文件，确定保存。如果不保存，则丢弃临时规则文件，并不影响实际规则文件
+*/
 HRuleFile* HRuleDoc::getRuleFile(quint16 wStationNo,quint16 wPointType,quint16 wPointNo,quint8  btYKType,quint16 wRuleID, quint8 btRuleType, QString &strFormula)
 {
+
+    if(m_pTempRuleFile)
+    {
+        delete m_pTempRuleFile;
+        m_pTempRuleFile = NULL;
+    }
+
+    if(m_pRuleFile)
+    {
+        delete m_pRuleFile;
+        m_pRuleFile = NULL;
+    }
+
     quint16 wStID;//站号
     quint16 wProtID; //装置ID 联锁组态用
     quint16 wPtTypeID; //测点类型 五防用
@@ -233,6 +251,8 @@ HRuleFile* HRuleDoc::getRuleFile(quint16 wStationNo,quint16 wPointType,quint16 w
      * 如果删除规则文件同时删除测点，此处不需要调整
     */
     protectRule->refreshRuleFileID(pointRule);
+
+
     //规则文件ID
     quint16 wRuleFileID;
     if(CTRL_OPEN == btYKType)
@@ -244,57 +264,60 @@ HRuleFile* HRuleDoc::getRuleFile(quint16 wStationNo,quint16 wPointType,quint16 w
     else if(CTRL_JXCLOSE == btYKType)
         wRuleFileID = pointRule->m_wJXCloseRuleFileID;
 
-    HRuleFile* pRuleFile = (HRuleFile*)protectRule->getRuleFileByID(wRuleFileID);
-    if(!pRuleFile)
+    m_pRuleFile = (HRuleFile*)protectRule->getRuleFileByID(wRuleFileID);
+    if(!m_pRuleFile)
     {
-        pRuleFile = new HRuleFile;
-        pRuleFile->m_wRuleFileID = stationRule->generateID();
-        protectRule->addRuleFile(pRuleFile);
+        m_pRuleFile = new HRuleFile;
+        m_pRuleFile->m_wRuleFileID = stationRule->generateID();
+        protectRule->addRuleFile(m_pRuleFile);
     }
 
     //复制给规则文件
-    pRuleFile->m_ruleFileData.wStationNo = wStID;
-    pRuleFile->m_ruleFileData.wProtectNo = wProtID;
-    pRuleFile->m_ruleFileData.wPointNo = wPtNo;
-    pRuleFile->m_ruleFileData.btPointType = wPointType;//测点类型 遥测 遥信 遥控
-    pRuleFile->m_ruleFileData.btYKType = btYKType;
-    pRuleFile->m_ruleFileData.btFormulaType = btRuleType;//规则类型:普通规则、二级规则
+    m_pRuleFile->m_ruleFileData.wStationNo = wStID;
+    m_pRuleFile->m_ruleFileData.wProtectNo = wProtID;
+    m_pRuleFile->m_ruleFileData.wPointNo = wPtNo;
+    m_pRuleFile->m_ruleFileData.btPointType = wPointType;//测点类型 遥测 遥信 遥控
+    m_pRuleFile->m_ruleFileData.btYKType = btYKType;
+    m_pRuleFile->m_ruleFileData.btFormulaType = btRuleType;//规则类型:普通规则、二级规则
     //pRuleFile->m_ruleFileData.wFormulaID = ;//测点分/合等规则ID号
 
     QString strYKRule;//遥控规则类型：分、合、检修分、检修合
     if(CTRL_OPEN == btYKType)
     {
         strYKRule = "分规则";
-        pRuleFile->m_ruleFileData.wFormulaID = pointRule->m_wOpenFormulaID;
-        pointRule->m_wOpenRuleFileID = pRuleFile->m_wRuleFileID;
+        m_pRuleFile->m_ruleFileData.wFormulaID = pointRule->m_wOpenFormulaID;
+        pointRule->m_wOpenRuleFileID = m_pRuleFile->m_wRuleFileID;
     }
     else if(CTRL_CLOSE == btYKType)
     {
         strYKRule = "合规则";
-        pRuleFile->m_ruleFileData.wFormulaID = pointRule->m_wCloseFormulaID;
-        pointRule->m_wCloseRuleFileID = pRuleFile->m_wRuleFileID;
+        m_pRuleFile->m_ruleFileData.wFormulaID = pointRule->m_wCloseFormulaID;
+        pointRule->m_wCloseRuleFileID = m_pRuleFile->m_wRuleFileID;
     }
     else if(CTRL_JXOPEN == btYKType)
     {
         strYKRule = "检修分规则";
-        pRuleFile->m_ruleFileData.wFormulaID = pointRule->m_wJXOpenFormulaID;
-        pointRule->m_wJXOpenRuleFileID = pRuleFile->m_wRuleFileID;
+        m_pRuleFile->m_ruleFileData.wFormulaID = pointRule->m_wJXOpenFormulaID;
+        pointRule->m_wJXOpenRuleFileID = m_pRuleFile->m_wRuleFileID;
     }
     else if(CTRL_JXCLOSE == btYKType)
     {
         strYKRule = "检修合规则";
-        pRuleFile->m_ruleFileData.wFormulaID = pointRule->m_wJXCloseFormulaID;
-        pointRule->m_wJXCloseRuleFileID = pRuleFile->m_wRuleFileID;
+        m_pRuleFile->m_ruleFileData.wFormulaID = pointRule->m_wJXCloseFormulaID;
+        pointRule->m_wJXCloseRuleFileID = m_pRuleFile->m_wRuleFileID;
     }
 
-    pRuleFile->m_strRuleName = QString("%1%2%3").arg(strStationName).arg(strPointName).arg(strYKRule);
+    m_pRuleFile->m_strRuleName = QString("%1%2%3").arg(strStationName).arg(strPointName).arg(strYKRule);
 
     //读取完还要刷新一下所有测点规则，防止站名，站地址发生改变后无法显示正确规则
-    pRuleFile->refreshDrawObj();
+    m_pRuleFile->refreshDrawObj();
+
+    //拷贝给临时规则文件
+    m_pTempRuleFile = m_pRuleFile->clone();
 
     delete ruleParam;
-    return pRuleFile;
-    //获取了规则文件 后续就是应该在界面上显示规则文件所有图符
+    return m_pTempRuleFile;
+    //获取规则文件后,后续就是应该在界面上显示规则文件所有图符
 }
 
 void HRuleDoc::exportAllRule(quint16 wStationNo)
@@ -327,12 +350,6 @@ void HRuleDoc::changeStationID(quint16 wStNo,quint16 wNewStNo)
     if(!pStRule)
         return;
 
-    //先删除之前的规则
-    if(!delRuleProFile(pStRule->m_wStationNo))
-        return;
-    //再修改ID
+    //修改ID
     pStRule->changeStationNo(wNewStNo);
-
-    //必须要重新保存一下新规则文件
-    saveRuleFiles();
 }

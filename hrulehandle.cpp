@@ -20,7 +20,11 @@ HRuleHandle* HRuleHandle::Initstance()
 
 void HRuleHandle::Exitstance()
 {
-
+    if(m_pInstance)
+    {
+        delete m_pInstance;
+        m_pInstance = NULL;
+    }
 }
 
 
@@ -51,7 +55,7 @@ bool  HRuleHandle::initRuleFiles(quint8 btType,char* szFilePath,LPRULEDATACALLBA
 
 void  HRuleHandle::exitRuleFiles()
 {
-//
+
 }
 
 void  HRuleHandle::openRuleWindow(quint16 wStationNo, //厂站ID
@@ -65,7 +69,6 @@ void  HRuleHandle::openRuleWindow(quint16 wStationNo, //厂站ID
 {
     if(!m_pRuleDoc)
         return;
-    m_pRuleDoc->loadRuleFiles();
     HRuleFile* pRuleFile = m_pRuleDoc->getRuleFile(wStationNo,wPointType,wPointNo,btYKType,wRuleID,btRuleType,strFormula);
     if(!pRuleFile) return;
     HRuleWindow w(pRuleFile);
