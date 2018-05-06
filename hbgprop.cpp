@@ -1,6 +1,6 @@
 #include "hbgprop.h"
 #include "ui_bgprop.h"
-#include "frame.h"
+#include "hframe.h"
 #include <QColorDialog>
 HBgProp::HBgProp(HFrame* frame,QWidget *parent) :
     m_pFrame(frame),QDialog(parent),

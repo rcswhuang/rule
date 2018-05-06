@@ -1,11 +1,11 @@
 ﻿#ifndef QRULEFILE_H
 #define QRULEFILE_H
-#include "ruleexport.h"
+#include "hruleexport.h"
 #include <QObject>
 #include <QList>
 #include <QDataStream>
-#include "drawobj.h"
-#include "ruleeditapi.h"
+#include "hdrawobj.h"
+#include "hruleeditapi.h"
 class HConnect;
 class HDrawObj;
 class HResultObj;

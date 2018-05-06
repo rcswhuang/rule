@@ -3,8 +3,8 @@
 #include <QFrame>
 #include <QList>
 #include <QScrollArea>
-#include "rulefile.h"
-#include "drawtool.h"
+#include "hrulefile.h"
+#include "hdrawtool.h"
 class HDrawObj;
 class HConnect;
 class HRuleFile;

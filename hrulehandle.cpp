@@ -1,7 +1,7 @@
 #include "hrulehandle.h"
 #include "hrulewindow.h"
 #include "hruledoc.h"
-#include "rulefile.h"
+#include "hrulefile.h"
 #include "hruledoc.h"
 #include "hlookrulereport.h"
 #include "hexportrule.h"

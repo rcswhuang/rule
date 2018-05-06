@@ -9,13 +9,11 @@ TARGET = rule
 TEMPLATE = app
 #DESTDIR = ../lib
 DEFINES += RULE_DLL
+INCLUDEPATH += \
+            ../include
 
 SOURCES += main.cpp\
         #mainwindow.cpp \
-    drawtool.cpp \
-    drawobj.cpp \
-    rulefile.cpp \
-    frame.cpp \
     hlogicprop.cpp \
     hbgprop.cpp \
     hviewprop.cpp \
@@ -26,15 +24,14 @@ SOURCES += main.cpp\
     hrulewindow.cpp \
     hruledoc.cpp \
     hlookrulereport.cpp \
-    hexportrule.cpp
+    hexportrule.cpp \
+    hdrawobj.cpp \
+    hdrawtool.cpp \
+    hframe.cpp \
+    hrulefile.cpp
 
-HEADERS  += drawtool.h \
+HEADERS  += \
     #mainwindow.h \
-    drawobj.h \
-    rulefile.h \
-    ruleexport.h \
-    frame.h \
-    ruleeditapi.h \
     hlogicprop.h \
     hbgprop.h \
     hviewprop.h \
@@ -45,7 +42,13 @@ HEADERS  += drawtool.h \
     hrulewindow.h \
     hruledoc.h \
     hlookrulereport.h \
-    hexportrule.h
+    hexportrule.h \
+    hdrawobj.h \
+    hdrawtool.h \
+    hframe.h \
+    hrulefile.h
+    #hruleeditapi.h \
+    #hruleexport.h
 
 RESOURCES += \
     ruleeditor.qrc

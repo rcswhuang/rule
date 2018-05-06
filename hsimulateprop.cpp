@@ -5,7 +5,7 @@
 #include "ui_simulateprop.h"
 #include <QComboBox>
 #include <QTableWidgetItem>
-#include "rulefile.h"
+#include "hrulefile.h"
 HSimulateProp::HSimulateProp(HRuleFile* rulefile,QWidget *parent) :
     m_pRuleFile(rulefile),QDialog(parent),
     ui(new Ui::HSimulateProp)

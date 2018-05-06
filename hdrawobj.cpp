@@ -1,13 +1,13 @@
 ﻿#if defined(_MSC_VER) &&(_MSC_VER >= 1600)
 #pragma execution_character_set("utf-8")
 #endif
-#include "drawobj.h"
+#include "hdrawobj.h"
 #include <QPen>
 #include <QPoint>
 #include <QBrush>
 //#include "frame.h"
 #include "hdigitalprop.h"
-#include "rulefile.h"
+#include "hrulefile.h"
 #include <math.h>
 #include <QDebug>
 #include <QPainterPath>

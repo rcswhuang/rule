@@ -1,7 +1,7 @@
 #include "hexportrule.h"
 #include "ui_exportrule.h"
 #include "hruledoc.h"
-#include "rulefile.h"
+#include "hrulefile.h"
 #include <QFileDialog>
 #include <QFile>
 #include <QTextStream>

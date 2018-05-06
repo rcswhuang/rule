@@ -1,6 +1,6 @@
 #include "hviewprop.h"
 #include "ui_viewprop.h"
-#include "rulefile.h"
+#include "hrulefile.h"
 HViewProp::HViewProp(HRuleFile* pRuleFile,QWidget *parent) :
     m_pRuleFile(pRuleFile),QDialog(parent),
     ui(new Ui::HViewProp)

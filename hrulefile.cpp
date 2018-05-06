@@ -1,5 +1,5 @@
-﻿#include "rulefile.h"
-#include "ruleeditapi.h"
+﻿#include "hrulefile.h"
+#include "hruleeditapi.h"
 #include <QList>
 #include <QProcessEnvironment>
 #include <QDir>

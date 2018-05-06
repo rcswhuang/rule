@@ -11,11 +11,11 @@
 #include <QFile>
 #include <QProcessEnvironment>
 #include <QMessageBox>
-#include "drawtool.h"
+#include "hdrawtool.h"
 #include "hbgprop.h"
 #include "hviewprop.h"
 #include "hsimulateprop.h"
-#include "rulefile.h"
+#include "hrulefile.h"
 #include "hruledoc.h"
 extern LPRULEDATACALLBACK m_lpRuleDataCallBack;
 extern quint8 m_btAppType;

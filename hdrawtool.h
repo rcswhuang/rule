@@ -1,8 +1,8 @@
 ﻿#ifndef HDRAWTOOL_H
 #define HDRAWTOOL_H
-#include "ruleexport.h"
-#include "drawobj.h"
-#include "ruleeditapi.h"
+#include "hruleexport.h"
+#include "hdrawobj.h"
+#include "hruleeditapi.h"
 #include <QPainter>
 #include <QKeyEvent>
 class HFrame;

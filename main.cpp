@@ -1,6 +1,6 @@
 #include "hrulewindow.h"
 #include <QApplication>
-#include "rulefile.h"
+#include "hrulefile.h"
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);

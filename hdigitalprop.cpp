@@ -1,7 +1,7 @@
 ﻿#include "hdigitalprop.h"
 #include "ui_digitalprop.h"
-#include "ruleeditapi.h"
-#include "drawobj.h"
+#include "hruleeditapi.h"
+#include "hdrawobj.h"
 extern LPRULEDATACALLBACK m_lpRuleDataCallBack;
 extern quint8 m_btAppType;
 HDigitalProp::HDigitalProp(QWidget *parent) :

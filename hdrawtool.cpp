@@ -1,6 +1,6 @@
-﻿#include "drawtool.h"
-#include "drawobj.h"
-#include "frame.h"
+﻿#include "hdrawtool.h"
+#include "hdrawobj.h"
+#include "hframe.h"
 #include <QMouseEvent>
 #include <QKeyEvent>
 #include <QDebug>

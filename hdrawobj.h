@@ -1,13 +1,13 @@
 ﻿#ifndef HDRAWOBJ_H
 #define HDRAWOBJ_H
-#include "ruleexport.h"
-#include "frame.h"
+#include "hruleexport.h"
+#include "hframe.h"
 #include <QObject>
 #include <QDataStream>
 #include <QPainter>
 #include <QColor>
 //#include <QFrame>
-#include "ruleeditapi.h"
+#include "hruleeditapi.h"
 #define MAXCOUNT_INPUT 30
 
 /*

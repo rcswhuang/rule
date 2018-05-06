@@ -9,7 +9,7 @@
 #include <QTextBrowser>
 #include <QDockWidget>
 #include <QCloseEvent>
-#include "frame.h"
+#include "hframe.h"
 namespace Ui {
 class HRuleWindow;
 }

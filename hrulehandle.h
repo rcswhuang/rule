@@ -2,7 +2,7 @@
 #define HRULEHANDLE_H
 
 #include <QObject>
-#include "ruleeditapi.h"
+#include "hruleeditapi.h"
 class HRuleDoc;
 class HRuleHandle
 {

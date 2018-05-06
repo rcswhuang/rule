@@ -1,6 +1,6 @@
 #include "hlogicprop.h"
 #include "ui_logicprop.h"
-#include "drawobj.h"
+#include "hdrawobj.h"
 HLogicProp::HLogicProp(HDrawObj* drawObj,QWidget *parent) :
     m_pDrawObj(drawObj),QDialog(parent),
     ui(new Ui::HLogicProp)

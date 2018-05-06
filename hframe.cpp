@@ -1,5 +1,5 @@
-﻿#include "frame.h"
-#include "drawobj.h"
+﻿#include "hframe.h"
+#include "hdrawobj.h"
 #include <QMouseEvent>
 #include <QPainter>
 #include <QMetaObject>

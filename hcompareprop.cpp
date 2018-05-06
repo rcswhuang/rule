@@ -3,8 +3,8 @@
 #endif
 #include "hcompareprop.h"
 #include "ui_compareprop.h"
-#include "ruleeditapi.h"
-#include "drawobj.h"
+#include "hruleeditapi.h"
+#include "hdrawobj.h"
 #include <QDoubleValidator>
 extern LPRULEDATACALLBACK m_lpRuleDataCallBack;
 extern quint8 m_btAppType;

@@ -4,7 +4,7 @@
 #include "hlookrulereport.h"
 #include "ui_lookrulereport.h"
 #include "hruledoc.h"
-#include "rulefile.h"
+#include "hrulefile.h"
 HLookRuleReport::HLookRuleReport(HRuleDoc* doc,QWidget *parent) :m_pRuleDoc(doc),
     QDialog(parent),
     ui(new Ui::LookRuleReport)

@@ -4,7 +4,7 @@
 #include "hruledoc.h"
 #include <QDir>
 #include <QProcessEnvironment>
-#include "rulefile.h"
+#include "hrulefile.h"
 extern LPRULEDATACALLBACK m_lpRuleDataCallBack;
 extern quint8 m_btAppType;
 
