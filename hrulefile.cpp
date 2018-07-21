@@ -5,6 +5,7 @@
 #include <QDir>
 #include <QCoreApplication>
 #include <QElapsedTimer>
+#include "hformulapi.h"
 #ifdef Q_OS_WIN
  #include <Windows.h>
 #else
@@ -29,19 +30,20 @@ void qSleep(int ms)
 
 HRuleFile::HRuleFile(QObject *parent) : QObject(parent)
 {
+    m_wRuleFileID = 0;
     m_wDrawObjID = 1;
     m_bGrid = true;
-    m_strBgClr = QColor(Qt::white).name();
+    //m_strBgClr = QColor(Qt::white).name();
     m_strGridClr = QColor(0,0,128).name();
     m_strFillClr = QColor(206,230,255).name(); //填充色
     m_strLineClr = QColor(0,128,128).name(); //线条颜色
     //m_clrText = QColor(0,0,255).name(); //文字颜色
-    m_strUpedgeClr = QColor(255,255,255).name(); //上边框颜色
-    m_strDownedgeClr = QColor(0,0,0).name(); //下边框颜色
-    m_strShadowClr = QColor(128,128,128).name(); //阴影颜色
-    bDisplayID = false;//
-    bSimulateFirst = false;
-    bSimuState = false;
+    //m_strUpedgeClr = QColor(255,255,255).name(); //上边框颜色
+    //m_strDownedgeClr = QColor(0,0,0).name(); //下边框颜色
+    //m_strShadowClr = QColor(128,128,128).name(); //阴影颜色
+    //bDisplayID = false;//
+    //bSimulateFirst = false;
+    //bSimuState = false;
     m_Size = QSize(1200,1000);
 }
 
@@ -78,10 +80,11 @@ HRuleFile* HRuleFile::clone()
     {
         QDataStream cbStream(&file);
         cbStream.writeBytes(bytes.data(),bytes.length());
+        file.flush();
         file.close();
     }
 
-    qSleep(5000);
+    qSleep(1000);
 
     HRuleFile* ruleFile = new HRuleFile;
     QFile file1(clonePath);
@@ -113,11 +116,11 @@ void HRuleFile::copyTo(HRuleFile *rf)
     if(file.open(QIODevice::WriteOnly))
     {
         QDataStream cbStream(&file);
-        cbStream.writeBytes(bytes.data(),bytes.length());
+        cbStream.writeRawData(bytes.data(),bytes.length());
         file.close();
     }
 
-    qSleep(5000);
+    qSleep(1000);
 
     QFile file1(copyPath);
     if(!file1.exists() || !file1.open(QIODevice::ReadOnly))
@@ -127,7 +130,7 @@ void HRuleFile::copyTo(HRuleFile *rf)
     file1.close();
     QFile::remove(copyPath);
 
-    memcpy(&rf->m_ruleFileData,&m_ruleFileData,sizeof(RULEFILEDATA));
+    memcpy(&rf->m_ruleFileData,&m_ruleFileData,sizeof(RULEAPIPARAM));
 
 }
 
@@ -136,34 +139,28 @@ void HRuleFile::readData(int nVersion,QDataStream* ds)
 {
     if(!ds)
         return;
-    quint16 n16;
-    *ds>>n16;
-    m_wRuleFileID = n16;
-    QString s;
-    *ds>>s;
-    m_strRuleName = s;
-    *ds>>s;
-    m_strFormula = s;
-    bool b;
+    //quint16 n16 = 0;
+   // *ds>>n16;
+    //m_wRuleFileID = n16;
+    QString s = "";
+    bool b = false;
     *ds>>b;
     m_bGrid = b;
-    *ds>>s;
-    m_strBgClr = s;
-    *ds>>s;
+ /*   *ds>>s;
     m_strGridClr = s;
     *ds>>s;
     m_strFillClr = s;
     *ds>>s;
-    m_strUpedgeClr = s;
+    m_strLineClr = s;
     *ds>>s;
-    m_strDownedgeClr = s;
+    m_strRuleName = s;
     *ds>>s;
-    m_strShadowClr = s;
+    m_strFormula = s;
 
-    int nConnectObjCount;
-    int n;
+
+    int n = 0;
     *ds>>n;
-    nConnectObjCount = n;
+    int nConnectObjCount = n;
     for(int i = 0; i < nConnectObjCount;i++)
     {
         HConnect* conn = new HConnect;
@@ -174,9 +171,9 @@ void HRuleFile::readData(int nVersion,QDataStream* ds)
             m_connectObjList.append(conn);
         }
     }
-    int nDrawObjCount;
+
     *ds >> n;
-    nDrawObjCount = n;
+    int nDrawObjCount = n;
     for(int i = 0; i < nDrawObjCount;i++)
     {
         quint8 btObjType;
@@ -207,7 +204,7 @@ void HRuleFile::readData(int nVersion,QDataStream* ds)
      }
 
     //需要重新刷新一个ID
-    refreshDrawObjID();
+    refreshObjID();*/
 
 }
 
@@ -215,17 +212,15 @@ void HRuleFile::writeData(int nVersion,QDataStream* ds)
 {
     if(!ds)
         return;
-    *ds<<(quint16)m_wRuleFileID;
-    *ds<<(QString)m_strRuleName;
-    *ds<<(QString)m_strFormula;
+    //*ds<<(quint16)m_wRuleFileID;
     *ds<<(bool)m_bGrid;
-    *ds<<(QString)m_strBgClr;
-    *ds<<(QString)m_strGridClr;
+   /* *ds<<(QString)m_strGridClr;
     *ds<<(QString)m_strFillClr;
     *ds<<(QString)m_strLineClr;
-    *ds<<(QString)m_strUpedgeClr;
-    *ds<<(QString)m_strDownedgeClr;
-    *ds<<(QString)m_strShadowClr;
+
+       *ds<<(QString)m_strRuleName;
+    *ds<<(QString)m_strFormula;
+
     int n = m_connectObjList.count();
     *ds<<n;
     for(int i = 0; i < n;i++)
@@ -244,11 +239,11 @@ void HRuleFile::writeData(int nVersion,QDataStream* ds)
             *ds<<drawObj->getObjType();
             drawObj->writeData(nVersion,ds);
         }
-    }
+    }*/
 }
 
 
-void HRuleFile::add(HDrawObj* pObj)
+void HRuleFile::addObject(HDrawObj* pObj)
 {
     if(m_drawObjList.contains(pObj) == false)
     {
@@ -303,23 +298,17 @@ HConnect* HRuleFile::connectAt(const QPoint& point)
 
 HResultObj* HRuleFile::resultObj()
 {
+    HResultObj* pObj = NULL;
     for (int i = 0; i < m_drawObjList.count(); i++)
-	{
-        HDrawObj* pObj = (HDrawObj*)m_drawObjList[i];
-		if (pObj != NULL && pObj->m_btObjType == TYPE_RESULT)
-			return (HResultObj*)pObj;
-
-		/*  if(pObj == NULL)
-			  return false;
-			  const QMetaObject *pMObj = pObj->metaObject();;
-			  //qDebug()<<"className:"<<pMObj->className();
-			  if(QString(pMObj->superClass()->className()).compare("HDrawObj") == 0)
-			  return m_selectObjList.contains((HDrawObj*)pObj);
-			  if(QString(pMObj->className()).compare("HConnect") == 0)
-			  return m_selectConnectObjList.contains((HConnect*)pObj);*/
-
-	}
-	return NULL;
+    {
+        HDrawObj* obj = m_drawObjList[i];
+        if (obj != NULL && obj->getObjType() == TYPE_RESULT)
+        {
+            pObj = (HResultObj*)obj;
+            break;
+        }
+    }
+    return pObj;
 }
 
 bool HRuleFile::isObjConnect(HDrawObj *pDrawObj)
@@ -339,22 +328,7 @@ bool HRuleFile::isObjConnect(HDrawObj *pDrawObj)
 	return true;
 }
 
-HResultObj* HRuleFile::getResultObj()
-{
-	HResultObj* pObj = NULL;
-    for (int i = 0; i < m_drawObjList.count(); i++)
-	{
-        HDrawObj* obj = m_drawObjList[i];
-		if (obj != NULL && obj->getObjType() == TYPE_RESULT)
-		{
-			pObj = (HResultObj*)obj;
-			break;
-		}
-	}
-	return pObj;
-}
-
-HDrawObj* HRuleFile::getConnectObj(HDrawObj* target, int nConnNo)
+HDrawObj* HRuleFile::connectObj(HDrawObj* target, int nConnNo)
 {
     quint32 dwTargetObjID;
 	quint16 dwConnectedID;
@@ -417,8 +391,8 @@ void HRuleFile::refreshDrawObj()
                 if(TYPE_INPUT_DIGITAL == inputDrawObj->btInputType)
                 {
                     QString strStName,strProtName,strPtName,strAttr,strCond,strFormula,strContent;
-                    RULEPARAM *ruleParam = new RULEPARAM;
-                    memset(ruleParam,0,sizeof(RULEPARAM));
+                    RULEINFO *ruleParam = new RULEINFO;
+                    memset(ruleParam,0,sizeof(RULEINFO));
                     ruleParam->wStationNo = inputDrawObj->m_wStationID1;
                     ruleParam->wPointNo = inputDrawObj->m_wPointID1;
                     ruleParam->btPointType = inputDrawObj->m_btType1;
@@ -463,10 +437,10 @@ void HRuleFile::refreshDrawObj()
                     QString strStName1,strProtName1,strPtName1,strAttr1;
                     QString strStName2,strProtName2,strPtName2,strAttr2;
                     QString strFormula,strContent;
-                    RULEPARAM *ruleParam = new RULEPARAM;
+                    RULEINFO *ruleParam = new RULEINFO;
 
                     //测点1
-                    memset(ruleParam,0,sizeof(RULEPARAM));
+                    memset(ruleParam,0,sizeof(RULEINFO));
                     ruleParam->wStationNo = inputDrawObj->m_wStationID1;
                     ruleParam->wPointNo = inputDrawObj->m_wPointID1;
                     ruleParam->btPointType = inputDrawObj->m_btType1;
@@ -488,7 +462,7 @@ void HRuleFile::refreshDrawObj()
                     }
 
                     //测点2
-                    memset(ruleParam,0,sizeof(RULEPARAM));
+                    memset(ruleParam,0,sizeof(RULEINFO));
                     ruleParam->wStationNo = inputDrawObj->m_wStationID2;
                     ruleParam->wPointNo = inputDrawObj->m_wPointID2;
                     ruleParam->btPointType = inputDrawObj->m_btType2;
@@ -580,7 +554,7 @@ void HPointRule::readData(int nVersion,QDataStream* ds)
     *ds>>n16;
     m_wStationNo = n16;
     *ds>>n16;
-    m_wProtectNo = n16;
+    m_wDeviceNo = n16;
     *ds>>n16;
     m_wPointNo = n16;
     quint8 n8;
@@ -614,7 +588,7 @@ void HPointRule::writeData(int nVersion,QDataStream* ds)
     if(!ds)
         return;
     *ds<<(quint16) m_wStationNo;
-    *ds<<(quint16) m_wProtectNo;
+    *ds<<(quint16) m_wDeviceNo;
     *ds<<(quint16) m_wPointNo;
     *ds<<(quint8) m_wPointType;
     *ds<<(quint8)  m_btInsideType;
@@ -631,21 +605,21 @@ void HPointRule::writeData(int nVersion,QDataStream* ds)
 
 
 
-////////////////////////////////////////////////////////////////HProtectRule///////////////////////////////////////////////////
-HProtectRule::HProtectRule()
+////////////////////////////////////////////////////////////////HDeviceRule///////////////////////////////////////////////////
+HDeviceRule::HDeviceRule()
 {
     m_wStationNo = (quint16)-1;
-    m_wProtectNo = (quint16)-1;
+    m_wDeviceNo = (quint16)-1;
     m_pPointRuleList.clear();
     m_pRuleFileList.clear();
 }
 
-HProtectRule::~HProtectRule()
+HDeviceRule::~HDeviceRule()
 {
     clear();
 }
 
-void HProtectRule::clear()
+void HDeviceRule::clear()
 {
     while(!m_pPointRuleList.isEmpty())
         delete (HPointRule*)m_pPointRuleList.takeFirst();
@@ -658,7 +632,7 @@ void HProtectRule::clear()
 
 }
 
-void HProtectRule::readData(int nVersion,QDataStream* ds)
+void HDeviceRule::readData(int nVersion,QDataStream* ds)
 {
     if(!ds)
         return;
@@ -666,7 +640,7 @@ void HProtectRule::readData(int nVersion,QDataStream* ds)
     *ds>>n16;
     m_wStationNo = n16;
     *ds>>n16;
-    m_wProtectNo = n16;
+    m_wDeviceNo = n16;
     QString s;
     *ds>>s;
     m_strDeviceName = s;
@@ -687,12 +661,12 @@ void HProtectRule::readData(int nVersion,QDataStream* ds)
         rf->readData(nVersion,ds);
     }
 }
-void HProtectRule::writeData(int nVersion,QDataStream* ds)
+void HDeviceRule::writeData(int nVersion,QDataStream* ds)
 {
     if(!ds)
         return;
     *ds<<(quint16)m_wStationNo;
-    *ds<<(quint16)m_wProtectNo;
+    *ds<<(quint16)m_wDeviceNo;
     *ds<<(QString)m_strDeviceName;
     quint16 wPtRuleCount = m_pPointRuleList.count();
     *ds<<wPtRuleCount;
@@ -712,13 +686,13 @@ void HProtectRule::writeData(int nVersion,QDataStream* ds)
     }
 }
 
-bool HProtectRule::addPointRule(HPointRule* pPointRule)//增加点规则
+bool HDeviceRule::addPointRule(HPointRule* pPointRule)//增加点规则
 {
     m_pPointRuleList.append(pPointRule);
     return true;
 }
 
-HPointRule* HProtectRule::pointRule(quint8 btType,quint16 wPointID)//获取规则
+HPointRule* HDeviceRule::pointRule(quint8 btType,quint16 wPointID)//获取规则
 {
     HPointRule* pPointRule;
     for(int i =0; i < m_pPointRuleList.count();i++)
@@ -730,7 +704,7 @@ HPointRule* HProtectRule::pointRule(quint8 btType,quint16 wPointID)//获取规�
     return NULL;
 }
 
-HPointRule* HProtectRule::findPointRule(int nIndex)
+HPointRule* HDeviceRule::findPointRule(int nIndex)
 {
     if(m_pPointRuleList.count() < 0 || m_pPointRuleList.count() < nIndex)
         return NULL;
@@ -738,7 +712,7 @@ HPointRule* HProtectRule::findPointRule(int nIndex)
 }
 
 //int pointRuleCount(){return pPointRuleList.count();}
-bool HProtectRule::delPointRuleByID(quint8 btType,int wPointID)
+bool HDeviceRule::delPointRuleByID(quint8 btType,int wPointID)
 {
     HPointRule *pPointRule = NULL;
     for(int i = 0; i < m_pPointRuleList.count(); i++)
@@ -754,7 +728,7 @@ bool HProtectRule::delPointRuleByID(quint8 btType,int wPointID)
     return false;
 }
 
-bool HProtectRule::addRuleFile(HRuleFile* pRuleFile)
+bool HDeviceRule::addRuleFile(HRuleFile* pRuleFile)
 {
     if(m_pRuleFileList.contains(pRuleFile))
         return false;
@@ -762,7 +736,7 @@ bool HProtectRule::addRuleFile(HRuleFile* pRuleFile)
     return true;
 }
 
-HRuleFile* HProtectRule::ruleFile(int wType,int wPointNo,quint8 btYKType)
+HRuleFile* HDeviceRule::ruleFile(int wType,int wPointNo,quint8 btYKType)
 {
     HPointRule* pPointRule = pointRule(wType,wPointNo);
     quint16 wRuleFileID;
@@ -783,14 +757,14 @@ HRuleFile* HProtectRule::ruleFile(int wType,int wPointNo,quint8 btYKType)
 
 }
 
-HRuleFile* HProtectRule::findRuleFile(int nIndex)
+HRuleFile* HDeviceRule::findRuleFile(int nIndex)
 {
     if(nIndex < 0 || nIndex > m_pRuleFileList.count())
         return NULL;
     return m_pRuleFileList[nIndex];
 }
 
-HRuleFile* HProtectRule::getRuleFileByID(quint16 wRuleFileID)
+HRuleFile* HDeviceRule::getRuleFileByID(quint16 wRuleFileID)
 {
     HRuleFile *pRuleFile = NULL;
     for(int i = 0; i < m_pRuleFileList.count();i++)
@@ -803,7 +777,7 @@ HRuleFile* HProtectRule::getRuleFileByID(quint16 wRuleFileID)
 }
 
 //int ruleFileCount(){return pRuleFileList.count();}
-bool HProtectRule::delRuleFileByID(int wRuleFileID)
+bool HDeviceRule::delRuleFileByID(int wRuleFileID)
 {
     HRuleFile* pRuleFile = NULL;
     for(int i = 0; i < m_pRuleFileList.count();i++)
@@ -819,7 +793,7 @@ bool HProtectRule::delRuleFileByID(int wRuleFileID)
     return false;
 }
 
-bool HProtectRule::delRuleFile(int wType,int wPointNo,quint8 btYKType)
+bool HDeviceRule::delRuleFile(int wType,int wPointNo,quint8 btYKType)
 {
     HPointRule *pPointRule = pointRule(wType,wPointNo);
     quint16 wRuleFileID;
@@ -838,7 +812,7 @@ bool HProtectRule::delRuleFile(int wType,int wPointNo,quint8 btYKType)
 }
 
 //寻找当前ID是否存在
-void HProtectRule::refreshRuleFileID(HPointRule *ptRule)
+void HDeviceRule::refreshRuleFileID(HPointRule *ptRule)
 {
     QList<HPointRule*>::iterator it = m_pPointRuleList.begin();
     for(;it != m_pPointRuleList.end();it++)
@@ -867,6 +841,7 @@ HStationRule::HStationRule()
     m_wStationNo = (qint16)-1;
     m_wRuleFileID = (quint16)-1;//规则文件的的ID
     m_pProtRuleList.clear();
+    m_wRuleFileID = 0;
 }
 
 HStationRule::~HStationRule()
@@ -877,7 +852,7 @@ HStationRule::~HStationRule()
 void HStationRule::clear()
 {
     while(!m_pProtRuleList.isEmpty())
-        delete (HProtectRule*)m_pProtRuleList.takeFirst();
+        delete (HDeviceRule*)m_pProtRuleList.takeFirst();
     m_pProtRuleList.clear();
 }
 
@@ -886,7 +861,7 @@ void HStationRule::maxRuleFileID()
     m_wRuleFileID = 0;
 }
 
-bool HStationRule::addProtectRule(HProtectRule* pProtRule)
+bool HStationRule::addProtectRule(HDeviceRule* pProtRule)
 {
     m_pProtRuleList.append(pProtRule);
     return true;
@@ -911,7 +886,7 @@ void HStationRule::readData(int nVersion,QDataStream* ds)
     quint16 wProtRuleCount = n16;
     for(int i = 0; i < wProtRuleCount;i++)
     {
-        HProtectRule* protRule = new HProtectRule;
+        HDeviceRule* protRule = new HDeviceRule;
         protRule->readData(nVersion,ds);
     }
 }
@@ -928,18 +903,18 @@ void HStationRule::writeData(int nVersion,QDataStream* ds)
     *ds<<wProtRuleCount;
     for(int i = 0;i < wProtRuleCount;i++)
     {
-        HProtectRule* protRule = (HProtectRule*)m_pProtRuleList[i];
+        HDeviceRule* protRule = (HDeviceRule*)m_pProtRuleList[i];
         protRule->writeData(nVersion,ds);
     }
 }
 
-HProtectRule* HStationRule::protectRule(quint16 wProtNo)
+HDeviceRule* HStationRule::protectRule(quint16 wProtNo)
 {
-    HProtectRule* pProtRule = NULL;
+    HDeviceRule* pProtRule = NULL;
     for(int i = 0; i < m_pProtRuleList.count();i++)
     {
-        pProtRule = (HProtectRule*)m_pProtRuleList[i];
-        if(pProtRule->m_wProtectNo == wProtNo)
+        pProtRule = (HDeviceRule*)m_pProtRuleList[i];
+        if(pProtRule->m_wDeviceNo == wProtNo)
             return pProtRule;
     }
     return NULL;
@@ -950,7 +925,7 @@ HRuleFile* HStationRule::ruleFile(quint16 wType,quint16 wPointNo,quint8 btYKType
     HRuleFile* pRuleFile = NULL;
     for(int i = 0; i < m_pProtRuleList.count();i++)
     {
-        HProtectRule* pProtRule = (HProtectRule*)m_pProtRuleList[i];
+        HDeviceRule* pProtRule = (HDeviceRule*)m_pProtRuleList[i];
         if(pProtRule)
         {
             pRuleFile = pProtRule->ruleFile(wType,wPointNo,btYKType);
@@ -965,7 +940,7 @@ bool HStationRule::delRuleFile(quint16 wType,quint16 wPointNo,quint8 btYKType)
 {
     for(int i = 0; i < m_pProtRuleList.count();i++)
     {
-        HProtectRule* pProtRule = (HProtectRule*)m_pProtRuleList[i];
+        HDeviceRule* pProtRule = (HDeviceRule*)m_pProtRuleList[i];
         if(pProtRule)
         {
             if(pProtRule->delRuleFile(wType,wPointNo,btYKType))
@@ -979,7 +954,7 @@ bool HStationRule::delPointRule(quint16 wType,quint16 wPointNo)
 {
     for(int i = 0; i < m_pProtRuleList.count();i++)
     {
-        HProtectRule* pProtRule = (HProtectRule*)m_pProtRuleList[i];
+        HDeviceRule* pProtRule = (HDeviceRule*)m_pProtRuleList[i];
         if(pProtRule)
         {
             if(pProtRule->delPointRuleByID(wType,wPointNo))
@@ -994,7 +969,7 @@ HPointRule* HStationRule::getFirstPointRule()
     HPointRule* ptRule = NULL;
     for(int i = 0; i < m_pProtRuleList.count();i++)
     {
-        HProtectRule* proRule = (HProtectRule*)m_pProtRuleList[i];
+        HDeviceRule* proRule = (HDeviceRule*)m_pProtRuleList[i];
         if(proRule)
         {
             ptRule = proRule->m_pPointRuleList.first();
@@ -1008,7 +983,7 @@ bool HStationRule::changeStationNo(quint16 wNewStationNo)
     m_wStationNo = wNewStationNo;
     for(int i = 0; i < m_pProtRuleList.count();i++)
     {
-        HProtectRule* pProtRule = (HProtectRule*)m_pProtRuleList[i];
+        HDeviceRule* pProtRule = (HDeviceRule*)m_pProtRuleList[i];
         if(pProtRule)
         {
             pProtRule->m_wStationNo = m_wStationNo;
@@ -1045,7 +1020,7 @@ QString HStationRule::getRuleFileText()
     strStRuleTxt += "\n";
     for(int i = 0;i < m_pProtRuleList.count();i++)
     {
-        HProtectRule* protRule = (HProtectRule*)m_pProtRuleList[i];
+        HDeviceRule* protRule = (HDeviceRule*)m_pProtRuleList[i];
         if(!protRule) continue;
         for(int k = 0; k < protRule->m_pPointRuleList.count();k++)
         {
@@ -1183,8 +1158,8 @@ void HStationRuleList::reloadStationRule()
         {
             HPointRule* ptRule = pStRule->getFirstPointRule();
             if(!ptRule) continue;
-            RULEPARAM* ruleParam = new RULEPARAM;
-            memset(ruleParam,0,sizeof(RULEPARAM));
+            RULEINFO* ruleParam = new RULEINFO;
+            memset(ruleParam,0,sizeof(RULEINFO));
             ruleParam->wStationNo = ptRule->m_wStationNo;
             ruleParam->btPointType = ptRule->m_wPointType;
             ruleParam->wPointNo = ptRule->m_wPointNo;
@@ -1202,7 +1177,7 @@ void HStationRuleList::reloadStationRule()
             }
 
             pStRule->m_strStationName = ruleParam->strStationName;
-            pStRule->m_strRuleFileName = QString("%1_%2.fma").arg(ruleParam->strStationName).arg(ruleParam->wStationNo);
+            pStRule->m_strRuleFileName = QString("%1_%2.RUF").arg(ruleParam->strStationName).arg(ruleParam->wStationNo);
         }
     }
 }
@@ -1211,7 +1186,7 @@ void HStationRuleList::reloadStationRule()
 //遍历:从后到前
 bool HRuleFile::buildGeneralFormula()
 {
-    m_bFormulaRight = true;
+    //m_bFormulaRight = true;
     m_strFormula = "";
     //遍历所有对象，是否存在未连接对象，同时设置遍历标记
     for(int i = 0; i < m_drawObjList.count();i++)
@@ -1228,7 +1203,7 @@ bool HRuleFile::buildGeneralFormula()
     }
 
     //找到最后输出对象
-    HResultObj* pResultObj = getResultObj();
+    HResultObj* pResultObj = resultObj();
     if(!pResultObj) //没有输出对象则公式全部错误
     {
         for(int i = 0; i < m_drawObjList.count();i++)
@@ -1244,19 +1219,19 @@ bool HRuleFile::buildGeneralFormula()
     pResultObj->setVisiteFlag(true);
 
     //从输出对象开始找到第一个连接对象
-	HDrawObj* pFirstObj = getConnectObj(pResultObj, 0);
+    HDrawObj* pFirstObj = connectObj(pResultObj, 0);
 	if (!pFirstObj)
     {
         pResultObj->setWrongFlag(true);
         if(!visitGeneralBuildObj(pFirstObj))
         {
-            m_bFormulaRight = false;
+            //m_bFormulaRight = false;
         }
     }
 	else
 	{
         pResultObj->setWrongFlag(false);
-        m_bFormulaRight = false;
+       // m_bFormulaRight = false;
 	}
 
     //检查所有元素是否访问
@@ -1266,12 +1241,12 @@ bool HRuleFile::buildGeneralFormula()
         if(pObj && !pObj->m_bVisit)
         {
             pObj->setWrongFlag(true);
-            m_bFormulaRight = false;
+            //m_bFormulaRight = false;
         }
     }
 
-    if (!m_bFormulaRight)
-		return false;
+    //if (!m_bFormulaRight)
+    //	return false;
     if (m_strFormula.isEmpty())
 		return false;
 
@@ -1293,7 +1268,7 @@ bool HRuleFile::visitGeneralBuildObj(HDrawObj* pObj)
         m_strFormula = m_strFormula + pObj->getOperatorFirst();
 		for (nOpCount = 0; nOpCount < pObj->m_nInPointSum; nOpCount++)
 		{
-			HDrawObj* pConnObj = getConnectObj(pObj, nOpCount);
+            HDrawObj* pConnObj = connectObj(pObj, nOpCount);
 			if (pConnObj)
 			{
 				bErrorFlag = visitGeneralBuildObj(pConnObj);
@@ -1304,7 +1279,7 @@ bool HRuleFile::visitGeneralBuildObj(HDrawObj* pObj)
 			{
                 bErrorFlag = false;
 				pObj->setWrongFlag(true);
-                m_bFormulaRight = false;
+                //m_bFormulaRight = false;
 			}
 		}
         m_strFormula += pObj->getOperatorLast();
@@ -1314,10 +1289,12 @@ bool HRuleFile::visitGeneralBuildObj(HDrawObj* pObj)
 }
 
 ///////////////////////////////////////////////////////////仿真遍历函数//////////////////////////////////////////////////////
+/// \brief HRuleFile::buildSimulateFormula
+/*
 void HRuleFile::buildSimulateFormula()
 {
     //首先获取唯一输出对象
-    HResultObj* pResultObj = getResultObj();
+    HResultObj* pResultObj = resultObj();
     if(!pResultObj) return;
     //然后获取和输出对象连接的
     quint32 nConnObjID = 0; //连接对象ID
@@ -1360,7 +1337,7 @@ void HRuleFile::visitSimulateBuildObj(HDrawObj* drawObj)
     {
         for(int i = 0; i < drawObj->m_nInPointSum;i++)
         {
-            HDrawObj* obj = getConnectObj(drawObj,i);
+            HDrawObj* obj = connectObj(drawObj,i);
             if(obj &&(TYPE_LOGICAND == obj->getObjType() || TYPE_LOGICOR == obj->getObjType()))
             {
                 visitSimulateBuildObj(obj);
@@ -1375,7 +1352,7 @@ void HRuleFile::visitSimulateBuildObj(HDrawObj* drawObj)
         drawObj->outValue();
     }
 }
-
+*/
 /////////////////////////////////////////////////////////规则报告遍历///////////////////////////////////////////////////////////////////////////
 
 void HRuleFile::getRuleReport(QString& strRuleReport)
@@ -1414,11 +1391,11 @@ bool HRuleFile::buildReportFormula(QList<QStringList*> *reportList)
 {
     //QList<QStringList*> reportList;
     //先找到最后一个输出
-    HResultObj* pResultObj = getResultObj();
+    HResultObj* pResultObj = resultObj();
     if(!pResultObj) return false;
 
     //从输出对象开始找到第一个连接对象
-    HDrawObj* pFirstObj = getConnectObj(pResultObj, 0);
+    HDrawObj* pFirstObj = connectObj(pResultObj, 0);
     if(TYPE_INPUT == pFirstObj->getObjType())
     {
         QStringList* pStrList = new QStringList;
@@ -1436,7 +1413,7 @@ bool HRuleFile::visitReportBuildObj(HDrawObj* firstObj,QList<QStringList*> *repo
         QList<QStringList*> orStrList[MAXCOUNT_INPUT];
         for(int orInNo = 0; orInNo < firstObj->m_nInPointSum;orInNo++)
         {
-            HDrawObj* connObj = getConnectObj(firstObj,orInNo);
+            HDrawObj* connObj = connectObj(firstObj,orInNo);
             if(!connObj) continue;
             if(connObj->getObjType() == TYPE_LOGICAND)
             {
@@ -1488,7 +1465,7 @@ bool HRuleFile::visitReportBuildObj(HDrawObj* firstObj,QList<QStringList*> *repo
         QList<QStringList*> andStrList[MAXCOUNT_INPUT];
         for(int andInNo = 0; andInNo < firstObj->m_nInPointSum;andInNo++)
         {
-            HDrawObj* connObj = getConnectObj(firstObj,andInNo);
+            HDrawObj* connObj = connectObj(firstObj,andInNo);
             if(!connObj) continue;
             if(connObj->getObjType() == TYPE_LOGICAND)
             {

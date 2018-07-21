@@ -37,9 +37,9 @@ public:
     void setOffset();
 
     //绘制操作部分
-    virtual void draw(QPainter* painter);
+    virtual void painter(QPainter* painter);
     virtual void drawPins(QPainter* painter,QRect rectPins);
-    virtual void drawMain(QPainter* painter,const QRect &rectMain);
+    virtual void drawFrame(QPainter* painter,const QRect &rectMain);
     enum SelectState
     {
         normal,
@@ -132,7 +132,7 @@ public:
 
     void setOffSet();
     //绘制操作
-    void draw(QPainter* painter);
+    void painter(QPainter* painter);
     void drawSelect(QPainter* painter);
     int  hitSelect(const QPoint &point,bool bSelected);
     void moveTo(int x,int y);
@@ -177,7 +177,7 @@ public:
     virtual void readData(int nVersion,QDataStream* ds);
     virtual void writeData(int nVerion,QDataStream* ds);
     //绘制操作部分
-    virtual void draw(QPainter* painter);
+    virtual void painter(QPainter* painter);
     virtual void calOutPoint();//计算对外输出点的位置
 
     //获取值
@@ -186,7 +186,7 @@ public:
 
 
     void setInputType(quint8 inputType){btInputType = inputType;}
-    void setInputProperty(HFrame* pFrame);
+    //void setInputProperty(HFrame* pFrame);
 public:
     //属性
     quint8 btInputType;//102:遥信 103:遥测
@@ -234,7 +234,7 @@ public:
     virtual void writeData(int nVerion,QDataStream* ds);
 public:
     //绘制操作部分
-    virtual void draw(QPainter* painter);
+    virtual void painter(QPainter* painter);
 
     //获取值
     virtual void addInValue(int nNo,bool value);
@@ -260,7 +260,7 @@ public:
     virtual void writeData(int nVerion,QDataStream* ds);
 public:
     //绘制操作部分
-    virtual void draw(QPainter* painter);
+    virtual void painter(QPainter* painter);
 
     //获取值
     virtual void addInValue(int nNo,bool value);
@@ -293,7 +293,7 @@ public:
 
 public:
     //绘制操作部分
-    virtual void draw(QPainter* painter);
+    virtual void painter(QPainter* painter);
 
     //获取值
     virtual void addInValue(int nNo,bool value);

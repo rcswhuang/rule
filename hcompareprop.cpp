@@ -5,13 +5,14 @@
 #include "ui_compareprop.h"
 #include "hruleeditapi.h"
 #include "hdrawobj.h"
+#include "hformulapi.h"
 #include <QDoubleValidator>
 extern LPRULEDATACALLBACK m_lpRuleDataCallBack;
 extern quint8 m_btAppType;
 
 
-HCompareProp::HCompareProp(QWidget *parent) :
-    QDialog(parent),
+HCompareProp::HCompareProp(HDrawObj* pDrawObj,QWidget *parent) :
+    m_pDrawObj(pDrawObj),QDialog(parent),
     ui(new Ui::compareProp)
 {
     ui->setupUi(this);
@@ -50,6 +51,7 @@ void HCompareProp::initCompareProp()
     //初始化
     //每次启动都要去组态/运行模块读一次
     HInputObj* pInputObj = (HInputObj*)m_pDrawObj;
+    if(!pInputObj) return;
     m_btCondition = pInputObj->m_btCondition;//大于 小于
     m_btCompType = pInputObj->m_btCompType;
     m_fConstValue = pInputObj->m_fCompValue;//常量
@@ -68,8 +70,8 @@ void HCompareProp::initCompareProp()
         m_wAttr1 = pInputObj->m_wAttr1;
         m_btInsideType1 = pInputObj->m_btInType1;
     }
-    RULEPARAM *ruleParam = new RULEPARAM;
-    memset(ruleParam,0,sizeof(RULEPARAM));
+    RULEINFO *ruleParam = new RULEINFO;
+    memset(ruleParam,0,sizeof(RULEINFO));
     ruleParam->wStationNo = m_wStationNo1;
     ruleParam->wPointNo = m_wPointNo1;
     ruleParam->btPointType = m_wPointType1;
@@ -107,8 +109,8 @@ void HCompareProp::initCompareProp()
         m_wAttr1 = pInputObj->m_wAttr2;
         m_btInsideType2 = pInputObj->m_btInType2;
     }
-    //RULEPARAM *ruleParam = new RULEPARAM;
-    memset(ruleParam,0,sizeof(RULEPARAM));
+    //RULEINFO *ruleParam = new RULEINFO;
+    memset(ruleParam,0,sizeof(RULEINFO));
     ruleParam->wStationNo = m_wStationNo2;
     ruleParam->wPointNo = m_wPointNo2;
     ruleParam->btPointType = m_wPointType2;
@@ -141,8 +143,8 @@ void HCompareProp::initCompareProp()
 
 void HCompareProp::comp1SelBtn_clicked()
 {
-    RULEPARAM *ruleParam = new RULEPARAM;
-    memset(ruleParam,0,sizeof(RULEPARAM));
+    RULEINFO *ruleParam = new RULEINFO;
+    memset(ruleParam,0,sizeof(RULEINFO));
     ruleParam->wStationNo = m_wStationNo1;
     ruleParam->wPointNo = m_wPointNo1;
     ruleParam->btPointType = m_wPointType1;
@@ -157,7 +159,7 @@ void HCompareProp::comp1SelBtn_clicked()
             //联锁状态 厂站 装置ID 装置GIN号 无测点类型
             m_lpRuleDataCallBack(WM_SEL_POINT,ruleParam);
             m_wStationNo1 = ruleParam->wStationNo;
-            m_wProtectNo1 = ruleParam->wProtectNo;
+            m_wProtectNo1 = ruleParam->wDeviceNo;
             m_wPointNo1 = ruleParam->wPointNo;
             m_wAttr1 = ruleParam->wAttr;
             m_strAttr1 = ruleParam->strAttr;
@@ -187,8 +189,8 @@ void HCompareProp::comp1SelBtn_clicked()
 
 void HCompareProp::comp2SelBtn_clicked()
 {
-    RULEPARAM *ruleParam = new RULEPARAM;
-    memset(ruleParam,0,sizeof(RULEPARAM));
+    RULEINFO *ruleParam = new RULEINFO;
+    memset(ruleParam,0,sizeof(RULEINFO));
     ruleParam->wStationNo = m_wStationNo2;
     ruleParam->wPointNo = m_wPointNo2;
     ruleParam->btPointType = m_wPointType2;
@@ -202,7 +204,7 @@ void HCompareProp::comp2SelBtn_clicked()
         {
             m_lpRuleDataCallBack(WM_SEL_POINT,ruleParam);
             m_wStationNo2 = ruleParam->wStationNo;
-            m_wProtectNo2 = ruleParam->wProtectNo;
+            m_wProtectNo2 = ruleParam->wDeviceNo;
             m_wPointNo2 = ruleParam->wPointNo;
             m_wAttr2 = ruleParam->wAttr;
             m_strAttr2 = ruleParam->strAttr;

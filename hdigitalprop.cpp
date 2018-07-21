@@ -4,8 +4,8 @@
 #include "hdrawobj.h"
 extern LPRULEDATACALLBACK m_lpRuleDataCallBack;
 extern quint8 m_btAppType;
-HDigitalProp::HDigitalProp(QWidget *parent) :
-    QDialog(parent),
+HDigitalProp::HDigitalProp(HDrawObj* pDrawObj,QWidget *parent) :
+    m_pDrawObj(pDrawObj),QDialog(parent),
     ui(new Ui::digitalPropDlg)
 {
     ui->setupUi(this);
@@ -40,8 +40,8 @@ void HDigitalProp::initDlg()
     }
     m_btCondition = pInputObj->m_btCondition;
 
-    RULEPARAM *ruleParam = new RULEPARAM;
-    memset(ruleParam,0,sizeof(RULEPARAM));
+    RULEINFO *ruleParam = new RULEINFO;
+    memset(ruleParam,0,sizeof(RULEINFO));
     ruleParam->wStationNo = m_wStationNo;
     ruleParam->wPointNo = m_wPointNo;
     ruleParam->btPointType = m_wPointType;
@@ -78,8 +78,8 @@ void HDigitalProp::initDlg()
 
 void HDigitalProp::ptSelBtn_clicked()
 {
-    RULEPARAM *ruleParam = new RULEPARAM;
-    memset(ruleParam,0,sizeof(RULEPARAM));
+    RULEINFO *ruleParam = new RULEINFO;
+    memset(ruleParam,0,sizeof(RULEINFO));
     ruleParam->wStationNo = m_wStationNo;
     ruleParam->wPointNo = m_wPointNo;
     ruleParam->btPointType = m_wPointType;
@@ -91,7 +91,7 @@ void HDigitalProp::ptSelBtn_clicked()
     {
         m_lpRuleDataCallBack(WM_SEL_POINT,ruleParam);
         m_wStationNo = ruleParam->wStationNo;
-        m_wProtectNo = ruleParam->wProtectNo;
+        m_wDeviceNo = ruleParam->wDeviceNo;
         m_wPointNo = ruleParam->wPointNo;
         m_wPointType = ruleParam->btPointType;
         m_wAttr = ruleParam->wAttr;

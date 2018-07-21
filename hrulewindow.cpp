@@ -12,9 +12,9 @@
 #include <QProcessEnvironment>
 #include <QMessageBox>
 #include "hdrawtool.h"
-#include "hbgprop.h"
+//#include "hbgprop.h"
 #include "hviewprop.h"
-#include "hsimulateprop.h"
+//#include "hsimulateprop.h"
 #include "hrulefile.h"
 #include "hruledoc.h"
 extern LPRULEDATACALLBACK m_lpRuleDataCallBack;
@@ -48,7 +48,6 @@ HRuleWindow::HRuleWindow(HRuleFile* rf,QWidget *parent)
       createActions();
       createToolBar();
 
-      m_pRuleDoc = NULL;
       m_pScrollArea = new QScrollArea(this);
       m_pFrame = new HFrame(m_pScrollArea);
       m_pFrame->setRuleFile(m_pRuleFile);
@@ -169,7 +168,7 @@ void HRuleWindow::createToolBar()
     confirmToolBar->addAction(cancelAct);
     //addToolBar(Qt::TopToolBarArea,confirmToolBar);
     //addToolBarBreak();
-    ui->horizontalLayout->addWidget(confirmToolBar);
+    ui->horizontalLayout->addWidget(confirmToolBar,Qt::AlignRight);
 
     /*editToolBar = new QToolBar;
     editToolBar->setIconSize(QSize(20,20));
@@ -184,7 +183,7 @@ void HRuleWindow::createToolBar()
 
     //只能放到一个toolBar里面
     attrToolBar = new QToolBar;
-    attrToolBar->setIconSize(QSize(20,20));
+    attrToolBar->setIconSize(QSize(24,24));
     attrToolBar->setMovable(false);
 
     attrToolBar->setMovable(false);
@@ -192,11 +191,12 @@ void HRuleWindow::createToolBar()
     attrToolBar->addAction(cutAct);
     attrToolBar->addAction(copyAct);
     attrToolBar->addAction(pasteAct);
+    attrToolBar->addSeparator();
 
-    attrToolBar->addAction(formulaAct);
-    attrToolBar->addAction(attrAct);
-    attrToolBar->addAction(idAct);
-    attrToolBar->addAction(simuAct);
+    //attrToolBar->addAction(formulaAct);
+    //attrToolBar->addAction(attrAct);
+    //attrToolBar->addAction(idAct);
+    //attrToolBar->addAction(simuAct);
     //addToolBar(attrToolBar);
     //ui->horizontalLayout_3->addWidget(attrToolBar);
 
@@ -204,27 +204,29 @@ void HRuleWindow::createToolBar()
     //configToolBar->setIconSize(QSize(20,20));
     //configToolBar->setMovable(false);
     attrToolBar->addAction(fullAct);
-    attrToolBar->addAction(bgAct);
+    //attrToolBar->addAction(bgAct);
     attrToolBar->addAction(gridAct);
-    attrToolBar->addAction(zoominAct);
-    attrToolBar->addAction(zoomoutAct);
+    //attrToolBar->addAction(zoominAct);
+    //attrToolBar->addAction(zoomoutAct);
     //addToolBar(configToolBar);
-    ui->horizontalLayout_3->addWidget(attrToolBar);
+    attrToolBar->addSeparator();
 
-    logicToolBar = new QToolBar;
-    logicToolBar->setOrientation(Qt::Vertical);
-    logicToolBar->setIconSize(QSize(20,20));
-    logicToolBar->setMovable(false);
-    logicToolBar->addAction(selectAct);
-    logicToolBar->addAction(lineAct);
-    logicToolBar->addAction(textAct);
-    logicToolBar->addAction(andAct);
-    logicToolBar->addAction(orAct);
-    logicToolBar->addAction(digitalPutAct);
-    logicToolBar->addAction(analogueAct);
-    logicToolBar->addAction(outAct);
+
+    //logicToolBar = new QToolBar;
+    //logicToolBar->setOrientation(Qt::Horizontal);
+    //logicToolBar->setIconSize(QSize(24,24));
+    //logicToolBar->setMovable(false);
+    //logicToolBar->addAction(selectAct);
+    //logicToolBar->addAction(lineAct);
+    //logicToolBar->addAction(textAct);
+    attrToolBar->addAction(andAct);
+    attrToolBar->addAction(orAct);
+    attrToolBar->addAction(digitalPutAct);
+    attrToolBar->addAction(analogueAct);
+    attrToolBar->addAction(outAct);
     //addToolBar(Qt::LeftToolBarArea,logicToolBar);
-    ui->verticalLayout->addWidget(logicToolBar);
+    //ui->verticalLayout->addWidget(logicToolBar);
+    ui->horizontalLayout_3->addWidget(attrToolBar);
 }
 
 void HRuleWindow::onCreateDigitalInput()
@@ -278,7 +280,9 @@ bool HRuleWindow::save()
 
 bool HRuleWindow::maybeSave()
 {
-  if (!m_pRuleDoc->m_bModify) //没有修改
+  if (!m_pRuleDoc)
+      return false;
+  if(!m_pRuleDoc->m_bModify) //没有修改
       return true;
   const QMessageBox::StandardButton ret
       = QMessageBox::warning(this, QStringLiteral("警告"),
@@ -313,8 +317,8 @@ void MainWindow::onDrawGrid()
 
 void HRuleWindow::bgset_clicked()
 {
-    HBgProp bgsetProp(m_pFrame);
-    bgsetProp.exec();
+    //HBgProp bgsetProp(m_pFrame);
+    //bgsetProp.exec();
 }
 
 void HRuleWindow::gridset_clicked()
@@ -329,8 +333,8 @@ void HRuleWindow::idset_clicked()
 {
     if(!m_pFrame && !m_pFrame->pRuleFile)
         return;
-    m_pFrame->pRuleFile->bDisplayID = !m_pFrame->pRuleFile->bDisplayID;
-    m_pFrame->update();
+    //m_pFrame->pRuleFile->bDisplayID = !m_pFrame->pRuleFile->bDisplayID;
+    //m_pFrame->update();
 }
 
 void HRuleWindow::sizeset_clicked()
@@ -394,7 +398,7 @@ void HRuleWindow::simulate_clicked()
 {
     if(!m_pFrame && !m_pFrame->pRuleFile)
         return;
-    if(!m_pFrame->pRuleFile->bSimuState)
+   /* if(!m_pFrame->pRuleFile->bSimuState)
     {
         HSimulateProp prop(m_pFrame->pRuleFile);
         prop.exec();
@@ -402,5 +406,5 @@ void HRuleWindow::simulate_clicked()
         m_pFrame->pRuleFile->buildSimulateFormula();
     }
     m_pFrame->pRuleFile->bSimuState = !m_pFrame->pRuleFile->bSimuState;
-    m_pFrame->update();
+    m_pFrame->update();*/
 }

@@ -13,6 +13,7 @@ HRuleDoc::HRuleDoc()
     m_bModify = false;
     m_pStationRuleList = new HStationRuleList;
     m_pRuleFile = NULL;
+    m_pTempRuleFile = NULL;
 }
 
 HRuleDoc::~HRuleDoc()
@@ -26,21 +27,23 @@ HRuleDoc::~HRuleDoc()
 //加载所有规则
 bool HRuleDoc::loadRuleFiles()
 {
-    //QString strRuleFile = g_strRuleFilePath + "*.fma";
+    //QString strRuleFile = g_strRuleFilePath + "*.RUF";
     //xxx/rule/station_0.fma
+    QString wfPath = QProcessEnvironment::systemEnvironment().value("wfsystem_dir");
+    wfPath.append("/rule");
     if(m_pStationRuleList)
         m_pStationRuleList->clear();
-    QDir dirRulePath(m_strRuleFilePath);
+    QDir dirRulePath(wfPath);
     if(!dirRulePath.exists())
         return false;
     QStringList filters;
-    filters<<"*.fma";
+    filters<<"*.RUF";
     dirRulePath.setNameFilters(filters);
     QFileInfoList iconsFileInfoList = dirRulePath.entryInfoList(QDir::Files  | QDir::NoDotAndDotDot);
     foreach(QFileInfo info,iconsFileInfoList)
     {
         if(!info.isFile())continue;
-        QString strRuleFile = m_strRuleFilePath + "/" + info.fileName();
+        QString strRuleFile = wfPath + "/" + info.fileName();
         QFile file(strRuleFile);
         if(!file.exists() || !file.open(QIODevice::ReadOnly))
             continue;
@@ -83,7 +86,7 @@ void HRuleDoc::saveRuleFiles()
             QByteArray bytes;
             QDataStream stream(&bytes,QIODevice::WriteOnly);
             pStRule->writeData(QDataStream::Qt_5_7,&stream);
-            QString strRuleFile = wfPath + "/" + pStRule->m_strRuleFileName;
+            QString strRuleFile = wfPath + "/" + pStRule->m_strRuleFileName + ".RUF";
             QFile file(strRuleFile);
             if(file.open(QIODevice::WriteOnly))
             {
@@ -98,14 +101,18 @@ void HRuleDoc::saveRuleFiles()
 bool HRuleDoc::delRuleProFile(quint16 wStationNo)
 {
     //先删除之前的规则文件
+    QString wfPath = QProcessEnvironment::systemEnvironment().value("wfsystem_dir");
+    wfPath.append("/rule");
+    if(m_pStationRuleList)
+        m_pStationRuleList->clear();
+    QDir dirRulePath(wfPath);
+    if(!dirRulePath.exists())
+        return false;
     HStationRule* pStRule = m_pStationRuleList->findStationRule(wStationNo);
     if(!pStRule)
         return false;
-    QDir dirRulePath(m_strRuleFilePath);
-    if(!dirRulePath.exists())
-        return false;
     QStringList filters;
-    filters<<"*.fma";
+    filters<<"*.RUF";
     dirRulePath.setNameFilters(filters);
     QFileInfoList iconsFileInfoList = dirRulePath.entryInfoList(QDir::Files  | QDir::NoDotAndDotDot);
     foreach(QFileInfo info,iconsFileInfoList)
@@ -114,7 +121,7 @@ bool HRuleDoc::delRuleProFile(quint16 wStationNo)
         QString fileName = info.fileName();
         if(pStRule->m_strRuleFileName.compare(fileName))
         {
-            QString strProFilePath = m_strRuleFilePath + "/" + fileName;
+            QString strProFilePath = wfPath + "/" + fileName;
             return QFile::remove(strProFilePath);
         }
     }
@@ -156,10 +163,20 @@ HRuleFile* HRuleDoc::getRuleFile(quint16 wStationNo,quint16 wPointType,quint16 w
     QString strProtectName;//装置/间隔
     QString strPointName;
 
-    RULEPARAM* ruleParam = new RULEPARAM;
-    memset(ruleParam,0,sizeof(RULEPARAM));
+    RULEINFO* ruleParam = new RULEINFO;
+    ruleParam->wStationNo = (quint16)-1;
+    ruleParam->wDeviceNo = (quint16)-1;
+    ruleParam->btPointType = (quint8)-1;
+    ruleParam->wPointNo = (quint16)-1;
+    ruleParam->wAttr = 0;
+
+    ruleParam->btInsideType = (quint8)-1;
+    ruleParam->wOpenFormulaID = (quint16)-1;
+    ruleParam->wCloseFormulaID = (quint16)-1;
+    ruleParam->wOpenJXFormulaID = (quint16)-1;
+    ruleParam->wCloseJXFormulaID = (quint16)-1;
+
     ruleParam->wStationNo = wStationNo;
-    //ruleParam->wPointType = wPointType;
     ruleParam->wPointNo = wPointNo;
 
     if(m_lpRuleDataCallBack)
@@ -171,10 +188,12 @@ HRuleFile* HRuleDoc::getRuleFile(quint16 wStationNo,quint16 wPointType,quint16 w
         }
         else if(m_btAppType == TYPE_APP_LOCK)
         {
-            ruleParam->wProtectNo = wPointType;
+            ruleParam->wDeviceNo = wPointType;
             m_lpRuleDataCallBack(WM_GIN_GETDBINFO,ruleParam);
         }
     }
+    else
+        return NULL;
 
     wOpenFormulaID = ruleParam->wOpenFormulaID;
     wCloseFormulaID = ruleParam->wCloseFormulaID;
@@ -188,19 +207,16 @@ HRuleFile* HRuleDoc::getRuleFile(quint16 wStationNo,quint16 wPointType,quint16 w
     if(m_btAppType == TYPE_APP_JK)
     {
         wStID = ruleParam->wStationNo;
-        wProtID = ruleParam->wProtectNo;
+        wProtID = ruleParam->wDeviceNo;
         wPtNo = ruleParam->wPointNo;
         wPtTypeID = ruleParam->btPointType;
     }
     else if(m_btAppType = TYPE_APP_WF)
     {
-        if(m_btAppType == TYPE_APP_JK)
-        {
-            wStID = ruleParam->wStationNo;
-            wProtID = 0;
-            wPtNo = ruleParam->wPointNo;
-            wPtTypeID = ruleParam->btPointType;
-        }
+        wStID = ruleParam->wStationNo;
+        wProtID = 0;
+        wPtNo = ruleParam->wPointNo;
+        wPtTypeID = ruleParam->btPointType;
     }
     //还有其他的----huangw
 
@@ -217,12 +233,12 @@ HRuleFile* HRuleDoc::getRuleFile(quint16 wStationNo,quint16 wPointType,quint16 w
         m_pStationRuleList->addStationRule(stationRule);
     }
 
-    HProtectRule* protectRule = stationRule->protectRule(wProtID);//间隔，装置
+    HDeviceRule* protectRule = stationRule->protectRule(wProtID);//间隔，装置
     if(!protectRule)
     {
-        protectRule = new HProtectRule;
+        protectRule = new HDeviceRule;
         protectRule->m_wStationNo = wStID;
-        protectRule->m_wProtectNo = wProtID;
+        protectRule->m_wDeviceNo = wProtID;
         protectRule->m_strDeviceName = strProtectName;
         stationRule->addProtectRule(protectRule);
     }
@@ -232,7 +248,7 @@ HRuleFile* HRuleDoc::getRuleFile(quint16 wStationNo,quint16 wPointType,quint16 w
     {
         pointRule = new HPointRule;
         pointRule->m_wStationNo = wStID;
-        pointRule->m_wProtectNo = wProtID;
+        pointRule->m_wDeviceNo = wProtID;
         pointRule->m_wPointNo = wPtNo;
         pointRule->m_wPointType = wPointType;
         pointRule->m_strPointName = strPointName;
@@ -274,7 +290,7 @@ HRuleFile* HRuleDoc::getRuleFile(quint16 wStationNo,quint16 wPointType,quint16 w
 
     //复制给规则文件
     m_pRuleFile->m_ruleFileData.wStationNo = wStID;
-    m_pRuleFile->m_ruleFileData.wProtectNo = wProtID;
+    m_pRuleFile->m_ruleFileData.wDeviceNo = wProtID;
     m_pRuleFile->m_ruleFileData.wPointNo = wPtNo;
     m_pRuleFile->m_ruleFileData.btPointType = wPointType;//测点类型 遥测 遥信 遥控
     m_pRuleFile->m_ruleFileData.btYKType = btYKType;

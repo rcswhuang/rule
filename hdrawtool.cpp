@@ -269,21 +269,6 @@ void HSelectTool::onMouseDoubleClick(HFrame *pFrame, const QPoint &point, QMouse
     if(pFrame->m_selectObjList.count() == 1)
     {
         HDrawObj *pObj = (HDrawObj*)pFrame->m_selectObjList.first();
-        /*const QMetaObject *pMObj = pObj->metaObject();
-        QString strClassName = pMObj->className();
-        if(QString(pMObj->className()).compare("HInputObj") == 0)
-        {
-            quint8 btInputType = ((HInputObj*)pObj)->btInputType;
-            //((HInputObj*)pObj)->setInputProperty(pFrame);
-            if(TYPE_INPUT_COMP == btInputType)
-            {
-
-            }
-        }
-        else if(strClassName.compare("HAndObj") == 0 || strClassName.compare("HOrObj") == 0)
-        {
-
-        }*/
         pFrame->setDrawObjProp(pObj);
 
     }
@@ -385,7 +370,7 @@ void HRectTool::onMouseRelease(HFrame *pFrame, const QPoint &point, QMouseEvent*
 
      if(pObj != NULL)
      {
-         pRuleFile->add(pObj);
+         pRuleFile->addObject(pObj);
          pFrame->select(pObj);
      }
      HDrawTool::drawShape = enumSelection;

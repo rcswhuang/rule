@@ -90,7 +90,7 @@ public:
     virtual void onMouseMove(HFrame* pFrame,const QPoint& point,QMouseEvent* e);
     virtual void onMousePress(HFrame* pFrame,const QPoint& point,QMouseEvent* e);
     virtual void onMouseRelease(HFrame* pFrame,const QPoint& point,QMouseEvent* e);
-    void draw(QPainter* painter,bool bStartConnect = false,bool bEndConnect = false);
+    void painter(QPainter* painter,bool bStartConnect = false,bool bEndConnect = false);
 };
 
 #endif // HDRAWTOOL_H

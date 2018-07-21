@@ -44,11 +44,11 @@ HRuleHandle::~HRuleHandle()
     }
 }
 
-bool  HRuleHandle::initRuleFiles(quint8 btType,char* szFilePath,LPRULEDATACALLBACK lpDataCallBack)
+bool  HRuleHandle::initRuleFiles(quint8 btType,LPRULEDATACALLBACK lpDataCallBack)
 {
     if(!m_pRuleDoc)
         return false;
-    m_pRuleDoc->m_strRuleFilePath = QString(szFilePath);
+    //m_pRuleDoc->m_strRuleFilePath = QString(szFilePath);
     m_btAppType = btType;
     m_lpRuleDataCallBack = lpDataCallBack;
     return true;
@@ -56,10 +56,10 @@ bool  HRuleHandle::initRuleFiles(quint8 btType,char* szFilePath,LPRULEDATACALLBA
 
 void  HRuleHandle::exitRuleFiles()
 {
-
+    //保存规则
 }
 
-void  HRuleHandle::openRuleWindow(quint16 wStationNo, //厂站ID
+bool  HRuleHandle::openRuleWindow(quint16 wStationNo, //厂站ID
                                   quint16 wPointType, //测点类型 （如果有装置就是装置的地址)
                                   quint16 wPointNo,  //测点ID
                                   quint8  btYKType, //分，合，检修分，检修合
@@ -69,11 +69,14 @@ void  HRuleHandle::openRuleWindow(quint16 wStationNo, //厂站ID
                                   )
 {
     if(!m_pRuleDoc)
-        return;
+        return false;
     HRuleFile* pRuleFile = m_pRuleDoc->getRuleFile(wStationNo,wPointType,wPointNo,btYKType,wRuleID,btRuleType,strFormula);
-    if(!pRuleFile) return;
+    if(!pRuleFile) return false;
     HRuleWindow w(pRuleFile);
-    w.exec();
+    w.setRuleDoc(m_pRuleDoc);
+    if(QDialog::Accepted == w.exec())
+        return true;
+    return false;
 }
 
 void HRuleHandle::exportAllRule()
@@ -118,9 +121,9 @@ void HRuleHandle::lookRuleReport(quint16 wStationNo,quint16 wPointNo)
 
 //////////////////////////////////////////////////////规则接口///////////////////////////////////////////////////////////
 
-bool RULE_EXPORT initRuleFiles(quint8 btType,char* szFilePath,LPRULEDATACALLBACK lpDataCallBack)
+bool RULE_EXPORT initRuleFiles(quint8 btType,LPRULEDATACALLBACK lpDataCallBack)
 {
-    return HRuleHandle::Initstance()->initRuleFiles(btType,szFilePath,lpDataCallBack);
+    return HRuleHandle::Initstance()->initRuleFiles(btType,lpDataCallBack);
 }
 
 void RULE_EXPORT exitRuleFiles()
@@ -128,7 +131,7 @@ void RULE_EXPORT exitRuleFiles()
     HRuleHandle::Initstance()->Exitstance();
 }
 
-void RULE_EXPORT openRuleWindow(quint16 wStationNo, //厂站ID
+bool RULE_EXPORT openRuleWindow(quint16 wStationNo, //厂站ID
                                 quint16 wPointType, //测点类型 （如果有装置就是装置的地址)
                                 quint16 wPointNo,  //测点ID
                                 quint8  btRelayType, //分，合，检修分，检修合
@@ -137,7 +140,7 @@ void RULE_EXPORT openRuleWindow(quint16 wStationNo, //厂站ID
                                 QString &strFormula //公式字符串
                                 )
 {
-    HRuleHandle::Initstance()->openRuleWindow(wStationNo,wPointType,wPointNo,btRelayType,wRuleID,btType,strFormula);
+    return HRuleHandle::Initstance()->openRuleWindow(wStationNo,wPointType,wPointNo,btRelayType,wRuleID,btType,strFormula);
 }
 
 

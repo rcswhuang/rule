@@ -12,7 +12,7 @@ class HDigitalProp : public QDialog
     Q_OBJECT
 
 public:
-    explicit HDigitalProp(QWidget *parent = 0);
+    explicit HDigitalProp(HDrawObj* pDrawObj,QWidget *parent = 0);
     ~HDigitalProp();
 
 public:
@@ -33,7 +33,7 @@ private:
 
     quint16 m_wMode;
     quint16 m_wStationNo;
-    quint16 m_wProtectNo;//装置/间隔
+    quint16 m_wDeviceNo;//装置/间隔
     quint16 m_wPointNo;
     quint16 m_wPointType;//测点类型 遥测 遥信 遥控
     quint16 m_wAttr;//规则类型

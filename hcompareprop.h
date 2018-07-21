@@ -12,7 +12,7 @@ class HCompareProp : public QDialog
     Q_OBJECT
 
 public:
-    explicit HCompareProp(QWidget *parent = 0);
+    explicit HCompareProp(HDrawObj* pDrawObj,QWidget *parent = 0);
     ~HCompareProp();
 
 public:

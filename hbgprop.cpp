@@ -31,13 +31,13 @@ void HBgProp::initBgProp()
          return;
 
 
-    strBgClr = m_pFrame->pRuleFile->m_strBgClr;
+    //strBgClr = m_pFrame->pRuleFile->m_strBgClr;
     strGridClr = m_pFrame->pRuleFile->m_strGridClr;
     strFillClr = m_pFrame->pRuleFile->m_strFillClr;
     strLineClr = m_pFrame->pRuleFile->m_strLineClr;
-    strUpedgeClr = m_pFrame->pRuleFile->m_strUpedgeClr;
-    strDownedgeClr = m_pFrame->pRuleFile->m_strDownedgeClr;
-    strShadowClr = m_pFrame->pRuleFile->m_strShadowClr;
+    //strUpedgeClr = m_pFrame->pRuleFile->m_strUpedgeClr;
+    //strDownedgeClr = m_pFrame->pRuleFile->m_strDownedgeClr;
+    //strShadowClr = m_pFrame->pRuleFile->m_strShadowClr;
 
     QString strbkColor = QString("background-color:")+ strBgClr;
     ui->bgBtn->setStyleSheet(strbkColor);

@@ -6,18 +6,19 @@
 QT += widgets
 
 TARGET = rule
-TEMPLATE = app
-#DESTDIR = ../lib
+TEMPLATE = lib
+DESTDIR = ../lib
 DEFINES += RULE_DLL
 INCLUDEPATH += \
             ../include
 
-SOURCES += main.cpp\
+SOURCES +=  \
+    #main.cpp\
         #mainwindow.cpp \
     hlogicprop.cpp \
-    hbgprop.cpp \
+    #hbgprop.cpp \
     hviewprop.cpp \
-    hsimulateprop.cpp \
+    #hsimulateprop.cpp \
     hdigitalprop.cpp \
     hcompareprop.cpp \
     hrulehandle.cpp \
@@ -33,9 +34,9 @@ SOURCES += main.cpp\
 HEADERS  += \
     #mainwindow.h \
     hlogicprop.h \
-    hbgprop.h \
+    #hbgprop.h \
     hviewprop.h \
-    hsimulateprop.h \
+    #hsimulateprop.h \
     hdigitalprop.h \
     hcompareprop.h \
     hrulehandle.h \
@@ -55,9 +56,9 @@ RESOURCES += \
 
 FORMS += \
     logicprop.ui \
-    bgprop.ui \
+    #bgprop.ui \
     viewprop.ui \
-    simulateprop.ui \
+    #simulateprop.ui \
     digitalprop.ui \
     compareprop.ui \
     rulewindow.ui \

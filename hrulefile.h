@@ -25,35 +25,35 @@ public:
     void clear();
 
     //对象操作函数
-    quint16 generateDrawObjID()
+    quint16 getObjID()
     {
         return m_wDrawObjID++;
     }
 
-    void refreshDrawObjID()
+    void refreshObjID()
     {
         m_wDrawObjID = m_drawObjList.count()+1;
     }
 
-    void add(HDrawObj* pObj);
+    void addObject(HDrawObj* pObj);
     void addConnect(HConnect* pObj);
     HDrawObj* objectAt(const QPoint &point);
     HConnect* connectAt(const QPoint& point);
-    HResultObj* resultObj();//查找列表中是否存在输出图元
     HDrawObj* findDrawObj(quint32 ulID);//通过ID来找对象
     void removeObj(HDrawObj* drawObj);
     void removeConnect(HConnect* connectObj);
     bool isObjConnect(HDrawObj* pDrawObj);//判断当前对象是否连接
-    HResultObj* getResultObj();
-    HDrawObj* getConnectObj(HDrawObj* target,int nConnNo);
+    HResultObj* resultObj();
+    HDrawObj* connectObj(HDrawObj* target,int nConnNo);
     void refreshDrawObj();
     //遍历函数
     bool buildGeneralFormula();
 	bool visitGeneralBuildObj(HDrawObj* pObj);
 
     //仿真遍历
+    /*
     void buildSimulateFormula();
-    void visitSimulateBuildObj(HDrawObj* obj);
+    void visitSimulateBuildObj(HDrawObj* obj);*/
 
     //报告遍历
     void getRuleReport(QString& strRuleReport);
@@ -71,21 +71,21 @@ public:
     QString m_strFormula;//某个测点的规则（所有图元规则总和,即测点公式）
 
     bool m_bGrid;//显示网格
-    QString m_strBgClr;
+    //QString m_strBgClr;
     QString m_strGridClr;
     QString m_strFillClr; //填充色
     QString m_strLineClr; //线条颜色
     //QString m_clrText; //文字颜色
-    QString m_strUpedgeClr; //上边框颜色
-    QString m_strDownedgeClr; //下边框颜色
-    QString m_strShadowClr; //阴影颜色
+    //QString m_strUpedgeClr; //上边框颜色
+   // QString m_strDownedgeClr; //下边框颜色
+   // QString m_strShadowClr; //阴影颜色
 
-    bool bDisplayID;//
-    bool bSimulateFirst;
-    bool bSimuState;
+    //bool bDisplayID;//
+   // bool bSimulateFirst;
+    //bool bSimuState;
     QSize m_Size;
-    bool m_bFormulaRight;//公式是否正确
-    RULEFILEDATA m_ruleFileData;
+    //bool m_bFormulaRight;//公式是否正确
+    RULEAPIPARAM m_ruleFileData;
 
     QList<HConnect*> m_connectObjList;
     QList<HDrawObj*> m_drawObjList;
@@ -105,7 +105,7 @@ public:
     virtual void writeData(int nVersion,QDataStream* ds);
 public:
     quint16 m_wStationNo;
-    quint16 m_wProtectNo;
+    quint16 m_wDeviceNo;
     quint16 m_wPointNo;
     quint8 m_wPointType;
     quint8  m_btInsideType;
@@ -121,19 +121,19 @@ public:
 };
 
 
-class  HProtectRule:public QObject
+class  HDeviceRule:public QObject
 {
     Q_OBJECT
 
 public:
-    HProtectRule();
-    ~HProtectRule();
+    HDeviceRule();
+    ~HDeviceRule();
 public:
     virtual void readData(int nVersion,QDataStream* ds);
     virtual void writeData(int nVersion,QDataStream* ds);
 public:
     quint16 m_wStationNo;
-    quint16 m_wProtectNo;
+    quint16 m_wDeviceNo;
     QList<HRuleFile*> m_pRuleFileList; //每个点都有一个规则，多少个点就有多少个规则
     QList<HPointRule*> m_pPointRuleList;//每个点都在装置里面
     QString m_strDeviceName;
@@ -154,7 +154,6 @@ public:
     bool delRuleFileByID(int wRuleFileID);
     bool delRuleFile(int wType,int wPointNo,quint8 btYKType);
 
-
     //相关刷新工作
     void refreshRuleFileID(HPointRule* ptRule);
 
@@ -172,7 +171,7 @@ public:
 public:
     quint16 m_wStationNo;
     quint16 m_wRuleFileID;//规则文件的的ID
-    QList<HProtectRule*> m_pProtRuleList;
+    QList<HDeviceRule*> m_pProtRuleList;
     QString m_strStationName;
     QString m_strRuleFileName;//厂站规则文件名称，测试厂站_0.fma
 
@@ -182,8 +181,8 @@ public:
     QString ruleFileName() {return m_strRuleFileName;}
     quint16 generateID(){return m_wRuleFileID++;}
     void maxRuleFileID();
-    bool addProtectRule(HProtectRule* pProtRule);
-    HProtectRule* protectRule(quint16 wProtNo);
+    bool addProtectRule(HDeviceRule* pProtRule);
+    HDeviceRule* protectRule(quint16 wProtNo);
     HRuleFile* ruleFile(quint16 wType,quint16 wPointNo,quint8 btYKType);
     bool delRuleFile(quint16 wType,quint16 wPointNo,quint8 btYKType);
     bool delPointRule(quint16 wType,quint16 wPointNo);
@@ -220,26 +219,5 @@ public:
 protected:
     QList<HStationRule*> m_pStationRuleList;
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #endif // QRULEFILE_H

@@ -27,7 +27,7 @@ public:
     HRuleFile* m_pRuleFile;//实际规则文件
     HRuleFile* m_pTempRuleFile;//临时规则文件
     bool m_bModify;
-    QString m_strRuleFilePath;
+    //QString m_strRuleFilePath;
     HStationRuleList* m_pStationRuleList;
 
 };

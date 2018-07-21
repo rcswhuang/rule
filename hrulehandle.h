@@ -15,11 +15,11 @@ public:
 
 public:
 
-    bool  initRuleFiles(quint8 btType,char* szFilePath,LPRULEDATACALLBACK lpDataCallBack);
+    bool  initRuleFiles(quint8 btType,LPRULEDATACALLBACK lpDataCallBack);
 
     void  exitRuleFiles();
 
-    void  openRuleWindow(quint16 wStationNo, //厂站ID
+    bool  openRuleWindow(quint16 wStationNo, //厂站ID
                          quint16 wPointType, //测点类型 （如果有装置就是装置的地址)
                          quint16 wPointNo,  //测点ID
                          quint8  btYKType, //控制类型:分，合，检修分，检修合

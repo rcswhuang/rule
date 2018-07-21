@@ -6,8 +6,9 @@
 #include <QScrollBar>
 #include <QProcessEnvironment>
 #include <QDir>
-#include <hlogicprop.h>
+#include "hlogicprop.h"
 #include "hcompareprop.h"
+#include "hdigitalprop.h"
 #include <QDebug>
 
 HFrame::HFrame(QScrollArea* scrollArea,QWidget * parent, Qt::WindowFlags f):
@@ -72,7 +73,7 @@ void HFrame::paintEvent(QPaintEvent *event)
     painter.save();
     painter.scale(factor,factor);
     QPalette pale = palette();
-    pale.setColor(QPalette::Background,QColor(pRuleFile->m_strBgClr));
+    pale.setColor(QPalette::Background,QColor(Qt::white));
     setPalette(pale);
 
     if(pRuleFile->m_bGrid)
@@ -82,7 +83,7 @@ void HFrame::paintEvent(QPaintEvent *event)
     for(int i = 0; i < pRuleFile->m_drawObjList.count();i++)
     {
         HDrawObj* pObj = (HDrawObj*)pRuleFile->m_drawObjList[i];
-        pObj->draw(&painter);
+        pObj->painter(&painter);
         if(isSelect(pObj))//如果某个图元被选择上就画选择框
             pObj->drawSelect(&painter,HDrawObj::selected);
     }
@@ -90,7 +91,7 @@ void HFrame::paintEvent(QPaintEvent *event)
     for(int j = 0; j < pRuleFile->m_connectObjList.count();j++)
     {
         HConnect *pConnect = (HConnect*)pRuleFile->m_connectObjList[j];
-        pConnect->draw(&painter);
+        pConnect->painter(&painter);
         if(isSelect(pConnect))
             pConnect->drawSelect(&painter);
     }
@@ -278,8 +279,13 @@ void HFrame::setDrawObjProp(HDrawObj* pObj)
     {
         if(((HInputObj*)pObj)->btInputType == TYPE_INPUT_COMP)
         {
-            HCompareProp compProp;
+            HCompareProp compProp(pObj);
             compProp.exec();
+        }
+        else if(((HInputObj*)pObj)->btInputType == TYPE_INPUT_DIGITAL)
+        {
+            HDigitalProp digitalPorp(pObj);
+            digitalPorp.exec();
         }
     }
     update();
@@ -450,7 +456,7 @@ void HFrame::delObj()
     }
 
     //重置ID
-    pRuleFile->refreshDrawObjID();
+    pRuleFile->refreshObjID();
     this->update();
 
 }
@@ -535,7 +541,7 @@ void HFrame::pasteObj()
             return;
 
         pObj->readData(QDataStream::Qt_5_7,&stream);
-        pRuleFile->add(pObj);
+        pRuleFile->addObject(pObj);
     }
 
     //连接线
@@ -568,7 +574,7 @@ QString HFrame::getClipboardFile()
 void HFrame::updatePasteObj()
 {
     if(!pRuleFile) return;
-    pRuleFile->refreshDrawObjID();
+    pRuleFile->refreshObjID();
 
     //将选择的部分变成新增的部分
     for(int i = 0; i < m_selectObjList.count();i++)

@@ -35,7 +35,7 @@ void HLookRuleReport::initLookRuleReport()
     if(!stRule) return;
     for(int i = 0;i < stRule->m_pProtRuleList.count();i++)
     {
-        HProtectRule* protRule = (HProtectRule*)stRule->m_pProtRuleList[i];
+        HDeviceRule* protRule = (HDeviceRule*)stRule->m_pProtRuleList[i];
         if(!protRule) continue;
         for(int k = 0; k < protRule->m_pPointRuleList.count();k++)
         {
