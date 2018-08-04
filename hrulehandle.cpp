@@ -51,12 +51,16 @@ bool  HRuleHandle::initRuleFiles(quint8 btType,LPRULEDATACALLBACK lpDataCallBack
     //m_pRuleDoc->m_strRuleFilePath = QString(szFilePath);
     m_btAppType = btType;
     m_lpRuleDataCallBack = lpDataCallBack;
+    m_pRuleDoc->m_bModify = true;
     return true;
 }
 
-void  HRuleHandle::exitRuleFiles()
+bool  HRuleHandle::saveRuleFiles()
 {
     //保存规则
+    if(m_pRuleDoc)
+        return m_pRuleDoc->saveRuleFiles();
+    return false;
 }
 
 bool  HRuleHandle::openRuleWindow(quint16 wStationNo, //厂站ID
@@ -75,7 +79,10 @@ bool  HRuleHandle::openRuleWindow(quint16 wStationNo, //厂站ID
     HRuleWindow w(pRuleFile);
     w.setRuleDoc(m_pRuleDoc);
     if(QDialog::Accepted == w.exec())
+    {
+        strFormula = m_pRuleDoc->m_pRuleFile->m_strFormula;
         return true;
+    }
     return false;
 }
 
@@ -129,6 +136,11 @@ bool RULE_EXPORT initRuleFiles(quint8 btType,LPRULEDATACALLBACK lpDataCallBack)
 void RULE_EXPORT exitRuleFiles()
 {
     HRuleHandle::Initstance()->Exitstance();
+}
+
+bool RULE_EXPORT saveRuleFiles()
+{
+    return HRuleHandle::Initstance()->saveRuleFiles();
 }
 
 bool RULE_EXPORT openRuleWindow(quint16 wStationNo, //厂站ID

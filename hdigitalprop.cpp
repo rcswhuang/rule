@@ -9,7 +9,7 @@ HDigitalProp::HDigitalProp(HDrawObj* pDrawObj,QWidget *parent) :
     ui(new Ui::digitalPropDlg)
 {
     ui->setupUi(this);
-    initDlg();
+    //initDlg();
 }
 
 HDigitalProp::~HDigitalProp()
@@ -21,12 +21,14 @@ void HDigitalProp::initDlg()
 {
     connect(ui->okBtn,SIGNAL(clicked(bool)),this,SLOT(okBtn_clicked()));
     connect(ui->cancelBtn,SIGNAL(clicked(bool)),this,SLOT(cancelBtn_clicked()));
+    connect(ui->ptSelBtn,SIGNAL(clicked(bool)),this,SLOT(ptSelBtn_clicked()));
+    connect(ui->condComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(condComboBox_changed()));
     ui->frNameLineEdit->setReadOnly(true);
     ui->stNameLineEdit->setReadOnly(true);
     ui->jgNameLineEdit->setReadOnly(true);
     ui->ptNameLineEdit->setReadOnly(true);
-    ui->condComboBox->addItem("分位置",COND_OPEN);
-    ui->condComboBox->addItem("合位置",COND_CLOSE);
+    ui->condComboBox->addItem(QStringLiteral("分位置"),COND_OPEN);
+    ui->condComboBox->addItem(QStringLiteral("合位置"),COND_CLOSE);
 
     //每次启动都要去组态/运行模块读一次
     HInputObj* pInputObj = (HInputObj*)m_pDrawObj;
@@ -38,10 +40,20 @@ void HDigitalProp::initDlg()
         m_wAttr = pInputObj->m_wAttr1;
         m_btInsideType = pInputObj->m_btInType1;
     }
-    m_btCondition = pInputObj->m_btCondition;
+    m_btCondition = pInputObj->m_wCondition;
 
     RULEINFO *ruleParam = new RULEINFO;
-    memset(ruleParam,0,sizeof(RULEINFO));
+    ruleParam->wStationNo = (quint16)-1;
+    ruleParam->wDeviceNo = (quint16)-1;
+    ruleParam->btPointType = (quint8)-1;
+    ruleParam->wPointNo = (quint16)-1;
+    ruleParam->wAttr = 0;
+
+    ruleParam->btInsideType = (quint8)-1;
+    ruleParam->wOpenFormulaID = (quint16)-1;
+    ruleParam->wCloseFormulaID = (quint16)-1;
+    ruleParam->wOpenJXFormulaID = (quint16)-1;
+    ruleParam->wCloseJXFormulaID = (quint16)-1;
     ruleParam->wStationNo = m_wStationNo;
     ruleParam->wPointNo = m_wPointNo;
     ruleParam->btPointType = m_wPointType;
@@ -71,15 +83,35 @@ void HDigitalProp::initDlg()
         m_strPointName = "";
         m_strAttr = "";
     }
-
-    ui->condComboBox->setCurrentIndex(ui->condComboBox->findData(m_btCondition));
+    int index = ui->condComboBox->findData(m_btCondition);
+    if((int)-1 != index)
+        ui->condComboBox->setCurrentIndex(index);
+    else
+        ui->condComboBox->setCurrentIndex(0);
     refreshDlg();
+}
+
+void HDigitalProp::condComboBox_changed()
+{
+    quint8 btCond = ui->condComboBox->currentData().toUInt();
+    if(btCond != m_btCondition)
+        refreshDlg();
 }
 
 void HDigitalProp::ptSelBtn_clicked()
 {
-    RULEINFO *ruleParam = new RULEINFO;
-    memset(ruleParam,0,sizeof(RULEINFO));
+    RULEINFO* ruleParam = new RULEINFO;
+    ruleParam->wStationNo = (quint16)-1;
+    ruleParam->wDeviceNo = (quint16)-1;
+    ruleParam->btPointType = (quint8)-1;
+    ruleParam->wPointNo = (quint16)-1;
+    ruleParam->wAttr = 0;
+
+    ruleParam->btInsideType = (quint8)-1;
+    ruleParam->wOpenFormulaID = (quint16)-1;
+    ruleParam->wCloseFormulaID = (quint16)-1;
+    ruleParam->wOpenJXFormulaID = (quint16)-1;
+    ruleParam->wCloseJXFormulaID = (quint16)-1;
     ruleParam->wStationNo = m_wStationNo;
     ruleParam->wPointNo = m_wPointNo;
     ruleParam->btPointType = m_wPointType;
@@ -105,6 +137,7 @@ void HDigitalProp::ptSelBtn_clicked()
     delete ruleParam;
     refreshDlg();
 }
+
 
 void HDigitalProp::refreshDlg()
 {
@@ -138,6 +171,9 @@ void HDigitalProp::refreshDlg()
             m_strContent = m_strPointName + "=" +strCondition;
         }
     }
+    ui->stNameLineEdit->setText(m_strStationName);
+    ui->jgNameLineEdit->setText(m_strProtectName);
+    ui->ptNameLineEdit->setText(m_strPointName);
     ui->frNameLineEdit->setText(m_strContent);
 }
 
@@ -149,7 +185,7 @@ void HDigitalProp::okBtn_clicked()
     ((HInputObj*)m_pDrawObj)->m_btInType1 = m_btInsideType;
     ((HInputObj*)m_pDrawObj)->m_wPointID1 = m_wPointNo;      //点号
     ((HInputObj*)m_pDrawObj)->m_wAttr1 = m_wAttr;         //点属性
-    ((HInputObj*)m_pDrawObj)->m_btCondition = m_btCondition;
+    ((HInputObj*)m_pDrawObj)->m_wCondition = m_btCondition;
 
     ((HInputObj*)m_pDrawObj)->m_strRuleName = m_strFormula;
     ((HInputObj*)m_pDrawObj)->m_strName = m_strContent;

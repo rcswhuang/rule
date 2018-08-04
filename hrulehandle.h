@@ -17,7 +17,7 @@ public:
 
     bool  initRuleFiles(quint8 btType,LPRULEDATACALLBACK lpDataCallBack);
 
-    void  exitRuleFiles();
+    bool  saveRuleFiles();
 
     bool  openRuleWindow(quint16 wStationNo, //厂站ID
                          quint16 wPointType, //测点类型 （如果有装置就是装置的地址)

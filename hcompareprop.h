@@ -25,12 +25,15 @@ public slots:
     void comp2SelBtn_clicked();
     void comp2TypeComboBox_clicked();
     void comp2LineEdit_textEdited(const QString& value);
-
+    void compComboBox_changed();
+public:
+    quint16 m_wStationNo1;
+    quint16 m_wStationNo2;
 private:
     Ui::compareProp *ui;
     HDrawObj* m_pDrawObj;
     quint8 m_btCompType;//测点1是与测点2或常数比较
-    quint8 m_btCondition;
+    ushort m_wCondition;
     QString m_strAttr1; //测点1属性
     QString m_strAttr2; //测点2属性
     QString m_strFormula;
@@ -39,7 +42,7 @@ private:
 
     //测点1
     quint16 m_wMode1;
-    quint16 m_wStationNo1;
+
     quint16 m_wProtectNo1;//装置/间隔
     quint16 m_wPointNo1;
     quint16 m_wPointType1;//测点类型 遥测 遥信 遥控
@@ -48,7 +51,7 @@ private:
 
     //测点2
     quint16 m_wMode2;
-    quint16 m_wStationNo2;
+
     quint16 m_wProtectNo2;//装置/间隔
     quint16 m_wPointNo2;
     quint16 m_wPointType2;//测点类型 遥测 遥信 遥控

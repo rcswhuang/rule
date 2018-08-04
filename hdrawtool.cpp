@@ -48,7 +48,6 @@ void HDrawTool::onMousePress(HFrame *pView, const QPoint &point, QMouseEvent* e)
 
 }
 
-
 void HDrawTool::onMouseRelease(HFrame *pView, const QPoint &point, QMouseEvent* e)
 {
     b_mouseLeftKey = false;
@@ -347,16 +346,16 @@ void HRectTool::onMouseRelease(HFrame *pFrame, const QPoint &point, QMouseEvent*
      switch(m_nDrawShape)
      {
      case enumInputDIGITAL:
-         pObj = new HInputObj(QRect(point,QSize(100,40)),pRuleFile);
+         pObj = new HInputObj(QRect(point,QSize(150,40)),pRuleFile);
          ((HInputObj*)pObj)->setInputType(TYPE_INPUT_DIGITAL);
          break;
      case enumInputANALOGUE:
-         pObj = new HInputObj(QRect(point,QSize(100,40)),pRuleFile);
+         pObj = new HInputObj(QRect(point,QSize(150,40)),pRuleFile);
          ((HInputObj*)pObj)->setInputType(TYPE_INPUT_COMP);
          break;
      case enumOutRESUTL:
          if(pFrame->pRuleFile->resultObj() == NULL)
-             pObj = new HResultObj(QRect(point,QSize(100,40)),pRuleFile);
+             pObj = new HResultObj(QRect(point,QSize(80,40)),pRuleFile);
          else
              pObj = NULL;
          break;

@@ -40,6 +40,7 @@ public slots:
     void onCreateLogicOr();
     void onCreateLogicAnd();
     //void onDrawGrid();
+    void select_clicked();
 
     void del_clicked();
     void cut_clicked();
@@ -54,6 +55,8 @@ public slots:
     void sizeset_clicked();
     void zoomin_clicked();
     void zoomout_clicked();
+
+    void okBtn_clicked();
 
 protected:
     void closeEvent(QCloseEvent *e);

@@ -22,17 +22,21 @@ public slots:
     void ptSelBtn_clicked();
     void okBtn_clicked();
     void cancelBtn_clicked();
+    void condComboBox_changed();
+public:
+    quint16 m_wStationNo;
+    QString m_strFormula;
+    QString m_strContent;
 private:
     Ui::digitalPropDlg *ui;
     HDrawObj* m_pDrawObj;
 
     quint8 m_btCondition;
     QString m_strAttr;
-    QString m_strFormula;
-    QString m_strContent;
+
 
     quint16 m_wMode;
-    quint16 m_wStationNo;
+
     quint16 m_wDeviceNo;//装置/间隔
     quint16 m_wPointNo;
     quint16 m_wPointType;//测点类型 遥测 遥信 遥控

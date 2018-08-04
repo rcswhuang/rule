@@ -280,12 +280,21 @@ void HFrame::setDrawObjProp(HDrawObj* pObj)
         if(((HInputObj*)pObj)->btInputType == TYPE_INPUT_COMP)
         {
             HCompareProp compProp(pObj);
+            compProp.m_wStationNo1 = pRuleFile->m_ruleFileData.wStationNo;
+            compProp.m_wStationNo2 = pRuleFile->m_ruleFileData.wStationNo;
+            compProp.initCompareProp();
             compProp.exec();
         }
         else if(((HInputObj*)pObj)->btInputType == TYPE_INPUT_DIGITAL)
         {
             HDigitalProp digitalPorp(pObj);
-            digitalPorp.exec();
+            digitalPorp.m_wStationNo = pRuleFile->m_ruleFileData.wStationNo;
+            digitalPorp.initDlg();
+            if(QDialog::Accepted == digitalPorp.exec())
+            {
+                ((HInputObj*)pObj)->m_strName = digitalPorp.m_strContent;
+                ((HInputObj*)pObj)->m_strRuleName = digitalPorp.m_strFormula;
+            }
         }
     }
     update();

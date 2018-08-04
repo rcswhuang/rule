@@ -18,10 +18,10 @@
         <file>image/zoom_in.png</file>
         <file>image/zoom_out.png</file>
         <file>image/or.png</file>
-        <file>image/select.png</file>
         <file>image/cancel.png</file>
         <file>image/ok.png</file>
         <file>image/report.png</file>
         <file>image/size.png</file>
+        <file>image/select.png</file>
     </qresource>
 </RCC>

@@ -19,9 +19,11 @@ HRuleDoc::HRuleDoc()
 HRuleDoc::~HRuleDoc()
 {
     if(m_pStationRuleList){
-        delete m_pStationRuleList;
+        delete m_pStationRuleList->takeFirst();
         m_pStationRuleList = NULL;
     }
+    m_pRuleFile = NULL;
+    m_pTempRuleFile = NULL;
 }
 
 //加载所有规则
@@ -66,7 +68,7 @@ bool HRuleDoc::loadRuleFiles()
     return true;
 }
 
-void HRuleDoc::saveRuleFiles()
+bool HRuleDoc::saveRuleFiles()
 {
     //d:/wfPath/rule = g_strRuleFilePath
     //保存之前厂站要刷一下地址和站名，发生发生变化导致错误
@@ -96,6 +98,7 @@ void HRuleDoc::saveRuleFiles()
             }
         }
     }
+    return true;
 }
 
 bool HRuleDoc::delRuleProFile(quint16 wStationNo)
@@ -125,6 +128,7 @@ bool HRuleDoc::delRuleProFile(quint16 wStationNo)
             return QFile::remove(strProFilePath);
         }
     }
+    m_bModify = true;
     return true;
 }
 
@@ -142,11 +146,11 @@ HRuleFile* HRuleDoc::getRuleFile(quint16 wStationNo,quint16 wPointType,quint16 w
         m_pTempRuleFile = NULL;
     }
 
-    if(m_pRuleFile)
+   /* if(m_pRuleFile)
     {
         delete m_pRuleFile;
         m_pRuleFile = NULL;
-    }
+    }*/
 
     quint16 wStID;//站号
     quint16 wProtID; //装置ID 联锁组态用

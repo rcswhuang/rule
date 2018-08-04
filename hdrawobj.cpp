@@ -838,7 +838,7 @@ HInputObj::HInputObj(const QRect &rect, HRuleFile *pRuleFile)
     m_fCompValue = 0.0;
 
     m_btCompType = false;//0:测点比较常数 1:测点比较测点
-    m_btCondition = -1;//条件 大于 小于 等于
+    m_wCondition = -1;//条件 大于 小于 等于
     calOutPoint();
 }
 
@@ -871,8 +871,8 @@ void HInputObj::readData(int nVersion,QDataStream* ds)
     *ds >> n16;
     m_wAttr1 = n16;         //点属性
     float f;
-    *ds >> f;
-    fReserved1 = f;       //保留
+    //*ds >> f;
+    //fReserved1 = f;       //保留
 
     //比较值2
     *ds >> n16;
@@ -889,8 +889,8 @@ void HInputObj::readData(int nVersion,QDataStream* ds)
     m_wPointID2 = n16;
     *ds >> n16;
     m_wAttr2 = n16;
-    *ds >> f;
-    fRating = f;//测点1的额定值 ???
+    //*ds >> f;
+    //fRating = f;//测点1的额定值 ???
 
     //比较值2
     *ds >> f;
@@ -898,8 +898,8 @@ void HInputObj::readData(int nVersion,QDataStream* ds)
 
     *ds >> n8;
     m_btCompType = n8;//0:测点比较常数 1:测点比较测点
-    *ds >> n8;
-    m_btCondition = n8;//条件 大于 小于 等于
+    *ds >> n16;
+    m_wCondition = n16;//条件 大于 小于 等于
 }
 
 void HInputObj::writeData(int nVersion,QDataStream* ds)
@@ -907,28 +907,30 @@ void HInputObj::writeData(int nVersion,QDataStream* ds)
     if(!ds) return;
     HDrawObj::writeData(nVersion,ds);
     *ds<<(quint8) btInputType;//102:遥信 103:遥测
-    *ds<<(quint16) m_wMode1;         //间隔or装置
-    *ds<<(quint16) m_wStationID1;    //厂站地址
-    *ds<<(quint16) m_wProtID1;       //设备地址
-    *ds<<(quint8) m_btInType1;       //遥信 遥测 遥控等
-    *ds<<(quint16) m_wPointID1;      //点号
-    *ds<<(quint16) m_wAttr1;         //点属性
-    *ds<<(float) fReserved1;       //保留
+    *ds<<(quint16)m_wMode1;         //间隔or装置
+    *ds<<(quint16)m_wStationID1;    //厂站地址
+    *ds<<(quint16)m_wProtID1;       //设备地址
+    *ds<<(quint8)m_btType1;
+    *ds<<(quint8)m_btInType1;       //遥信 遥测 遥控等
+    *ds<<(quint16)m_wPointID1;      //点号
+    *ds<<(quint16)m_wAttr1;         //点属性
+    //*ds<<(float) fReserved1;       //保留
 
     //比较值2
-    *ds<<(quint16) m_wMode2;
-    *ds<<(quint16) m_wStationID2;
-    *ds<<(quint16) m_wProtID2;
-    *ds<<(quint8) m_btInType2;//遥信 遥测 遥控等
-    *ds<<(quint16) m_wPointID2;
-    *ds<<(quint16) m_wAttr2;
-    *ds<<(float) fRating;//测点1的额定值 ???
+    *ds<<(quint16)m_wMode2;
+    *ds<<(quint16)m_wStationID2;
+    *ds<<(quint16)m_wProtID2;
+    *ds<<(quint8)m_btType2;
+    *ds<<(quint8)m_btInType2;//遥信 遥测 遥控等
+    *ds<<(quint16)m_wPointID2;
+    *ds<<(quint16)m_wAttr2;
+    //*ds<<(float) fRating;//测点1的额定值 ???
 
     //比较值2
-    *ds<<(float) m_fCompValue;
+    *ds<<(float)m_fCompValue;
 
-    *ds<<(quint8) m_btCompType;//0:测点比较常数 1:测点比较测点
-    *ds<<(quint8) m_btCondition;//条件 大于 小于 等于
+    *ds<<(quint8)m_btCompType;//0:测点比较常数 1:测点比较测点
+    *ds<<(quint16)m_wCondition;//条件 大于 小于 等于
 }
 
 void HInputObj::painter(QPainter *painter)
@@ -994,10 +996,10 @@ void HInputObj::painter(QPainter *painter)
     pen5.setColor(QColor(Qt::black));
     pen5.setWidth(2);
     painter->setPen(pen5);
-    if(btInputType == TYPE_INPUT_COMP)
-        m_strName = "遥测";
-    else if(btInputType == TYPE_INPUT_DIGITAL)
-        m_strName = "遥信";
+    //if(btInputType == TYPE_INPUT_COMP)
+    //    m_strName = ;
+    //else if(btInputType == TYPE_INPUT_DIGITAL)
+    //    m_strName = "遥信";
     painter->drawText(QRect(QPoint(nLeftX1,nTopY1),QPoint(nRightX1 - 30,nBottomY1)),Qt::AlignRight | Qt::AlignVCenter| Qt::TextSingleLine,m_strName);
     //绘制连接点名字
     

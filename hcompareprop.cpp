@@ -16,7 +16,7 @@ HCompareProp::HCompareProp(HDrawObj* pDrawObj,QWidget *parent) :
     ui(new Ui::compareProp)
 {
     ui->setupUi(this);
-    initCompareProp();
+    //initCompareProp();
 }
 
 HCompareProp::~HCompareProp()
@@ -33,6 +33,7 @@ void HCompareProp::initCompareProp()
     connect(ui->comp2SelBtn,SIGNAL(clicked(bool)),this,SLOT(comp2SelBtn_clicked()));
     connect(ui->comp2TypeComboBox,SIGNAL(currentIndexChanged(int)),SLOT(comp2TypeComboBox_clicked()));
     connect(ui->comp2LineEdit,SIGNAL(textEdited(QString)),this,SLOT(comp2LineEdit_textEdited(QString)));
+    connect(ui->compComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(compComboBox_changed()));
     ui->compComboBox->addItem("大于",OP_GREATER);
     ui->compComboBox->addItem("小于",OP_LOWER);
     ui->compComboBox->addItem("等于",OP_EQUAL);
@@ -52,10 +53,10 @@ void HCompareProp::initCompareProp()
     //每次启动都要去组态/运行模块读一次
     HInputObj* pInputObj = (HInputObj*)m_pDrawObj;
     if(!pInputObj) return;
-    m_btCondition = pInputObj->m_btCondition;//大于 小于
+    m_wCondition = pInputObj->m_wCondition;//大于 小于
     m_btCompType = pInputObj->m_btCompType;
     m_fConstValue = pInputObj->m_fCompValue;//常量
-    ui->compComboBox->setCurrentIndex(ui->compComboBox->findData(m_btCondition));
+    ui->compComboBox->setCurrentIndex(ui->compComboBox->findData(m_wCondition));
     ui->comp2TypeComboBox->setCurrentIndex(ui->comp2TypeComboBox->findData(m_btCompType));
     strConst = QString("%1").arg(m_fConstValue);
     ui->comp2LineEdit->setText(strConst);
@@ -71,7 +72,17 @@ void HCompareProp::initCompareProp()
         m_btInsideType1 = pInputObj->m_btInType1;
     }
     RULEINFO *ruleParam = new RULEINFO;
-    memset(ruleParam,0,sizeof(RULEINFO));
+    ruleParam->wStationNo = (quint16)-1;
+    ruleParam->wDeviceNo = (quint16)-1;
+    ruleParam->btPointType = (quint8)-1;
+    ruleParam->wPointNo = (quint16)-1;
+    ruleParam->wAttr = 0;
+
+    ruleParam->btInsideType = (quint8)-1;
+    ruleParam->wOpenFormulaID = (quint16)-1;
+    ruleParam->wCloseFormulaID = (quint16)-1;
+    ruleParam->wOpenJXFormulaID = (quint16)-1;
+    ruleParam->wCloseJXFormulaID = (quint16)-1;
     ruleParam->wStationNo = m_wStationNo1;
     ruleParam->wPointNo = m_wPointNo1;
     ruleParam->btPointType = m_wPointType1;
@@ -110,7 +121,17 @@ void HCompareProp::initCompareProp()
         m_btInsideType2 = pInputObj->m_btInType2;
     }
     //RULEINFO *ruleParam = new RULEINFO;
-    memset(ruleParam,0,sizeof(RULEINFO));
+    ruleParam->wStationNo = (quint16)-1;
+    ruleParam->wDeviceNo = (quint16)-1;
+    ruleParam->btPointType = (quint8)-1;
+    ruleParam->wPointNo = (quint16)-1;
+    ruleParam->wAttr = 0;
+
+    ruleParam->btInsideType = (quint8)-1;
+    ruleParam->wOpenFormulaID = (quint16)-1;
+    ruleParam->wCloseFormulaID = (quint16)-1;
+    ruleParam->wOpenJXFormulaID = (quint16)-1;
+    ruleParam->wCloseJXFormulaID = (quint16)-1;
     ruleParam->wStationNo = m_wStationNo2;
     ruleParam->wPointNo = m_wPointNo2;
     ruleParam->btPointType = m_wPointType2;
@@ -144,7 +165,17 @@ void HCompareProp::initCompareProp()
 void HCompareProp::comp1SelBtn_clicked()
 {
     RULEINFO *ruleParam = new RULEINFO;
-    memset(ruleParam,0,sizeof(RULEINFO));
+    ruleParam->wStationNo = (quint16)-1;
+    ruleParam->wDeviceNo = (quint16)-1;
+    ruleParam->btPointType = (quint8)-1;
+    ruleParam->wPointNo = (quint16)-1;
+    ruleParam->wAttr = 0;
+
+    ruleParam->btInsideType = (quint8)-1;
+    ruleParam->wOpenFormulaID = (quint16)-1;
+    ruleParam->wCloseFormulaID = (quint16)-1;
+    ruleParam->wOpenJXFormulaID = (quint16)-1;
+    ruleParam->wCloseJXFormulaID = (quint16)-1;
     ruleParam->wStationNo = m_wStationNo1;
     ruleParam->wPointNo = m_wPointNo1;
     ruleParam->btPointType = m_wPointType1;
@@ -190,7 +221,17 @@ void HCompareProp::comp1SelBtn_clicked()
 void HCompareProp::comp2SelBtn_clicked()
 {
     RULEINFO *ruleParam = new RULEINFO;
-    memset(ruleParam,0,sizeof(RULEINFO));
+    ruleParam->wStationNo = (quint16)-1;
+    ruleParam->wDeviceNo = (quint16)-1;
+    ruleParam->btPointType = (quint8)-1;
+    ruleParam->wPointNo = (quint16)-1;
+    ruleParam->wAttr = 0;
+
+    ruleParam->btInsideType = (quint8)-1;
+    ruleParam->wOpenFormulaID = (quint16)-1;
+    ruleParam->wCloseFormulaID = (quint16)-1;
+    ruleParam->wOpenJXFormulaID = (quint16)-1;
+    ruleParam->wCloseJXFormulaID = (quint16)-1;
     ruleParam->wStationNo = m_wStationNo2;
     ruleParam->wPointNo = m_wPointNo2;
     ruleParam->btPointType = m_wPointType2;
@@ -257,6 +298,11 @@ void HCompareProp::comp2LineEdit_textEdited(const QString& value)
     refreshCompareProp();
 }
 
+void HCompareProp::compComboBox_changed()
+{
+    refreshCompareProp();
+}
+
 void HCompareProp::refreshCompareProp()
 {
     //textBrowser显示内容=[m_comp1LineEdit] + ">" + m_comp2LineEdit
@@ -286,7 +332,7 @@ void HCompareProp::refreshCompareProp()
     }
 
     QString strCond;//条件表达式
-    quint8 nCond = ui->compComboBox->currentData().toUInt();
+    quint16 nCond = ui->compComboBox->currentData().toUInt();
     switch(nCond)
     {
     case OP_GREATER:  //>
@@ -330,7 +376,7 @@ void HCompareProp::okBtn_clicked()
     ((HInputObj*)m_pDrawObj)->m_wPointID2 = m_wPointNo2;      //点号
     ((HInputObj*)m_pDrawObj)->m_wAttr2 = m_wAttr2;         //点属性
 
-    ((HInputObj*)m_pDrawObj)->m_btCondition = ui->compComboBox->currentData().toUInt();
+    ((HInputObj*)m_pDrawObj)->m_wCondition = ui->compComboBox->currentData().toUInt();
     ((HInputObj*)m_pDrawObj)->m_btCompType = m_btCompType;
     ((HInputObj*)m_pDrawObj)->m_fCompValue = m_fConstValue;
 

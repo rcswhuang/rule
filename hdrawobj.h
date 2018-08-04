@@ -218,7 +218,7 @@ public:
     quint8 m_btCompType;//0:测点比较常数 1:测点比较测点
 
     //比较值1和比较值2 比较关系
-    quint8 m_btCondition;//条件 大于 小于 等于
+    ushort m_wCondition;//条件 大于 小于 等于
 };
 
 class HResultObj: public HDrawObj

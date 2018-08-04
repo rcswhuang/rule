@@ -79,7 +79,7 @@ HRuleFile* HRuleFile::clone()
     if(file.open(QIODevice::WriteOnly))
     {
         QDataStream cbStream(&file);
-        cbStream.writeBytes(bytes.data(),bytes.length());
+        cbStream.writeRawData(bytes.data(),bytes.length());
         file.flush();
         file.close();
     }
@@ -90,6 +90,7 @@ HRuleFile* HRuleFile::clone()
     QFile file1(clonePath);
     if(!file1.exists() || !file1.open(QIODevice::ReadOnly))
         return NULL;
+    memcpy(&ruleFile->m_ruleFileData,&m_ruleFileData,sizeof(RULEAPIPARAM));
     QDataStream stream1(&file1);
     ruleFile->readData(QDataStream::Qt_5_7,&stream1);
     file1.close();
@@ -139,14 +140,14 @@ void HRuleFile::readData(int nVersion,QDataStream* ds)
 {
     if(!ds)
         return;
-    //quint16 n16 = 0;
-   // *ds>>n16;
-    //m_wRuleFileID = n16;
+    quint16 n16 = 0;
+    *ds>>n16;
+    m_wRuleFileID = n16;
     QString s = "";
-    bool b = false;
+    bool b;
     *ds>>b;
     m_bGrid = b;
- /*   *ds>>s;
+    *ds>>s;
     m_strGridClr = s;
     *ds>>s;
     m_strFillClr = s;
@@ -197,14 +198,14 @@ void HRuleFile::readData(int nVersion,QDataStream* ds)
             pObj = new HResultObj(QRect(point,QSize(100,40)),this);
         }
         else
-            return;
+            continue;
         pObj->readData(nVersion,ds);
         pObj->m_pRuleFile = this;
         m_drawObjList.append(pObj);
      }
 
     //需要重新刷新一个ID
-    refreshObjID();*/
+    refreshObjID();
 
 }
 
@@ -212,9 +213,9 @@ void HRuleFile::writeData(int nVersion,QDataStream* ds)
 {
     if(!ds)
         return;
-    //*ds<<(quint16)m_wRuleFileID;
+    *ds<<(quint16)m_wRuleFileID;
     *ds<<(bool)m_bGrid;
-   /* *ds<<(QString)m_strGridClr;
+    *ds<<(QString)m_strGridClr;
     *ds<<(QString)m_strFillClr;
     *ds<<(QString)m_strLineClr;
 
@@ -236,10 +237,10 @@ void HRuleFile::writeData(int nVersion,QDataStream* ds)
         HDrawObj* drawObj = (HDrawObj*)m_drawObjList[i];
         if(drawObj)
         {
-            *ds<<drawObj->getObjType();
+            *ds<<(quint8)drawObj->getObjType();
             drawObj->writeData(nVersion,ds);
         }
-    }*/
+    }
 }
 
 
@@ -313,7 +314,7 @@ HResultObj* HRuleFile::resultObj()
 
 bool HRuleFile::isObjConnect(HDrawObj *pDrawObj)
 {
-    quint32 dwObjID = pDrawObj->m_pRuleFile->m_wDrawObjID;
+    quint32 dwObjID = pDrawObj->m_dwID;
 	if (pDrawObj->m_nInPointSum > 0 || pDrawObj->m_nOutPointSum > 0)
 	{
         for (int i = 0; i < m_connectObjList.count(); i++)
@@ -334,7 +335,7 @@ HDrawObj* HRuleFile::connectObj(HDrawObj* target, int nConnNo)
 	quint16 dwConnectedID;
 
     dwTargetObjID = target->m_dwID;
-    for (int i = m_connectObjList.count(); i > 0; i--)
+    for (int i = m_connectObjList.count()-1; i >= 0; i--)
 	{
         HConnect* conn = m_connectObjList[i];
         if (conn && conn->m_dwOutObjID == dwTargetObjID && conn->m_btOutIndex == nConnNo)
@@ -392,7 +393,17 @@ void HRuleFile::refreshDrawObj()
                 {
                     QString strStName,strProtName,strPtName,strAttr,strCond,strFormula,strContent;
                     RULEINFO *ruleParam = new RULEINFO;
-                    memset(ruleParam,0,sizeof(RULEINFO));
+                    ruleParam->wStationNo = (quint16)-1;
+                    ruleParam->wDeviceNo = (quint16)-1;
+                    ruleParam->btPointType = (quint8)-1;
+                    ruleParam->wPointNo = (quint16)-1;
+                    ruleParam->wAttr = 0;
+
+                    ruleParam->btInsideType = (quint8)-1;
+                    ruleParam->wOpenFormulaID = (quint16)-1;
+                    ruleParam->wCloseFormulaID = (quint16)-1;
+                    ruleParam->wOpenJXFormulaID = (quint16)-1;
+                    ruleParam->wCloseJXFormulaID = (quint16)-1;
                     ruleParam->wStationNo = inputDrawObj->m_wStationID1;
                     ruleParam->wPointNo = inputDrawObj->m_wPointID1;
                     ruleParam->btPointType = inputDrawObj->m_btType1;
@@ -412,15 +423,15 @@ void HRuleFile::refreshDrawObj()
                         strPtName = "";
                         strAttr = "";
                     }
-                    if(COND_CLOSE ==inputDrawObj->m_btCondition)
+                    if(COND_CLOSE ==inputDrawObj->m_wCondition)
                     {
-                        strCond = "合位置";
+                        strCond = QStringLiteral("合位置");
                         strFormula = "["+strStName+"."+strPtName+"."+strAttr+"]";
                         strContent = strPtName + "=" +strCond;
                     }
                     else
                     {
-                        strCond = "分位置";
+                        strCond = QStringLiteral("分位置");
                         strFormula = "~["+strStName+"."+strPtName+"."+strAttr+"]";
                         strContent = strPtName + "=" +strCond;
                     }
@@ -437,10 +448,18 @@ void HRuleFile::refreshDrawObj()
                     QString strStName1,strProtName1,strPtName1,strAttr1;
                     QString strStName2,strProtName2,strPtName2,strAttr2;
                     QString strFormula,strContent;
-                    RULEINFO *ruleParam = new RULEINFO;
+                    RULEINFO* ruleParam = new RULEINFO;
+                    ruleParam->wStationNo = (quint16)-1;
+                    ruleParam->wDeviceNo = (quint16)-1;
+                    ruleParam->btPointType = (quint8)-1;
+                    ruleParam->wPointNo = (quint16)-1;
+                    ruleParam->wAttr = 0;
 
-                    //测点1
-                    memset(ruleParam,0,sizeof(RULEINFO));
+                    ruleParam->btInsideType = (quint8)-1;
+                    ruleParam->wOpenFormulaID = (quint16)-1;
+                    ruleParam->wCloseFormulaID = (quint16)-1;
+                    ruleParam->wOpenJXFormulaID = (quint16)-1;
+                    ruleParam->wCloseJXFormulaID = (quint16)-1;
                     ruleParam->wStationNo = inputDrawObj->m_wStationID1;
                     ruleParam->wPointNo = inputDrawObj->m_wPointID1;
                     ruleParam->btPointType = inputDrawObj->m_btType1;
@@ -462,7 +481,18 @@ void HRuleFile::refreshDrawObj()
                     }
 
                     //测点2
-                    memset(ruleParam,0,sizeof(RULEINFO));
+                    ruleParam->wStationNo = (quint16)-1;
+                    ruleParam->wDeviceNo = (quint16)-1;
+                    ruleParam->btPointType = (quint8)-1;
+                    ruleParam->wPointNo = (quint16)-1;
+                    ruleParam->wAttr = 0;
+
+                    ruleParam->btInsideType = (quint8)-1;
+                    ruleParam->wOpenFormulaID = (quint16)-1;
+                    ruleParam->wCloseFormulaID = (quint16)-1;
+                    ruleParam->wOpenJXFormulaID = (quint16)-1;
+                    ruleParam->wCloseJXFormulaID = (quint16)-1;
+
                     ruleParam->wStationNo = inputDrawObj->m_wStationID2;
                     ruleParam->wPointNo = inputDrawObj->m_wPointID2;
                     ruleParam->btPointType = inputDrawObj->m_btType2;
@@ -498,7 +528,7 @@ void HRuleFile::refreshDrawObj()
                     }
 
                     QString strCond;//条件表达式
-                    quint8 nCond = inputDrawObj->m_btCondition;
+                    quint8 nCond = inputDrawObj->m_wCondition;
                     switch(nCond)
                     {
                     case OP_GREATER:  //>
@@ -1220,9 +1250,9 @@ bool HRuleFile::buildGeneralFormula()
 
     //从输出对象开始找到第一个连接对象
     HDrawObj* pFirstObj = connectObj(pResultObj, 0);
-	if (!pFirstObj)
+    if (pFirstObj != NULL)
     {
-        pResultObj->setWrongFlag(true);
+        pResultObj->setWrongFlag(false);
         if(!visitGeneralBuildObj(pFirstObj))
         {
             //m_bFormulaRight = false;
@@ -1230,7 +1260,7 @@ bool HRuleFile::buildGeneralFormula()
     }
 	else
 	{
-        pResultObj->setWrongFlag(false);
+        pResultObj->setWrongFlag(true);
        // m_bFormulaRight = false;
 	}
 

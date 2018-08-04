@@ -1,4 +1,4 @@
-#if defined(_MSC_VER) &&(_MSC_VER >= 1600)
+﻿#if defined(_MSC_VER) &&(_MSC_VER >= 1600)
 #pragma execution_character_set("utf-8")
 #endif
 #include "hrulewindow.h"
@@ -47,7 +47,8 @@ HRuleWindow::HRuleWindow(HRuleFile* rf,QWidget *parent)
       ui->setupUi(this);
       createActions();
       createToolBar();
-
+      setWindowFlags(Qt::Dialog);
+      setWindowModality(Qt::ApplicationModal);
       m_pScrollArea = new QScrollArea(this);
       m_pFrame = new HFrame(m_pScrollArea);
       m_pFrame->setRuleFile(m_pRuleFile);
@@ -57,6 +58,7 @@ HRuleWindow::HRuleWindow(HRuleFile* rf,QWidget *parent)
       else
           m_pScrollArea->widget()->resize(1200,1000);
       ui->verticalLayout_2->addWidget(m_pScrollArea);
+      setWindowTitle(rf->m_strRuleName);
       resize(800,600);
 }
 
@@ -74,17 +76,20 @@ void HRuleWindow::setRuleDoc(HRuleDoc *doc)
 void HRuleWindow::createActions()
 {
     //setIconSize(QSize(16,16));
-    okAct = new QAction(QIcon(":image/ok.png"),tr("Ok"),this);
-    connect(okAct,SIGNAL(triggered(bool)),this,SLOT(close()));
-    cancelAct = new QAction(QIcon(":image/cancel.png"),tr("Cancel"),this);
+    okAct = new QAction(QIcon(":image/ok.png"),tr("确定"),this);
+    connect(okAct,SIGNAL(triggered(bool)),this,SLOT(okBtn_clicked()));
+    cancelAct = new QAction(QIcon(":image/cancel.png"),tr("取消"),this);
     connect(cancelAct,SIGNAL(triggered(bool)),this,SLOT(close()));
-    delAct = new QAction(QIcon(":image/edit_del.png"),tr("&Delete"),this);
+    delAct = new QAction(QIcon(":image/edit_del.png"),tr("删除"),this);
     connect(delAct,SIGNAL(triggered(bool)),this,SLOT(del_clicked()));
-    cutAct = new QAction(QIcon(":image/edit_cut.png"),tr("&Cut"),this);
+    cutAct = new QAction(QIcon(":image/edit_cut.png"),tr("剪切"),this);
+    cutAct->setShortcut(QKeySequence::Cut);
     connect(cutAct,SIGNAL(triggered(bool)),this,SLOT(cut_clicked()));
-    copyAct = new QAction(QIcon(":image/edit_copy.png"),tr("&Copy"),this);
+    copyAct = new QAction(QIcon(":image/edit_copy.png"),tr("拷贝"),this);
+    copyAct->setShortcut(QKeySequence::Copy);
     connect(copyAct,SIGNAL(triggered(bool)),this,SLOT(copy_clicked()));
-    pasteAct = new QAction(QIcon(":image/edit_paste.png"),tr("&Paste"),this);
+    pasteAct = new QAction(QIcon(":image/edit_paste.png"),tr("&粘贴"),this);
+    pasteAct->setShortcut(QKeySequence::Paste);
     connect(pasteAct,SIGNAL(triggered(bool)),this,SLOT(paste_clicked()));
 
     formulaAct = new QAction(QIcon(":image/formula.png"),tr("生成公式"),this);
@@ -106,21 +111,21 @@ void HRuleWindow::createActions()
     connect(zoomoutAct,SIGNAL(triggered(bool)),this,SLOT(zoomout_clicked()));
 
 
-    digitalPutAct = new QAction(QIcon(":/image/digital.png"),tr("&Digital"),this);
+    digitalPutAct = new QAction(QIcon(":/image/digital.png"),tr("&遥信"),this);
     connect(digitalPutAct,SIGNAL(triggered()),this,SLOT(onCreateDigitalInput()));
-
-    analogueAct = new QAction(QIcon(":image/analogue.png"),tr("&Analogue"),this);
+    analogueAct = new QAction(QIcon(":image/analogue.png"),tr("遥测"),this);
     connect(analogueAct,SIGNAL(triggered()),this,SLOT(onCreateAnalogueInput()));
     selectAct = new QAction(QIcon(":image/select.png"),tr("&Select"),this);
+    connect(selectAct,SIGNAL(triggered(bool)),this,SLOT(select_clicked()));
     textAct = new QAction(QIcon(":image/text.png"),tr("&Delete"),this);
-    lineAct = new QAction(QIcon(":image/line.png"),tr("&Delete"),this);
+    lineAct = new QAction(QIcon(":image/line.png"),tr("&线条"),this);
     connect(lineAct,SIGNAL(triggered()),this,SLOT(onCreateConnnectLine()));
 
-    andAct = new QAction(QIcon(":image/and.png"),tr("&And"),this);
+    andAct = new QAction(QIcon(":image/and.png"),tr("与"),this);
     connect(andAct,SIGNAL(triggered()),this,SLOT(onCreateLogicAnd()));
-    orAct = new QAction(QIcon(":image/or.png"),tr("&OR"),this);
+    orAct = new QAction(QIcon(":image/or.png"),tr("或"),this);
     connect(orAct,SIGNAL(triggered()),this,SLOT(onCreateLogicOr()));
-    outAct = new QAction(QIcon(":image/out.png"),tr("&Output"),this);
+    outAct = new QAction(QIcon(":image/out.png"),tr("输出"),this);
     connect(outAct,SIGNAL(triggered()),this,SLOT(onCreateResultOutput()));
 }
 
@@ -161,14 +166,16 @@ void HRuleWindow::createToolBar()
 
     confirmToolBar = new QToolBar;
     confirmToolBar->setOrientation(Qt::Horizontal);
-    confirmToolBar->setIconSize(QSize(20,20));
+    confirmToolBar->setIconSize(QSize(24,24));
     confirmToolBar->setMovable(false);
     confirmToolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    confirmToolBar->addAction(okAct);
     confirmToolBar->addAction(cancelAct);
+    confirmToolBar->addAction(okAct);
     //addToolBar(Qt::TopToolBarArea,confirmToolBar);
     //addToolBarBreak();
-    ui->horizontalLayout->addWidget(confirmToolBar,Qt::AlignRight);
+    //int width1 = width()-100;
+    //ui->horizontalLayout->insertSpacing(0,width1);
+    ui->horizontalLayout->addWidget(confirmToolBar,5,Qt::AlignRight);
 
     /*editToolBar = new QToolBar;
     editToolBar->setIconSize(QSize(20,20));
@@ -219,6 +226,7 @@ void HRuleWindow::createToolBar()
     //logicToolBar->addAction(selectAct);
     //logicToolBar->addAction(lineAct);
     //logicToolBar->addAction(textAct);
+    attrToolBar->addAction(selectAct);
     attrToolBar->addAction(andAct);
     attrToolBar->addAction(orAct);
     attrToolBar->addAction(digitalPutAct);
@@ -258,6 +266,19 @@ void HRuleWindow::onCreateLogicOr()
 void HRuleWindow::onCreateLogicAnd()
 {
     HDrawTool::drawShape = enumLogicAND;
+}
+
+void HRuleWindow::select_clicked()
+{
+    HDrawTool::drawShape = enumSelection;
+}
+
+void HRuleWindow::okBtn_clicked()
+{
+    if(maybeSave())
+        QDialog::accept();
+    else
+        QDialog::reject();
 }
 
 bool HRuleWindow::save()

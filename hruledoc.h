@@ -15,7 +15,7 @@ public:
 public:
     HRuleFile* getRuleFile(quint16 wStationNo,quint16 wPointType,quint16 wPointNo,quint8  btYKType,quint16 wRuleID, quint8 btRuleType, QString &strFormula);
     bool loadRuleFiles();
-    void saveRuleFiles();
+    bool saveRuleFiles();
     bool delRuleProFile(quint16 wStationNo);
     void exportAllRule(quint16 wStationNo);
     bool isRuleFileExist(quint16 wStationNo,quint16 wPointType,quint16 wPointNo,quint8  btYKType);
