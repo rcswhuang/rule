@@ -39,7 +39,7 @@ bool HRuleDoc::loadRuleFiles()
     if(!dirRulePath.exists())
         return false;
     QStringList filters;
-    filters<<"*.RUF";
+    filters<<"*.RUF";//RUL
     dirRulePath.setNameFilters(filters);
     QFileInfoList iconsFileInfoList = dirRulePath.entryInfoList(QDir::Files  | QDir::NoDotAndDotDot);
     foreach(QFileInfo info,iconsFileInfoList)

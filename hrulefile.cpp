@@ -1189,10 +1189,20 @@ void HStationRuleList::reloadStationRule()
             HPointRule* ptRule = pStRule->getFirstPointRule();
             if(!ptRule) continue;
             RULEINFO* ruleParam = new RULEINFO;
-            memset(ruleParam,0,sizeof(RULEINFO));
             ruleParam->wStationNo = ptRule->m_wStationNo;
             ruleParam->btPointType = ptRule->m_wPointType;
             ruleParam->wPointNo = ptRule->m_wPointNo;
+            ruleParam->wAttr = 0;
+
+            ruleParam->btInsideType = (quint8)-1;
+            ruleParam->wOpenFormulaID = (quint16)-1;
+            ruleParam->wCloseFormulaID = (quint16)-1;
+            ruleParam->wOpenJXFormulaID = (quint16)-1;
+            ruleParam->wCloseJXFormulaID = (quint16)-1;
+            ruleParam->wStationNo = m_wStationNo;
+            ruleParam->wPointNo = m_wPointNo;
+            ruleParam->btPointType = m_wPointType;
+
 
             if(m_lpRuleDataCallBack)
             {
