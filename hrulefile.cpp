@@ -1199,10 +1199,6 @@ void HStationRuleList::reloadStationRule()
             ruleParam->wCloseFormulaID = (quint16)-1;
             ruleParam->wOpenJXFormulaID = (quint16)-1;
             ruleParam->wCloseJXFormulaID = (quint16)-1;
-            ruleParam->wStationNo = m_wStationNo;
-            ruleParam->wPointNo = m_wPointNo;
-            ruleParam->btPointType = m_wPointType;
-
 
             if(m_lpRuleDataCallBack)
             {
