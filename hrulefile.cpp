@@ -1213,7 +1213,7 @@ void HStationRuleList::reloadStationRule()
             }
 
             pStRule->m_strStationName = ruleParam->strStationName;
-            pStRule->m_strRuleFileName = QString("%1_%2.RUF").arg(ruleParam->strStationName).arg(ruleParam->wStationNo);
+            pStRule->m_strRuleFileName = QString("%1_%2").arg(ruleParam->strStationName).arg(ruleParam->wStationNo);
         }
     }
 }

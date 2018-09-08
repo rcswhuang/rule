@@ -173,7 +173,7 @@ public:
     quint16 m_wRuleFileID;//规则文件的的ID
     QList<HDeviceRule*> m_pProtRuleList;
     QString m_strStationName;
-    QString m_strRuleFileName;//厂站规则文件名称，测试厂站_0.fma
+    QString m_strRuleFileName;//厂站规则文件名称，测试厂站_0.RUF
 
 public:
     void clear();

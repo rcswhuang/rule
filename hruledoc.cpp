@@ -39,7 +39,7 @@ bool HRuleDoc::loadRuleFiles()
     if(!dirRulePath.exists())
         return false;
     QStringList filters;
-    filters<<"*.RUF";//RUL
+    filters<<"*.RUF";//RUL RLF
     dirRulePath.setNameFilters(filters);
     QFileInfoList iconsFileInfoList = dirRulePath.entryInfoList(QDir::Files  | QDir::NoDotAndDotDot);
     foreach(QFileInfo info,iconsFileInfoList)
@@ -93,7 +93,7 @@ bool HRuleDoc::saveRuleFiles()
             if(file.open(QIODevice::WriteOnly))
             {
                 QDataStream cbStream(&file);
-                cbStream.writeBytes(bytes.data(),bytes.length());
+                cbStream.writeRawData(bytes.data(),bytes.length());
                 file.close();
             }
         }
@@ -106,8 +106,8 @@ bool HRuleDoc::delRuleProFile(quint16 wStationNo)
     //先删除之前的规则文件
     QString wfPath = QProcessEnvironment::systemEnvironment().value("wfsystem_dir");
     wfPath.append("/rule");
-    if(m_pStationRuleList)
-        m_pStationRuleList->clear();
+    //if(m_pStationRuleList)
+    //    m_pStationRuleList->clear();
     QDir dirRulePath(wfPath);
     if(!dirRulePath.exists())
         return false;
@@ -232,7 +232,7 @@ HRuleFile* HRuleDoc::getRuleFile(quint16 wStationNo,quint16 wPointType,quint16 w
         stationRule = new HStationRule;
         stationRule->m_wStationNo = wStID;
         stationRule->m_strStationName = strStationName;
-        QString strRuleName = QString("%1_%2.fma").arg(strStationName).arg(wStationNo);
+        QString strRuleName = QString("%1_%2.RUF").arg(strStationName).arg(wStationNo);
         stationRule->m_strRuleFileName = strRuleName;
         m_pStationRuleList->addStationRule(stationRule);
     }
