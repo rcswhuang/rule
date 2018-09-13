@@ -681,6 +681,7 @@ void HDeviceRule::readData(int nVersion,QDataStream* ds)
     {
         HPointRule* ptRule = new HPointRule;
         ptRule->readData(nVersion,ds);
+        m_pPointRuleList.append(ptRule);
     }
     quint16 wRuleFileCount;
     *ds>>n16;
@@ -689,6 +690,7 @@ void HDeviceRule::readData(int nVersion,QDataStream* ds)
     {
         HRuleFile* rf = new HRuleFile;
         rf->readData(nVersion,ds);
+        m_pRuleFileList.append(rf);
     }
 }
 void HDeviceRule::writeData(int nVersion,QDataStream* ds)
@@ -918,6 +920,7 @@ void HStationRule::readData(int nVersion,QDataStream* ds)
     {
         HDeviceRule* protRule = new HDeviceRule;
         protRule->readData(nVersion,ds);
+        m_pProtRuleList.append(protRule);
     }
 }
 
