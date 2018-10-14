@@ -68,8 +68,9 @@ HRuleFile* HRuleFile::clone()
     QString clonePath = QProcessEnvironment::systemEnvironment().value("wfsystem_dir");
     clonePath.append("/temp/rule");
     QDir dir(clonePath);
+    bool bok = false;
     if(!dir.exists())
-        dir.mkdir(clonePath);
+        bok = dir.mkpath(clonePath);
     clonePath.append("/clone.tmp");
 
     QByteArray bytes;
@@ -107,7 +108,7 @@ void HRuleFile::copyTo(HRuleFile *rf)
     copyPath.append("/temp/rule");
     QDir dir(copyPath);
     if(!dir.exists())
-        dir.mkdir(copyPath);
+        dir.mkpath(copyPath);
     copyPath.append("/copy.tmp");
 
     QByteArray bytes;

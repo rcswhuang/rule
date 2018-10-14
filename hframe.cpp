@@ -575,7 +575,7 @@ QString HFrame::getClipboardFile()
     clipboardPath.append("/temp/rule");
     QDir dir(clipboardPath);
     if(!dir.exists())
-        dir.mkdir(clipboardPath);
+        dir.mkpath(clipboardPath);
     clipboardPath.append("/ruleclipboard.tmp");
     return clipboardPath;
 }

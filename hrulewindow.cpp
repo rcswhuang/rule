@@ -12,9 +12,7 @@
 #include <QProcessEnvironment>
 #include <QMessageBox>
 #include "hdrawtool.h"
-//#include "hbgprop.h"
 #include "hviewprop.h"
-//#include "hsimulateprop.h"
 #include "hrulefile.h"
 #include "hruledoc.h"
 extern LPRULEDATACALLBACK m_lpRuleDataCallBack;
